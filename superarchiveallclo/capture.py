@@ -69,11 +69,17 @@ def view_calibration(view, size, name):
 
 
 def source_evidence(source, view, name, photo_dir):
-    if "source_assets" not in view:
+    planar = view.get("calibration", {}).get("origin_type") == "planar_reference"
+    if "source_assets" not in view and not planar:
         return {}
-    assets = view["source_assets"]
-    if not isinstance(assets, dict) or assets.keys() - {"mask"} not in ({"rgb", "depth"}, {"rgb", "pcd"}):
-        raise ValueError(f"{name}: expected RGB with either depth or a registered PCD, optionally with a mask")
+    assets = view.get("source_assets")
+    error = f"{name}: expected original planar RGB, RGB-D or registered PCD evidence"
+    if not isinstance(assets, dict):
+        raise ValueError(error)
+    accepted = ({"rgb"},) if planar else ({"rgb", "depth"}, {"rgb", "pcd"},
+                                           {"rgb", "depth", "mask"}, {"rgb", "pcd", "mask"})
+    if assets.keys() not in accepted:
+        raise ValueError(error)
     source_root = (source.parent / "evidence").resolve()
     for key, asset in assets.items():
         original = (source.parent / asset["file"]).resolve()
@@ -88,6 +94,12 @@ def source_evidence(source, view, name, photo_dir):
             target.parent.mkdir(exist_ok=True)
             target.write_bytes(raw)
     return {"source_assets": assets}
+
+
+def capture_photo_hashes(views):
+    hashes = {view["sha256"] for view in views.values()}
+    hashes.update(view["source_assets"]["rgb"]["sha256"] for view in views.values() if "source_assets" in view)
+    return hashes
 
 
 def capture_observations(source, photo_dir=None, model_path=None, *, allow_partial=False, blind=False):

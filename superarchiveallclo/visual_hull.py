@@ -15,6 +15,7 @@ from PIL import Image, ImageDraw
 from scipy import ndimage
 from scipy.spatial import cKDTree
 
+from .capture import capture_photo_hashes
 from .check_archive import check_archive
 from .compare_shape import check_frame, read_mesh
 
@@ -192,7 +193,7 @@ def compare(archive, reference, output, *, blender="blender", step=5.0):
     if any(not name.isascii() or not name.replace("-", "").isalnum() for name in views):
         raise ValueError("Use alphanumeric view IDs with optional hyphens")
     hashes = [entry["photo_sha256"] for _, entry in views.values()]
-    inputs = {view["sha256"] for view in capture["views"].values()}
+    inputs = capture_photo_hashes(capture["views"])
     if len(hashes) != len(set(hashes)) or inputs.intersection(hashes):
         raise ValueError("Provide distinct reference photographs held out from garment reconstruction")
     volume, low = carve([view for view, entry in views.values() if entry["role"] == "carve"], step)

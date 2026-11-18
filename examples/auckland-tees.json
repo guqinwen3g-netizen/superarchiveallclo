@@ -100,6 +100,36 @@
         }
       }
     },
+    "stellenbosch": {
+      "setup": "Flat museum photographs of the same Stellenbosch crew-neck tee. The published center-back length scales the views. The separately published chest and shoulder widths are withheld from reconstruction.",
+      "assets": {
+        "stellenbosch-06.jpg": {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/5/54/T-shirt%2C_netball_%28AM_2017.66.37-6%29.jpg",
+          "catalogue_photo": "https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-6).jpg",
+          "sha256": "f93e2a0f385164e79a162b425a9e8fc370c2b941ce79181fa07abb5a835596ec"
+        },
+        "stellenbosch-07.jpg": {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/2/27/T-shirt%2C_netball_%28AM_2017.66.37-7%29.jpg",
+          "catalogue_photo": "https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-7).jpg",
+          "sha256": "476966fe3e630ac32ab4265ae66bead421c219ee9d59b52445a436e678f9549c"
+        }
+      },
+      "session": {
+        "schema_version": 1,
+        "item_id": "auckland-2017.66.37",
+        "kind": "physical",
+        "garment": "crew_neck_tee",
+        "views": {
+          "front": {"file": "stellenbosch-06.jpg", "scale": {"points": [[1780, 414], [1780, 3193]], "mm": 770, "basis_field": "back_length_mm", "source": "https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-6).jpg"}},
+          "back": {"file": "stellenbosch-07.jpg", "scale": {"points": [[2010, 304], [2010, 3211]], "mm": 770, "basis_field": "back_length_mm", "source": "https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-7).jpg"}}
+        },
+        "measurements": {
+          "back_length_mm": {"value": 770, "method": "catalogue_measurement", "source": "https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-6).jpg"},
+          "flat_chest_mm": {"value": 610, "method": "catalogue_measurement", "source": "https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-6).jpg"},
+          "garment_shoulder_width_mm": {"value": 590, "method": "catalogue_measurement", "source": "https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-6).jpg"}
+        }
+      }
+    },
     "netball": {
       "setup": "Flat museum photographs. Calibrated to the published center-back length of 690 mm. Sleeve shape may differ between captures.",
       "assets": {

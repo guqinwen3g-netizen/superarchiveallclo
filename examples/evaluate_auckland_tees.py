@@ -111,11 +111,11 @@ def evaluate_case(case, output, blender, rights, *, measure_body=False):
 def main():
     parser = ArgumentParser(description=__doc__)
     parser.add_argument("-o", "--output", required=True, type=Path)
-    parser.add_argument("--case", choices=("netball", "peace"), help="Run only the specified physical garment")
+    document = json.loads(SOURCE.read_bytes())
+    parser.add_argument("--case", choices=document["cases"], help="Run only the specified physical garment")
     parser.add_argument("--blender", default="blender")
     parser.add_argument("--body-profile", action="store_true", help="Measure chest and hem from each paired silhouette")
     args = parser.parse_args()
-    document = json.loads(SOURCE.read_bytes())
     rights = f'{document["photo_attribution"]}, {document["license"]}, {document["license_url"]}'
     for name, case in document["cases"].items():
         if args.case is None or args.case == name:

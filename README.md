@@ -28,7 +28,9 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 已注册的彩照与深度图可用 `superarchiveallclo.rgbd` 校正俯拍透视并生成归档。原始 RGB、深度和可选分割图随归档保存。[输入与标定说明](docs/capture.md#已注册的深度照片) · [真实 RGB-D 样本实验](docs/rgbd-study.md)
 
-同一入口也能读入与彩照逐像素对应的 XYZ 点云并恢复毫米纸样。已用另一帧实物 Kinect 点云核对同版平铺 3D。[IRI UPC-CSIC 实物复扫](docs/iri-pcd-study.md)
+斜拍的普通照片可用 `superarchiveallclo.rectify` 和四个共面的实测矩形标记恢复毫米俯视图，再运行同一套照片制板和 3D 流程。[采集及运行](docs/capture.md#斜拍与四点平面标定) · [馆藏正背照倾斜实验](docs/planar-rectification-study.md)
+
+深度入口也能读入与彩照逐像素对应的 XYZ 点云并恢复毫米纸样。已用另一帧实物 Kinect 点云核对同版平铺 3D。[IRI UPC-CSIC 实物复扫](docs/iri-pcd-study.md)
 
 真实正背照已用于候选纸样归档、留出的馆方尺寸评分及同版平铺 GLB 的投影对照。[两件奥克兰博物馆藏品实验](docs/paired-photo-study.md)
 
@@ -38,7 +40,7 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 一条命令可从奥克兰馆藏正背原照重跑盲测、毫米 DXF、同版 3D、独立挂拍外包络和局部三维点对照。[完整实物实验与复现](docs/photo-landmark-study.md)
 
-双面采集可分别恢复腋下胸宽与下摆宽，把侧缝收窄或放宽的幅度写入毫米纸样及同版仿真。[两件实物的衣身宽度对照](docs/body-profile-study.md)
+双面采集可分别恢复腋下胸宽与下摆宽，把侧缝收窄或放宽的幅度写入毫米纸样及同版仿真。不同宽松度的实物已用馆方胸宽和肩宽做盲测。[衣身宽度对照](docs/body-profile-study.md) · [馆藏正背照与尺寸](docs/paired-photo-study.md)
 
 展台仿真可以使用无臂人台的接触支撑。对照报告记录模型随高度变化的前后深度，以及导出时布料的位移。[同版垂坠对照](docs/drape-support-study.md)
 

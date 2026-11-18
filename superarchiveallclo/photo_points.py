@@ -12,6 +12,7 @@ from ezdxf import DXFError
 import numpy as np
 from PIL import Image, ImageDraw
 
+from .capture import capture_photo_hashes
 from .check_archive import check_archive
 from .compare_shape import check_frame, read_mesh
 from .visual_hull import AXES
@@ -203,7 +204,7 @@ def compare(archive, reference, observations, output, *, blender="blender"):
     photos = {name: (reference.parent / entry["photo"]).read_bytes() for name, entry in metadata.items()}
     views = {name: read_point_view(photos[name], entry, size) for name, entry in metadata.items()}
     hashes = [entry["photo_sha256"] for entry in metadata.values()]
-    if len(set(hashes)) != len(hashes) or set(hashes) & {view["sha256"] for view in capture["views"].values()}:
+    if len(set(hashes)) != len(hashes) or set(hashes) & capture_photo_hashes(capture["views"]):
         raise ValueError("Reference photographs must be distinct and withheld from the paper reconstruction")
     axes = labels.get("exif_focal_plane_axes")
     if axes not in (None, "image", "landscape_sensor"):

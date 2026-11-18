@@ -11,7 +11,7 @@ from ezdxf import DXFError
 import numpy as np
 from PIL import Image, ImageOps
 
-from .capture import view_calibration
+from .capture import capture_photo_hashes, view_calibration
 from .check_archive import check_archive, glb_inventory
 from .compare_flat import run_flat_pose, sleeve_angle_from_cuffs
 from .compare_shape import compare_masks, metric_mask, project
@@ -51,7 +51,7 @@ def compare(archive, reference, output, blender="blender"):
     pattern = (archive / "pattern/pattern.json").read_bytes()
     if sha256(pattern).hexdigest() != integrity["pattern_sha256"]:
         raise ValueError("Pattern changed during archive verification")
-    raw_inputs = {view["sha256"] for view in capture["views"].values()}
+    raw_inputs = capture_photo_hashes(capture["views"])
     processed_inputs = {view["processed_image_sha256"]
                         for view in capture.get("inference", {}).get("scale_evidence", {}).values()}
     references = {}
