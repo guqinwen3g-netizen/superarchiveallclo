@@ -25,13 +25,15 @@ CASES = {
 }
 
 
-def evaluate(output, blender, *, case_name="netball"):
+def evaluate(output, blender, *, case_name="netball", measure_sleeve=False):
     config = CASES[case_name]
     data = output / "input"
     data.mkdir(parents=True, exist_ok=True)
     sources = json.loads(tees.SOURCE.read_bytes())
     case = sources["cases"][case_name]
     session = {**case["session"], "body_profile": "paired_silhouette"}
+    if measure_sleeve:
+        session["sleeve_profile"] = "paired_cuff_span"
     item = session["item_id"]
     for filename, asset in case["assets"].items():
         tees.source_photo(data / filename, asset)
@@ -87,8 +89,9 @@ def main():
     parser.add_argument("-o", "--output", type=Path, required=True)
     parser.add_argument("--blender", default="blender")
     parser.add_argument("--case", choices=CASES, default="netball")
+    parser.add_argument("--sleeve-profile", action="store_true", help="Constrain sleeve length using both cuff spans")
     args = parser.parse_args()
-    print(f"Wrote {evaluate(args.output, args.blender, case_name=args.case)}")
+    print(f"Wrote {evaluate(args.output, args.blender, case_name=args.case, measure_sleeve=args.sleeve_profile)}")
 
 
 if __name__ == "__main__":

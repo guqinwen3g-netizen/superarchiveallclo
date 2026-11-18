@@ -4,7 +4,9 @@ from unittest import TestCase
 import numpy as np
 
 from examples.evaluate_flat_landmarks import fixture
-from superarchiveallclo.flat_measurements import compatible_scan_sleeve_length, draft_constraints, flat_landmarks, sleeve_layout
+from superarchiveallclo.flat_measurements import (
+    compatible_scan_sleeve_length, draft_constraints, flat_landmarks, paired_cuff_span, sleeve_layout,
+)
 from superarchiveallclo.tee import TeeSpec, body_panel, cap_dimensions, draft
 from superarchiveallclo.vision import FIELDS
 
@@ -68,6 +70,18 @@ class FlatLandmarkTest(TestCase):
         self.assertIsNone(reason)
         self.assertEqual(sources["sleeve_length_mm"], "scan_cuff_span")
         self.assertAlmostEqual(estimates["sleeve_length_mm"], part.sleeve_length_mm, delta=0.15)
+
+        photo = {"cuff_span_landmarks": {"cuffs": cuffs}}
+        estimates, report = paired_cuff_span(prior, {"front": photo, "back": photo})
+        self.assertEqual(report["sources"], {"sleeve_length_mm": "paired_cuff_span"})
+        self.assertAlmostEqual(estimates["sleeve_length_mm"], part.sleeve_length_mm, delta=0.15)
+        different = dict(cuffs)
+        right = cuffs["image_right"]
+        different["image_right"] = {**right, **{name: [right[name][0] + 65, right[name][1]]
+                                                for name in ("outer_mm", "inner_mm")}}
+        estimates, report = paired_cuff_span(prior, {"front": photo, "back": {"cuff_span_landmarks": {"cuffs": different}}})
+        self.assertEqual(estimates, {})
+        self.assertIn("disagree", report["reason"])
 
     def test_folded_cuffs_preserve_scale_with_rotation_and_different_sleeve_poses(self):
         for seed in (1, 2, 6):

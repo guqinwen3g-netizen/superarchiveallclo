@@ -181,6 +181,21 @@ class LabelledDatasetTest(TestCase):
         self.assertEqual(spec.flat_hem_mm, capture["measurements"]["flat_hem_mm"]["value"])
         verify_prediction(capture, sample, vision, result)
 
+    def test_optional_sleeve_profile_is_identical_in_scoring_and_archive(self):
+        entry = self.entry("sleeve-profile", "style-sleeve", "test")
+        session = self.root / entry["session"]
+        source = json.loads(session.read_text())
+        source["sleeve_profile"] = "paired_cuff_span"
+        session.write_text(json.dumps(source), encoding="utf8")
+        samples, _ = load_dataset(self.manifest(entry))
+        weights = ROOT / "models/tee-vision.npz"
+        vision = TeeVision(weights)
+        result = evaluate(samples, vision)[samples[0].kind]["items"][0]
+        capture, _ = load_capture(session, model_path=weights, blind=True)
+        self.assertIn("length_by_view_mm", result["sleeve_profile"])
+        self.assertEqual(result["sleeve_profile"], capture["inference"]["sleeve_profile"])
+        verify_prediction(capture, samples[0], vision, result)
+
     def test_test_item_cannot_reuse_a_photo_recorded_in_weights(self):
         samples, _ = load_dataset(self.manifest(self.entry("cross-manifest", "holdout-group", "test")))
         weights = self.root / "previous.npz"

@@ -110,7 +110,7 @@ def prepare(source, output, *, weights=None, blender="blender", mm_per_pixel=1.0
         raise ValueError("Capture kind must be physical or synthetic_fixture")
     session = {"schema_version": 1, "kind": kind, "garment": "crew_neck_tee", "item_id": item_id,
                "input_mode": "paired" if "back" in views else "front_only", "views": {}}
-    for key in ("body_profile", "material"):
+    for key in ("body_profile", "sleeve_profile", "material"):
         if key in record:
             session[key] = record[key]
 

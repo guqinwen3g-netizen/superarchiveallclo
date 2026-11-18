@@ -12,7 +12,7 @@ from scipy import ndimage
 from scipy.spatial import ConvexHull, QhullError
 
 from . import body_profile
-from .flat_measurements import compatible_scan_sleeve_length, draft_constraints, flat_landmarks
+from .flat_measurements import compatible_scan_sleeve_length, draft_constraints, flat_landmarks, paired_cuff_span
 
 # The card is a 100 mm square of solid magenta printed at actual size.
 CARD_MM = 100.0
@@ -141,7 +141,7 @@ def picture_silhouette(image, view=None, *, outer_only=False):
     return image, crop, bounds, mm_per_px, scale
 
 
-def picture_features(image, view=None, *, measure_body=False):
+def picture_features(image, view=None, *, measure_body=False, measure_sleeve=False):
     """Return metric dimensions and crop-relative silhouette descriptors."""
     image, crop, bounds, mm_per_px, scale = picture_silhouette(image, view)
     width, height = image.size
@@ -167,8 +167,12 @@ def picture_features(image, view=None, *, measure_body=False):
         "garment_box_mm": [round(actual_width, 2), round(actual_height, 2)],
         "lower_torso_width_mm": round(torso, 2),
     }
-    if measure_body:
-        evidence["torso_profile"] = body_profile.observe(ndimage.binary_fill_holes(crop), mm_per_px)
+    if measure_body or measure_sleeve:
+        outer = ndimage.binary_fill_holes(crop)
+        if measure_body:
+            evidence["torso_profile"] = body_profile.observe(outer, mm_per_px)
+        if measure_sleeve:
+            evidence["cuff_span_landmarks"] = flat_landmarks(outer, mm_per_px, torso)
     if view and view.get("calibration", {}).get("type") == "metric_orthographic_point_cloud":
         center = crop[:, w // 3:2 * w // 3]
         center = center[:, center.any(axis=0)]
@@ -216,10 +220,11 @@ def unscaled_pair(front, back):
     }
 
 
-def paired_features(front, back, views=None, *, measure_body=False):
+def paired_features(front, back, views=None, *, measure_body=False, measure_sleeve=False):
     views = views or {}
-    front_features, front_scale = picture_features(front, views.get("front"), measure_body=measure_body)
-    back_features, back_scale = picture_features(back, views.get("back"), measure_body=measure_body)
+    options = {"measure_body": measure_body, "measure_sleeve": measure_sleeve}
+    front_features, front_scale = picture_features(front, views.get("front"), **options)
+    back_features, back_scale = picture_features(back, views.get("back"), **options)
     if front_scale["processed_image_sha256"] == back_scale["processed_image_sha256"]:
         raise ValueError("Provide two distinct photographs, one front and one back")
     if not have_consistent_dimensions(front_scale, back_scale):
@@ -235,6 +240,14 @@ def have_consistent_dimensions(front, back):
         if min(a, b) <= 0 or max(a, b) / min(a, b) > 1.12:
             return False
     return True
+
+
+def apply_sleeve_profile(measures, bounded, scale):
+    if "cuff_span_landmarks" not in scale["front"]:
+        return bounded, None
+    updates, evidence = paired_cuff_span(measures, scale)
+    measures.update(updates)
+    return [field for field in bounded if field not in updates], evidence
 
 
 class TeeVision:
@@ -267,15 +280,15 @@ class TeeVision:
                 frozenset(data["labelled_training_photos"]) if "labelled_training_photos" in data else None
             )
 
-    def estimate(self, front, back=None, views=None, *, measure_body=False):
+    def estimate(self, front, back=None, views=None, *, measure_body=False, measure_sleeve=False):
         if self.view_mode == "front":
-            if back is not None or measure_body:
-                raise ValueError("Use paired model weights for a front/back capture and torso profiling")
+            if back is not None or measure_body or measure_sleeve:
+                raise ValueError("Use paired model weights for a front/back capture and silhouette profiling")
             features, evidence = picture_features(front, (views or {}).get("front"))
             scale = {"front": evidence}
             method = "learned_front_silhouette_ridge"
         else:
-            features, scale = paired_features(front, back, views, measure_body=measure_body)
+            features, scale = paired_features(front, back, views, measure_body=measure_body, measure_sleeve=measure_sleeve)
             method = "learned_paired_silhouette_ridge"
         measures, bounded, profile = self.infer_features(features, scale)
         inference = {
@@ -287,6 +300,8 @@ class TeeVision:
         }
         if profile is not None:
             inference["body_profile"] = profile
+        if measure_sleeve:
+            inference["bounded_fields"], inference["sleeve_profile"] = apply_sleeve_profile(measures, bounded, scale)
         if self.view_mode == "front" and "shoulder_level_to_hem_mm" in scale["front"]:
             constrained, methods, reason = draft_constraints(measures, scale["front"])
             length = compatible_scan_sleeve_length(measures, constrained)
@@ -303,6 +318,7 @@ class TeeVision:
 
     def estimate_features(self, features, scale):
         measures, bounded, _ = self.infer_features(features, scale)
+        bounded, _ = apply_sleeve_profile(measures, bounded, scale)
         return measures, bounded
 
     def infer_features(self, features, scale):

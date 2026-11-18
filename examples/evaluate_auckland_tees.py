@@ -65,7 +65,7 @@ def neckline_sensitivity(case, data):
     }
 
 
-def evaluate_case(case, output, blender, rights, *, measure_body=False):
+def evaluate_case(case, output, blender, rights, *, measure_body=False, measure_sleeve=False):
     data = output / "data"
     data.mkdir(parents=True, exist_ok=True)
     for filename, photo in case["assets"].items():
@@ -73,6 +73,8 @@ def evaluate_case(case, output, blender, rights, *, measure_body=False):
     session = dict(case["session"])
     if measure_body:
         session["body_profile"] = "paired_silhouette"
+    if measure_sleeve:
+        session["sleeve_profile"] = "paired_cuff_span"
     reference = write_json(data / "reference.json", {
         "schema_version": 1, "item_id": session["item_id"], "kind": session["kind"], "setup": case["setup"],
         "views": {name: session["views"][name] for name in ("front", "back")},
@@ -99,6 +101,7 @@ def evaluate_case(case, output, blender, rights, *, measure_body=False):
             **session, "input_mode": "front_only", "views": {"front": session["views"]["front"]},
         }
         single_session.pop("body_profile", None)
+        single_session.pop("sleeve_profile", None)
         front = write_json(data / "front-only.json", single_session)
         single = output / "single-front"
         archive(front, single, blender, FRONT_WEIGHTS, blind=True)
@@ -115,11 +118,13 @@ def main():
     parser.add_argument("--case", choices=document["cases"], help="Run only the specified physical garment")
     parser.add_argument("--blender", default="blender")
     parser.add_argument("--body-profile", action="store_true", help="Measure chest and hem from each paired silhouette")
+    parser.add_argument("--sleeve-profile", action="store_true", help="Constrain sleeve length using both cuff spans")
     args = parser.parse_args()
     rights = f'{document["photo_attribution"]}, {document["license"]}, {document["license_url"]}'
     for name, case in document["cases"].items():
         if args.case is None or args.case == name:
-            evaluate_case(case, args.output / name, args.blender, rights, measure_body=args.body_profile)
+            evaluate_case(case, args.output / name, args.blender, rights, measure_body=args.body_profile,
+                          measure_sleeve=args.sleeve_profile)
             print(f"Wrote {args.output / name / 'study.json'}")
 
 

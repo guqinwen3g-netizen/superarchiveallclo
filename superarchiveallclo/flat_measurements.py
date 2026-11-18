@@ -214,6 +214,31 @@ def sleeve_length_from_span(spec, cuffs):
     return length if 0.17 * spec.flat_chest_mm <= length <= 0.60 * spec.flat_chest_mm else None
 
 
+def paired_cuff_span(measures, views):
+    """Change sleeve length only when the two flat photographs corroborate the span."""
+    field = "sleeve_length_mm"
+    spec = TeeSpec(**measures)
+    readings = {}
+    for view, evidence in views.items():
+        cuffs = evidence.get("cuff_span_landmarks", {}).get("cuffs")
+        length = sleeve_length_from_span(spec, cuffs) if cuffs else None
+        readings[view] = round(length, 3) if length is not None else None
+    report = {"status": "kept_prior", "regression_before_mm": measures[field], "length_by_view_mm": readings}
+    if readings.get("front") is None or readings.get("back") is None:
+        return {}, {**report, "reason": "Both views need valid bilateral cuff geometry"}
+    short, long = sorted((readings["front"], readings["back"]))
+    if long - short > max(10, 0.06 * short):
+        return {}, {**report, "reason": "The two views disagree on sleeve length"}
+    length = round((short + long) / 2, 3)
+    updated = TeeSpec(**{**measures, field: length})
+    try:
+        updated.check()
+        sleeve_panels(updated, body_panel(updated, True), body_panel(updated, False))
+    except ValueError as error:
+        return {}, {**report, "reason": str(error)}
+    return {field: length}, {**report, "status": "applied", "sources": {field: "paired_cuff_span"}}
+
+
 def draft_constraints(measures, evidence):
     """Constrain observed lengths while retaining priors for hidden seam geometry."""
     updates = {

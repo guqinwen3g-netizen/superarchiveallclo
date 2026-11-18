@@ -119,6 +119,9 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
     measure_body = "body_profile" in capture
     if measure_body and (capture["body_profile"] != "paired_silhouette" or mode != "paired"):
         raise ValueError("The paired_silhouette body profile requires front and back views")
+    measure_sleeve = "sleeve_profile" in capture
+    if measure_sleeve and (capture["sleeve_profile"] != "paired_cuff_span" or mode != "paired"):
+        raise ValueError("The paired_cuff_span sleeve profile requires front and back views")
     required = {"front"} if mode == "front_only" else {"front", "back"}
     views = capture["views"]
     if not isinstance(views, dict) or not required.issubset(views):
@@ -161,7 +164,9 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
                 predicted, inference = TeeVision(model_path, "front").estimate(front, views=archived)
             else:
                 with Image.open(paths["back"]) as back:
-                    predicted, inference = TeeVision(model_path).estimate(front, back, archived, measure_body=measure_body)
+                    predicted, inference = TeeVision(model_path).estimate(
+                        front, back, archived, measure_body=measure_body, measure_sleeve=measure_sleeve,
+                    )
 
     values, provenance = {}, {}
     supplied = {} if blind else capture.get("measurements", {})
@@ -177,6 +182,8 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
                     method = inference["scan_constraint_sources"][name]
                 elif name in inference.get("body_profile", {}).get("sources", {}):
                     method = inference["body_profile"]["sources"][name]
+                elif name in inference.get("sleeve_profile", {}).get("sources", {}):
+                    method = inference["sleeve_profile"]["sources"][name]
                 elif mode == "front_only" and name == "back_neck_depth_mm":
                     method = "learned_prior"
                 else:
@@ -222,6 +229,8 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
         manifest["inference"] = inference
     if measure_body:
         manifest["body_profile"] = capture["body_profile"]
+    if measure_sleeve:
+        manifest["sleeve_profile"] = capture["sleeve_profile"]
     if mode == "front_only":
         manifest["input_mode"] = mode
         manifest["review"] = "Single-sided candidate. Back geometry and hidden construction await independent evidence."

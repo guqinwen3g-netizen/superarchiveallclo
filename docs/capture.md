@@ -107,6 +107,8 @@ python -m superarchiveallclo.rgbd rgbd.json \
 
 对侧缝近似直线、腋下与下摆都可见的照片，可在采集文件顶层填 `"body_profile": "paired_silhouette"`，由双面模型分别估计胸宽和下摆宽。两面估计相符并通过配缝时，纸样会使用两种宽度。归档保留轮廓取点和来源。证据不足时使用基础模型。也可直接提供可信的 `flat_hem_mm`。[衣身轮廓实物实验](body-profile-study.md)
 
+两张平铺照均拍到完整的左右袖口时，可填 `"sleeve_profile": "paired_cuff_span"`。模型从每张照的两个袖口方向和横跨估算袖长，两面的估算接近且能配缝时用于制板。归档保留每面估算值和原回归值。遮挡、两面不一致或几何不相容时沿用回归。[袖长与实拍对照](stellenbosch-drape-study.md#用双面袖口约束袖长)
+
 ## 交付与验收
 
 - **原件证据**存放在 `photos/` 和 `capture.json`。包括原图 SHA-256、标定点、尺寸证据及参考值。

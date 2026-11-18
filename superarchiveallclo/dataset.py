@@ -13,7 +13,7 @@ from PIL import Image
 
 from .capture import OPTIONAL_MEASUREMENTS, capture_observations
 from .tee import TeeSpec, draft
-from .vision import FIELDS, TeeVision, paired_features
+from .vision import FIELDS, TeeVision, apply_sleeve_profile, paired_features
 
 SPLITS = ("train", "validation", "test")
 
@@ -107,8 +107,10 @@ def load_dataset(path: Path):
             photographs.append(photo)
         try:
             with Image.open(BytesIO(photographs[0])) as front, Image.open(BytesIO(photographs[1])) as back:
-                features, evidence = paired_features(front, back, capture["views"],
-                                                     measure_body=capture.get("body_profile") == "paired_silhouette")
+                features, evidence = paired_features(
+                    front, back, capture["views"], measure_body=capture.get("body_profile") == "paired_silhouette",
+                    measure_sleeve=capture.get("sleeve_profile") == "paired_cuff_span",
+                )
         except (ValueError, OSError) as reason:
             features, evidence, error = None, None, str(reason)
         else:
@@ -165,6 +167,7 @@ def evaluate(samples, vision):
             continue
         try:
             estimated, bounded, profile = vision.infer_features(item.features, item.evidence)
+            bounded, sleeve_profile = apply_sleeve_profile(estimated, bounded, item.evidence)
         except ValueError as error:
             result.update(status="model_rejected", reason=str(error))
             continue
@@ -175,6 +178,8 @@ def evaluate(samples, vision):
         )
         if profile is not None:
             result["body_profile"] = profile
+        if sleeve_profile is not None:
+            result["sleeve_profile"] = sleeve_profile
         try:
             pattern = draft(TeeSpec(
                 body_chest_mm=None, body_shoulder_width_mm=None, shoulder_extension_mm=None, **estimated,
