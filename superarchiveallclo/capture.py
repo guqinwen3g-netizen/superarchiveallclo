@@ -19,7 +19,7 @@ from .check_archive import check_archive
 from .cloth_material import material_bending, material_mass
 from .export import write_exports
 from .landmark_vision import SCOPE as LANDMARK_SCOPE, TeeLandmarkVision
-from .reference_form import arm_angle
+from .reference_form import arm_angle, display_neck, initial_sleeve_angle
 from .shoulder_seams import refine_width
 from .tee import TeeSpec, draft
 from .vision import FIELDS, TeeVision
@@ -272,12 +272,18 @@ def load_capture(source, photo_dir=None, model_path=None, *, blind=False, landma
 
 def archive(source, output, blender, model_path=None, *, blind=False, form="torso_with_arms", drape_frames=None,
             photo_appearance=False, arm_angle_deg=None, landmark_model_path=None, fit_sleeve_span=False,
-            fit_shoulder_seams=False, fit_armhole=False):
+            fit_shoulder_seams=False, fit_armhole=False, display_neck_path=None, initial_sleeve_angle_deg=None):
     if output.exists():
         raise ValueError(f"Output already exists: {output}")
     if drape_frames is not None and (type(drape_frames) is not int or drape_frames < 2):
         raise ValueError("Drape requires at least two frames")
     angle = arm_angle(form, arm_angle_deg)
+    sleeve_angle = initial_sleeve_angle(form, initial_sleeve_angle_deg)
+    neck_bytes = display_neck_path.read_bytes() if display_neck_path is not None else None
+    if neck_bytes is not None:
+        display_neck(json.loads(neck_bytes))
+        if form != "display_torso":
+            raise ValueError("A measured display neck requires the display_torso reference form")
     output.parent.mkdir(parents=True, exist_ok=True)
     script = Path(__file__).resolve().with_name("simulate.py")
     with TemporaryDirectory(dir=output.parent) as temporary:
@@ -306,12 +312,18 @@ def archive(source, output, blender, model_path=None, *, blind=False, form="tors
         export_dxf(pattern, bundle / "pattern" / "pattern.dxf")
         model = bundle / "model"
         model.mkdir()
+        neck_options = []
+        if neck_bytes is not None:
+            measured_neck = model / "display-neck.json"
+            measured_neck.write_bytes(neck_bytes)
+            neck_options = ["--display-neck", str(measured_neck)]
         if photo_appearance:
             build_appearance(bundle, manifest, pattern)
         with (model / "blender.log").open("w", encoding="utf8") as log:
             frame_options = [] if drape_frames is None else ["--frames", str(drape_frames)]
             photo_options = ["--photo-appearance"] if photo_appearance else []
             arm_options = [] if arm_angle_deg is None else ["--arm-angle", str(angle)]
+            sleeve_options = [] if initial_sleeve_angle_deg is None else ["--initial-sleeve-angle", str(sleeve_angle)]
             mass = material_mass(manifest.get("material"))
             mass_options = [] if mass is None else ["--garment-mass-kg", str(mass["kg"])]
             bending = material_bending(manifest.get("material"))
@@ -319,7 +331,7 @@ def archive(source, output, blender, model_path=None, *, blind=False, form="tors
             result = run([
                 blender, "-b", "--factory-startup", "--python-exit-code", "1", "--python", str(script),
                 "--", str(bundle / "pattern" / "pattern.json"), str(model), form, *frame_options, *photo_options,
-                *arm_options, *mass_options, *bending_options,
+                *arm_options, *mass_options, *bending_options, *neck_options, *sleeve_options,
             ], stdout=log, stderr=log, check=False)
         if result.returncode or not all((model / name).is_file() for name in (
             "garment.glb", "garment.blend", "simulation.json", "front.png", "back.png", "three-quarter.png",
@@ -345,13 +357,16 @@ def main():
                         help="Collision support used for the draped GLB and Blender scene")
     parser.add_argument("--drape-frames", type=int, help="End frame for Blender Cloth; default 38")
     parser.add_argument("--arm-angle", type=float, help="Symmetric upper-arm support angle from vertical in degrees")
+    parser.add_argument("--display-neck", type=Path, help="Measured lateral width and pitch of a display torso neck")
+    parser.add_argument("--initial-sleeve-angle", type=float, help="Initial sleeve angle from vertical on the display torso")
     parser.add_argument("--photo-appearance", action="store_true", help="Transfer visible fabric from paired photographs")
     args = parser.parse_args()
     try:
         archive(args.session, args.output, args.blender, args.model, blind=args.blind, form=args.form,
                 drape_frames=args.drape_frames, photo_appearance=args.photo_appearance, arm_angle_deg=args.arm_angle,
                 landmark_model_path=args.landmarks_model, fit_sleeve_span=args.fit_sleeve_span,
-                fit_shoulder_seams=args.fit_shoulder_seams, fit_armhole=args.fit_armhole)
+                fit_shoulder_seams=args.fit_shoulder_seams, fit_armhole=args.fit_armhole,
+                display_neck_path=args.display_neck, initial_sleeve_angle_deg=args.initial_sleeve_angle)
     except (ValueError, TypeError, KeyError, OSError, UnidentifiedImageError, DXFError) as error:
         parser.error(str(error))
     print(f"Wrote {args.output}")

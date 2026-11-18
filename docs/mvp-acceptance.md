@@ -131,6 +131,7 @@ python -m superarchiveallclo.compare_shape build/tee-01 \
 - Open+Pattern 提供 CC BY 4.0 的 T 恤 DXF、CLO 文件和 GLB，其公开产品页列出的图像为插图。可用于独立制板参考。[Open+Pattern](https://openpattern.io/product/standard-fit-t-shirt/)
 - ClothingTwin 用 103 台相机分别拍摄一件实物 T 恤的内外层。论文使用这些照片做定性验证。已核对 Eurographics 原始附件列表，只有论文 PDF。原始相机图像、实测三维和纸样的公开下载入口尚未找到。[论文及出版档案](https://diglib.eg.org/items/620dac4b-eb3f-4fe1-adee-eacaec0c0632)
 - MV-Fashion v0.4 配对了穿着多视图、平铺商品图和服装尺寸，保留 60 台 RGB 相机的内外参，外参平移单位为毫米。发布方因同步与深度质量暂停了该版本的 Bolt RGB-D 数据，正式数据仍需由巴塞罗那大学核验协议和身份后授权。本项目尚未取得样本。[v0.4 数据卡与变更](https://huggingface.co/datasets/MV-Fashion/MV-Fashion/blob/v0.4/README.md)
+- TexSortML v4 提供 56 件实物 T 恤的逐件编号和三个状态的俯视图，许可为 CC BY-NC 4.0。已读取 ZIP 索引中的 168 张分阶段照片，并解码同一编号的三个 730 × 730 原始画面，实际包含摊展、旋转褶叠和团状摆放。资料适合验证采集质量与遮挡识别，正背身份、实测尺寸和三维深度仍需其他来源。[数据发布与许可](https://zenodo.org/records/22143896) · [采集说明](https://doi.org/10.3390/s26196236)
 - Smithsonian 藏品 `nmah_460141` 有馆方标注的同件正背照片和整体尺寸 63.50 × 68.58 × 5.08 cm。该页面的 CC0 适用于目录元数据，照片另列使用条件。已核查目录和照片标注。[Smithsonian 藏品记录](https://www.si.edu/object/t-shirt:nmah_460141)
 - Wikimedia Commons 的鹿儿岛 OpenStreetMap 调查 T 恤提供同件正背图，许可为 CC BY-SA 4.0。已验证可见衣身的相对比例，并检查到袖缘贴图边。该对照还需要可信尺度和独立原件尺寸。[正背照报告](sleeve-join-study.md#有授权的同件正背照)
 - 奥克兰博物馆的三件圆领 T 恤提供 CC BY 4.0 的同件正背照。一件带独立标尺，两件带馆方尺寸、独立内部结构照和额外的近正交挂拍。已生成候选归档，并从两件的挂拍估计毫米外包络和少量三维对应点。第一件已有基于实物标尺和人台的相机标定，9 个局部点均通过两张留出照检查。原版纸样、缝份和直接三维布面测量仍待核对。[正背照盲测](paired-photo-study.md) · [第一件相机标定与三维对照](auckland-stand-study.md) · [第二件三维对照](stellenbosch-drape-study.md)

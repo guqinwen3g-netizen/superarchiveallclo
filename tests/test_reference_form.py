@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from superarchiveallclo.reference_form import arm_angle, upper_arm
+from superarchiveallclo.reference_form import arm_angle, display_neck, initial_sleeve_angle, orient_display_neck, upper_arm
 
 
 class UpperArmSupportTest(TestCase):
@@ -24,3 +24,29 @@ class UpperArmSupportTest(TestCase):
         for invalid in (-1, 91, float("inf"), True):
             with self.assertRaisesRegex(ValueError, "between 0 and 90"):
                 arm_angle("torso_with_arms", invalid)
+
+
+class DisplayNeckSupportTest(TestCase):
+    def test_forward_pitch_preserves_top_datum_and_lower_torso(self):
+        top = 1.62
+        self.assertEqual(orient_display_neck((0, 0, top), top, 22), (0, 0, top))
+        self.assertEqual(orient_display_neck((.1, -.1, 1.35), top, 22), (.1, -.1, 1.35))
+        x, y, z = orient_display_neck((.1, 0, 1.56), top, 22)
+        self.assertEqual(x, .1)
+        self.assertGreater(y, 0)
+        self.assertGreater(z, 1.56)
+
+    def test_display_profile_requires_observed_provenance_and_units(self):
+        profile = {"schema_version": 1, "pitch_forward_deg": 22, "lateral_width_mm": 101,
+                   "source": "Opposing calibrated stand photographs"}
+        self.assertEqual(display_neck(profile), profile)
+        for invalid in ({"pitch_forward_deg": float("nan")}, {"lateral_width_mm": .101}, {"source": " "}):
+            with self.assertRaises(ValueError):
+                display_neck({**profile, **invalid})
+
+    def test_vertical_initialization_is_explicit_and_restricted_to_the_display_form(self):
+        self.assertEqual(initial_sleeve_angle("torso_only", None), 45)
+        self.assertEqual(initial_sleeve_angle("display_torso", None), 20)
+        self.assertEqual(initial_sleeve_angle("display_torso", 0), 0)
+        with self.assertRaisesRegex(ValueError, "requires the display_torso"):
+            initial_sleeve_angle("torso_with_arms", 0)

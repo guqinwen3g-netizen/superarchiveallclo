@@ -20,7 +20,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from superarchiveallclo.cloth_material import REFERENCE_BENDING_STIFFNESS
 from superarchiveallclo.mesh_openings import boundary_loops, sewn_opening_perimeters
 from superarchiveallclo.pattern import Edge
-from superarchiveallclo.reference_form import DEFAULT_ARM_ANGLE_DEG, arm_angle, upper_arm
+from superarchiveallclo.reference_form import (
+    DEFAULT_ARM_ANGLE_DEG, arm_angle, display_neck, initial_sleeve_angle, orient_display_neck, upper_arm,
+)
 
 STEP_MM = 13
 NECK_Z = 1.52
@@ -401,7 +403,7 @@ def collider(name, location, scale, direction=None):
     return form
 
 
-def add_form(pattern, *, with_arms=True, arm_angle_deg=DEFAULT_ARM_ANGLE_DEG):
+def add_form(pattern, *, with_arms=True, arm_angle_deg=DEFAULT_ARM_ANGLE_DEG, neck=None):
     flat_chest = pattern["measurements"]["flat_chest_mm"] / 1000
     length = pattern["measurements"]["back_center_length_mm"] / 1000
     # Neck, shoulders, chest, waist and hip heights on a neutral fitting form.
@@ -418,6 +420,12 @@ def add_form(pattern, *, with_arms=True, arm_angle_deg=DEFAULT_ARM_ANGLE_DEG):
          NECK_Z + level * length / 0.68)
         for level, rx, ry in rings for i in range(segments)
     ]
+    if neck is not None:
+        diameter_ratio = neck["lateral_width_mm"] / (2000 * rings[0][1] * scale_x)
+        datum_z = NECK_Z + rings[0][0] * length / 0.68
+        vertices = [orient_display_neck((x * (diameter_ratio if i < 2 * segments else 1), y, z), datum_z,
+                                        neck["pitch_forward_deg"])
+                    for i, (x, y, z) in enumerate(vertices)]
     faces = [
         (j * segments + i, (j + 1) * segments + i,
          (j + 1) * segments + (i + 1) % segments, j * segments + (i + 1) % segments)
@@ -622,6 +630,8 @@ def main():
                         choices=("torso_with_arms", "torso_only", "display_torso"))
     parser.add_argument("--frames", type=int, default=FRAME)
     parser.add_argument("--arm-angle", type=float)
+    parser.add_argument("--display-neck", type=Path)
+    parser.add_argument("--initial-sleeve-angle", type=float)
     parser.add_argument("--garment-mass-kg", type=float)
     parser.add_argument("--bending-stiffness", type=float)
     parser.add_argument("--photo-appearance", action="store_true")
@@ -635,6 +645,11 @@ def main():
         parser.error("Blender bending stiffness must be positive and finite")
     try:
         angle = arm_angle(form, args.arm_angle)
+        sleeve_angle = initial_sleeve_angle(form, args.initial_sleeve_angle)
+        neck_bytes = args.display_neck.read_bytes() if args.display_neck else None
+        neck = display_neck(json.loads(neck_bytes)) if neck_bytes is not None else None
+        if neck is not None and form != "display_torso":
+            raise ValueError("A measured display neck requires the display_torso reference form")
     except ValueError as error:
         parser.error(str(error))
     pattern = json.loads(source.read_text())
@@ -644,9 +659,8 @@ def main():
     scene.unit_settings.system = "METRIC"
     scene.render.threads_mode, scene.render.threads = "FIXED", 4
     scene.frame_end = args.frames
-    forms = add_form(pattern, with_arms=angle is not None, arm_angle_deg=angle)
+    forms = add_form(pattern, with_arms=angle is not None, arm_angle_deg=angle, neck=neck)
     contact_only = form == "display_torso"
-    sleeve_angle = 20 if contact_only else 45
     placement = partial(place, sleeve_angle_from_vertical=sleeve_angle)
     points, welded_faces, faces, uv, pins, edges, rest, panels = build_assembly(pattern, place_vertex=placement)
     appearance = json.loads((output / "appearance.json").read_bytes()) if args.photo_appearance else None
@@ -703,6 +717,8 @@ def main():
         "review": "Reference form and estimated knit settings, subject to physical comparison",
         "panel_vertex_ranges_before_welding": panels,
     }
+    if neck is not None:
+        report["display_neck"] = {**neck, "sha256": sha256(neck_bytes).hexdigest()}
     atlas = None
     if appearance is not None:
         atlas_path = output / appearance["atlas"]

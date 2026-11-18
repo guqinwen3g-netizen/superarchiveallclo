@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image
 from scipy.ndimage import gaussian_filter, gaussian_filter1d, map_coordinates
 
 from examples.evaluate_auckland_drape import SOURCE as PHOTOS
@@ -19,7 +19,7 @@ from superarchiveallclo.photo_points import (
     compare, exif_focal_pixels, pixel_sensitivity, projection_matrix, read_point_view, triangulate,
 )
 from superarchiveallclo.rectify import project, rectangle
-from superarchiveallclo.visual_hull import silhouette_metrics
+from superarchiveallclo.visual_hull import projected_mesh_mask, silhouette_metrics
 
 
 GUIDES = Path(__file__).with_name("auckland-stand.json")
@@ -103,22 +103,15 @@ def shaft_holdout(encoded, roi, size, camera, anchor):
 
 def tested_silhouettes(root, metadata, views, cameras, glb, blender):
     vertices, faces = read_mesh(glb, blender)
-    points = np.column_stack((vertices * 1000 - metadata["model_origin_mm"], np.ones(len(vertices))))
+    points = vertices * 1000 - metadata["model_origin_mm"]
     result = {}
     for name in FRONT:
         with Image.open(root / metadata["views"][name]["mask"]) as encoded:
             observed = np.asarray(encoded.convert("1"))
         methods = {}
         for method, camera in (("orthographic", projection_matrix(views[name])), ("metric_front", cameras[name])):
-            projected = points @ camera.T
-            if np.any(projected[:, 2] <= 0):
-                raise ValueError("The held-out camera does not see the complete candidate mesh")
-            raster = Image.new("1", observed.shape[::-1])
-            draw = ImageDraw.Draw(raster)
-            pixels = projected[:, :2] / projected[:, 2:]
-            for face in pixels[faces]:
-                draw.polygon([tuple(point) for point in face], fill=1)
-            methods[method] = silhouette_metrics(observed, np.asarray(raster), views[name].mm_per_pixel)
+            raster = projected_mesh_mask(points, faces, camera, observed.shape)
+            methods[method] = silhouette_metrics(observed, raster, views[name].mm_per_pixel)
         result[name] = methods
     return result
 

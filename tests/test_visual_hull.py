@@ -2,7 +2,9 @@ from unittest import TestCase
 
 import numpy as np
 
-from superarchiveallclo.visual_hull import CameraView, carve, compare_surface, horizontal_spans, hull_mask, silhouette_metrics
+from superarchiveallclo.visual_hull import (
+    CameraView, carve, compare_surface, horizontal_spans, hull_mask, silhouette_bands, silhouette_metrics,
+)
 
 
 def camera(axis, sign, horizontal):
@@ -61,3 +63,18 @@ class VisualHullTest(TestCase):
         self.assertEqual(body["range_below_datum_mm"], [100, 200])
         self.assertEqual(body["glb_width_depth_mm"], [78, 70])
         self.assertIsNone(below["hull_width_depth_mm"])
+
+    def test_banded_silhouette_counts_include_model_spill_and_exclude_occlusion(self):
+        observed = np.zeros((100, 160), dtype=bool)
+        observed[20:40, 10:15] = True
+        candidate = np.zeros_like(observed)
+        candidate[25:45, 10:16] = True
+        occluded = np.zeros_like(observed)
+        occluded[30:40, 15] = True
+        view = CameraView(observed, 0, 1, np.array([80, 20]), 2, occluded)
+        first, second, spill = silhouette_bands(observed, candidate, view, band_mm=20)
+        self.assertEqual((first["intersection_pixels"], first["reference_only_pixels"], first["model_only_pixels"]),
+                         (25, 25, 5))
+        self.assertEqual(second["iou"], 1)
+        self.assertEqual(spill["range_below_datum_mm"], [40, 60])
+        self.assertEqual(spill["model_only_pixels"], 30)

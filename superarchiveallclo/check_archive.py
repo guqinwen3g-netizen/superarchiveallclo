@@ -13,6 +13,7 @@ from ezdxf import units
 from PIL import Image
 
 from .cloth_material import material_bending, material_mass, verify_bending_settings, verify_mass_settings
+from .reference_form import display_neck
 
 
 def dxf_inventory(path, pattern):
@@ -139,6 +140,14 @@ def check_archive(root: Path):
     if not (root / "model/garment.blend").stat().st_size:
         raise ValueError("Native Blender scene is empty")
     model = root / "model"
+    neck_file = model / "display-neck.json"
+    if "display_neck" in simulation or neck_file.exists():
+        if not neck_file.is_file() or simulation.get("reference_form") != "display_torso":
+            raise ValueError("The measured neck profile requires the archived display torso")
+        neck_bytes = neck_file.read_bytes()
+        measured = display_neck(json.loads(neck_bytes))
+        if simulation.get("display_neck") != {**measured, "sha256": sha256(neck_bytes).hexdigest()}:
+            raise ValueError("Display neck profile does not match the simulation")
     record = model / "appearance.json"
     atlas_path = model / "appearance.png"
     atlas = None

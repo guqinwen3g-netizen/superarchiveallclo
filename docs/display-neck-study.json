@@ -1,0 +1,730 @@
+{
+  "schema_version": 1,
+  "item_id": "auckland-2017.66.22",
+  "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+  "camera_calibration": {
+    "source": "Two front poses from rectangular stand, 500 mm ruler and EXIF. Close-up camera geometry remains orthographic.",
+    "sha256": "73569fd1431bcad410d9248454de97312f827fb40b779215301420cabf0aece5"
+  },
+  "reference_photo_sha256": {
+    "photo-01": "1b64a9ca2387d0cd410814ce3189c7bd3d4d6f03e8157b8494c223266bd53590",
+    "photo-02": "5a5c4cd1990a8ab3654d500f6ebf261606bde0374485aa342098c88b6142eb5c",
+    "photo-03": "29b5aa5937538945f75c6a805ecd5e16be7d7c52aa140d282d08a0f21ff21020",
+    "photo-04": "68317716866117d72395c1f5ec0d74a8803fb96eb9d54cb3d48464153e7ade0a",
+    "photo-05": "2eeaa45e2a405e059a7c5a2795ba88abbf8764b4709b04f42dfaced5163547e2",
+    "photo-20": "ba8e12bf0e2a200f91942d1af03baa8222ffcf20841334f1c46f258907350686"
+  },
+  "profile": {
+    "schema_version": 1,
+    "lateral_width_mm": 100.824,
+    "pitch_forward_deg": 21.727,
+    "source": "Auckland Museum 2017.66.22, exposed beige display-form neck edges on photo-02, photo-03 and photo-05.",
+    "evidence": {
+      "front_width_sample_row_px": 90,
+      "side_pitch_deg": [
+        23.329,
+        20.125
+      ],
+      "per_view": {
+        "photo-02": {
+          "photo_sha256": "5a5c4cd1990a8ab3654d500f6ebf261606bde0374485aa342098c88b6142eb5c",
+          "edges": [
+            {
+              "guide": [
+                216,
+                250,
+                81,
+                111,
+                1
+              ],
+              "x_from_y": [
+                -0.06362625139043587,
+                236.80964034111997
+              ],
+              "sample_count": 30,
+              "residual_p90_px": 0.466
+            },
+            {
+              "guide": [
+                320,
+                345,
+                81,
+                111,
+                -1
+              ],
+              "x_from_y": [
+                0.06740823136818629,
+                330.32918057100494
+              ],
+              "sample_count": 30,
+              "residual_p90_px": 0.537
+            }
+          ]
+        },
+        "photo-03": {
+          "photo_sha256": "29b5aa5937538945f75c6a805ecd5e16be7d7c52aa140d282d08a0f21ff21020",
+          "edges": [
+            {
+              "guide": [
+                316,
+                354,
+                72,
+                108,
+                -1
+              ],
+              "x_from_y": [
+                0.43127413127412983,
+                299.9287430287431
+              ],
+              "sample_count": 36,
+              "residual_p90_px": 0.687
+            }
+          ]
+        },
+        "photo-05": {
+          "photo_sha256": "2eeaa45e2a405e059a7c5a2795ba88abbf8764b4709b04f42dfaced5163547e2",
+          "edges": [
+            {
+              "guide": [
+                164,
+                204,
+                68,
+                96,
+                1
+              ],
+              "x_from_y": [
+                -0.366447728516694,
+                207.11548987411052
+              ],
+              "sample_count": 28,
+              "residual_p90_px": 0.576
+            }
+          ]
+        }
+      }
+    }
+  },
+  "variants": {
+    "generic_20": {
+      "projection": {
+        "photo-01": {
+          "role": "held_out",
+          "iou": 0.7913,
+          "contour_p90_mm": 56.85,
+          "height_bands": [
+            {
+              "range_below_datum_mm": [
+                0,
+                150
+              ],
+              "intersection_pixels": 8319,
+              "model_only_pixels": 855,
+              "reference_only_pixels": 1431,
+              "iou": 0.7844
+            },
+            {
+              "range_below_datum_mm": [
+                150,
+                300
+              ],
+              "intersection_pixels": 23467,
+              "model_only_pixels": 4844,
+              "reference_only_pixels": 0,
+              "iou": 0.8289
+            },
+            {
+              "range_below_datum_mm": [
+                300,
+                450
+              ],
+              "intersection_pixels": 25272,
+              "model_only_pixels": 3571,
+              "reference_only_pixels": 689,
+              "iou": 0.8557
+            },
+            {
+              "range_below_datum_mm": [
+                450,
+                600
+              ],
+              "intersection_pixels": 19027,
+              "model_only_pixels": 4467,
+              "reference_only_pixels": 41,
+              "iou": 0.8085
+            },
+            {
+              "range_below_datum_mm": [
+                600,
+                750
+              ],
+              "intersection_pixels": 16502,
+              "model_only_pixels": 4449,
+              "reference_only_pixels": 5,
+              "iou": 0.7875
+            },
+            {
+              "range_below_datum_mm": [
+                750,
+                900
+              ],
+              "intersection_pixels": 0,
+              "model_only_pixels": 4068,
+              "reference_only_pixels": 0,
+              "iou": 0.0
+            }
+          ],
+          "candidate_reaches_image_edge": false
+        },
+        "photo-02": {
+          "role": "carve",
+          "iou": 0.7586,
+          "contour_p90_mm": 63.11,
+          "candidate_reaches_image_edge": true
+        },
+        "photo-03": {
+          "role": "carve",
+          "iou": 0.7812,
+          "contour_p90_mm": 50.63,
+          "candidate_reaches_image_edge": true
+        },
+        "photo-04": {
+          "role": "carve",
+          "iou": 0.8071,
+          "contour_p90_mm": 49.14,
+          "candidate_reaches_image_edge": true
+        },
+        "photo-05": {
+          "role": "carve",
+          "iou": 0.7724,
+          "contour_p90_mm": 50.22,
+          "candidate_reaches_image_edge": false
+        },
+        "photo-20": {
+          "role": "held_out",
+          "iou": 0.8257,
+          "contour_p90_mm": 53.57,
+          "height_bands": [
+            {
+              "range_below_datum_mm": [
+                0,
+                150
+              ],
+              "intersection_pixels": 7323,
+              "model_only_pixels": 60,
+              "reference_only_pixels": 2032,
+              "iou": 0.7778
+            },
+            {
+              "range_below_datum_mm": [
+                150,
+                300
+              ],
+              "intersection_pixels": 24574,
+              "model_only_pixels": 2475,
+              "reference_only_pixels": 0,
+              "iou": 0.9085
+            },
+            {
+              "range_below_datum_mm": [
+                300,
+                450
+              ],
+              "intersection_pixels": 25400,
+              "model_only_pixels": 2553,
+              "reference_only_pixels": 726,
+              "iou": 0.8857
+            },
+            {
+              "range_below_datum_mm": [
+                450,
+                600
+              ],
+              "intersection_pixels": 19298,
+              "model_only_pixels": 3198,
+              "reference_only_pixels": 21,
+              "iou": 0.857
+            },
+            {
+              "range_below_datum_mm": [
+                600,
+                750
+              ],
+              "intersection_pixels": 15961,
+              "model_only_pixels": 4361,
+              "reference_only_pixels": 77,
+              "iou": 0.7824
+            },
+            {
+              "range_below_datum_mm": [
+                750,
+                900
+              ],
+              "intersection_pixels": 0,
+              "model_only_pixels": 4038,
+              "reference_only_pixels": 0,
+              "iou": 0.0
+            }
+          ],
+          "candidate_reaches_image_edge": false
+        }
+      },
+      "archive_audit": {
+        "capture_kind": "physical",
+        "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+        "source_photos": 4,
+        "vision_estimates": 10,
+        "dxf_panels": 5,
+        "seams": 15,
+        "garment_openings": 4,
+        "glb": {
+          "meshes": 1,
+          "bounds_span_m": [
+            0.57,
+            0.7058,
+            0.3227
+          ],
+          "embedded_photo_atlases": 1
+        }
+      },
+      "garment_glb_sha256": "acb04a55714091df9e2f609a64ea3f37305e3607bfa547e438640051aa02e621",
+      "display_neck": null,
+      "initial_sleeve_angle_from_vertical_deg": 20,
+      "max_reference_form_vertex_penetration_mm": {
+        "cloth_solve": 0.0,
+        "exported_surface": 0.0
+      },
+      "flat_metric_absolute_strain_percent": {
+        "median": 2.5,
+        "p95": 13.61
+      },
+      "local_3d": {
+        "distance_to_glb_median_mm": 9.435,
+        "distance_to_glb_p90_mm": 19.005,
+        "held_out_residual_median_proxy_mm": 15.697,
+        "held_out_residual_max_proxy_mm": 19.714,
+        "held_out_residual_median_by_view_proxy_mm": {
+          "photo-01": 16.164,
+          "photo-20": 15.442
+        }
+      }
+    },
+    "measured_20": {
+      "projection": {
+        "photo-01": {
+          "role": "held_out",
+          "iou": 0.8069,
+          "contour_p90_mm": 56.86,
+          "height_bands": [
+            {
+              "range_below_datum_mm": [
+                0,
+                150
+              ],
+              "intersection_pixels": 8140,
+              "model_only_pixels": 354,
+              "reference_only_pixels": 1610,
+              "iou": 0.8056
+            },
+            {
+              "range_below_datum_mm": [
+                150,
+                300
+              ],
+              "intersection_pixels": 23467,
+              "model_only_pixels": 3698,
+              "reference_only_pixels": 0,
+              "iou": 0.8639
+            },
+            {
+              "range_below_datum_mm": [
+                300,
+                450
+              ],
+              "intersection_pixels": 24928,
+              "model_only_pixels": 2619,
+              "reference_only_pixels": 1033,
+              "iou": 0.8722
+            },
+            {
+              "range_below_datum_mm": [
+                450,
+                600
+              ],
+              "intersection_pixels": 18999,
+              "model_only_pixels": 3917,
+              "reference_only_pixels": 69,
+              "iou": 0.8266
+            },
+            {
+              "range_below_datum_mm": [
+                600,
+                750
+              ],
+              "intersection_pixels": 16494,
+              "model_only_pixels": 4035,
+              "reference_only_pixels": 13,
+              "iou": 0.8029
+            },
+            {
+              "range_below_datum_mm": [
+                750,
+                900
+              ],
+              "intersection_pixels": 0,
+              "model_only_pixels": 4681,
+              "reference_only_pixels": 0,
+              "iou": 0.0
+            }
+          ],
+          "candidate_reaches_image_edge": false
+        },
+        "photo-02": {
+          "role": "carve",
+          "iou": 0.7744,
+          "contour_p90_mm": 61.58,
+          "candidate_reaches_image_edge": true
+        },
+        "photo-03": {
+          "role": "carve",
+          "iou": 0.6927,
+          "contour_p90_mm": 64.97,
+          "candidate_reaches_image_edge": true
+        },
+        "photo-04": {
+          "role": "carve",
+          "iou": 0.825,
+          "contour_p90_mm": 46.54,
+          "candidate_reaches_image_edge": true
+        },
+        "photo-05": {
+          "role": "carve",
+          "iou": 0.7297,
+          "contour_p90_mm": 61.97,
+          "candidate_reaches_image_edge": false
+        },
+        "photo-20": {
+          "role": "held_out",
+          "iou": 0.832,
+          "contour_p90_mm": 61.04,
+          "height_bands": [
+            {
+              "range_below_datum_mm": [
+                0,
+                150
+              ],
+              "intersection_pixels": 6882,
+              "model_only_pixels": 18,
+              "reference_only_pixels": 2473,
+              "iou": 0.7342
+            },
+            {
+              "range_below_datum_mm": [
+                150,
+                300
+              ],
+              "intersection_pixels": 24564,
+              "model_only_pixels": 1465,
+              "reference_only_pixels": 10,
+              "iou": 0.9434
+            },
+            {
+              "range_below_datum_mm": [
+                300,
+                450
+              ],
+              "intersection_pixels": 25131,
+              "model_only_pixels": 1605,
+              "reference_only_pixels": 995,
+              "iou": 0.9062
+            },
+            {
+              "range_below_datum_mm": [
+                450,
+                600
+              ],
+              "intersection_pixels": 19289,
+              "model_only_pixels": 2660,
+              "reference_only_pixels": 30,
+              "iou": 0.8776
+            },
+            {
+              "range_below_datum_mm": [
+                600,
+                750
+              ],
+              "intersection_pixels": 15685,
+              "model_only_pixels": 4220,
+              "reference_only_pixels": 353,
+              "iou": 0.7743
+            },
+            {
+              "range_below_datum_mm": [
+                750,
+                900
+              ],
+              "intersection_pixels": 0,
+              "model_only_pixels": 4657,
+              "reference_only_pixels": 0,
+              "iou": 0.0
+            }
+          ],
+          "candidate_reaches_image_edge": false
+        }
+      },
+      "archive_audit": {
+        "capture_kind": "physical",
+        "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+        "source_photos": 4,
+        "vision_estimates": 10,
+        "dxf_panels": 5,
+        "seams": 15,
+        "garment_openings": 4,
+        "glb": {
+          "meshes": 1,
+          "bounds_span_m": [
+            0.5531,
+            0.7077,
+            0.3878
+          ],
+          "embedded_photo_atlases": 1
+        }
+      },
+      "garment_glb_sha256": "709a13f5e7fd52d991b45d965dadd411f11481c2090a6c64bcf343db8c649b93",
+      "display_neck": {
+        "schema_version": 1,
+        "pitch_forward_deg": 21.727,
+        "lateral_width_mm": 100.824,
+        "source": "Auckland Museum 2017.66.22, exposed beige display-form neck edges on photo-02, photo-03 and photo-05.",
+        "sha256": "6ba61eaabe11aa98d2e2916ebb57b74ebbbe5ef787fcbc80f989421840b47640"
+      },
+      "max_reference_form_vertex_penetration_mm": {
+        "cloth_solve": 0.0,
+        "exported_surface": 0.0
+      },
+      "flat_metric_absolute_strain_percent": {
+        "median": 2.5,
+        "p95": 13.75
+      },
+      "local_3d": {
+        "distance_to_glb_median_mm": 11.756,
+        "distance_to_glb_p90_mm": 26.257,
+        "held_out_residual_median_proxy_mm": 15.697,
+        "held_out_residual_max_proxy_mm": 19.714,
+        "held_out_residual_median_by_view_proxy_mm": {
+          "photo-01": 16.164,
+          "photo-20": 15.442
+        }
+      },
+      "initial_sleeve_angle_from_vertical_deg": 20
+    },
+    "measured_0": {
+      "projection": {
+        "photo-01": {
+          "role": "held_out",
+          "iou": 0.7921,
+          "contour_p90_mm": 62.12,
+          "height_bands": [
+            {
+              "range_below_datum_mm": [
+                0,
+                150
+              ],
+              "intersection_pixels": 8406,
+              "model_only_pixels": 266,
+              "reference_only_pixels": 1344,
+              "iou": 0.8393
+            },
+            {
+              "range_below_datum_mm": [
+                150,
+                300
+              ],
+              "intersection_pixels": 23467,
+              "model_only_pixels": 2282,
+              "reference_only_pixels": 0,
+              "iou": 0.9114
+            },
+            {
+              "range_below_datum_mm": [
+                300,
+                450
+              ],
+              "intersection_pixels": 25368,
+              "model_only_pixels": 1142,
+              "reference_only_pixels": 593,
+              "iou": 0.936
+            },
+            {
+              "range_below_datum_mm": [
+                450,
+                600
+              ],
+              "intersection_pixels": 19068,
+              "model_only_pixels": 6685,
+              "reference_only_pixels": 0,
+              "iou": 0.7404
+            },
+            {
+              "range_below_datum_mm": [
+                600,
+                750
+              ],
+              "intersection_pixels": 16507,
+              "model_only_pixels": 7557,
+              "reference_only_pixels": 0,
+              "iou": 0.686
+            },
+            {
+              "range_below_datum_mm": [
+                750,
+                900
+              ],
+              "intersection_pixels": 0,
+              "model_only_pixels": 4492,
+              "reference_only_pixels": 0,
+              "iou": 0.0
+            }
+          ],
+          "candidate_reaches_image_edge": false
+        },
+        "photo-02": {
+          "role": "carve",
+          "iou": 0.7537,
+          "contour_p90_mm": 72.76,
+          "candidate_reaches_image_edge": true
+        },
+        "photo-03": {
+          "role": "carve",
+          "iou": 0.8156,
+          "contour_p90_mm": 43.72,
+          "candidate_reaches_image_edge": true
+        },
+        "photo-04": {
+          "role": "carve",
+          "iou": 0.7975,
+          "contour_p90_mm": 64.59,
+          "candidate_reaches_image_edge": false
+        },
+        "photo-05": {
+          "role": "carve",
+          "iou": 0.8568,
+          "contour_p90_mm": 43.12,
+          "candidate_reaches_image_edge": false
+        },
+        "photo-20": {
+          "role": "held_out",
+          "iou": 0.797,
+          "contour_p90_mm": 70.93,
+          "height_bands": [
+            {
+              "range_below_datum_mm": [
+                0,
+                150
+              ],
+              "intersection_pixels": 7079,
+              "model_only_pixels": 8,
+              "reference_only_pixels": 2276,
+              "iou": 0.7561
+            },
+            {
+              "range_below_datum_mm": [
+                150,
+                300
+              ],
+              "intersection_pixels": 24074,
+              "model_only_pixels": 649,
+              "reference_only_pixels": 500,
+              "iou": 0.9544
+            },
+            {
+              "range_below_datum_mm": [
+                300,
+                450
+              ],
+              "intersection_pixels": 24752,
+              "model_only_pixels": 864,
+              "reference_only_pixels": 1374,
+              "iou": 0.9171
+            },
+            {
+              "range_below_datum_mm": [
+                450,
+                600
+              ],
+              "intersection_pixels": 19319,
+              "model_only_pixels": 5374,
+              "reference_only_pixels": 0,
+              "iou": 0.7824
+            },
+            {
+              "range_below_datum_mm": [
+                600,
+                750
+              ],
+              "intersection_pixels": 15811,
+              "model_only_pixels": 7522,
+              "reference_only_pixels": 227,
+              "iou": 0.6711
+            },
+            {
+              "range_below_datum_mm": [
+                750,
+                900
+              ],
+              "intersection_pixels": 0,
+              "model_only_pixels": 4395,
+              "reference_only_pixels": 0,
+              "iou": 0.0
+            }
+          ],
+          "candidate_reaches_image_edge": false
+        }
+      },
+      "archive_audit": {
+        "capture_kind": "physical",
+        "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+        "source_photos": 4,
+        "vision_estimates": 10,
+        "dxf_panels": 5,
+        "seams": 15,
+        "garment_openings": 4,
+        "glb": {
+          "meshes": 1,
+          "bounds_span_m": [
+            0.463,
+            0.7069,
+            0.2922
+          ],
+          "embedded_photo_atlases": 1
+        }
+      },
+      "garment_glb_sha256": "f9aad05d7a590b41f0e71dc0e0dc2edb336fc1abb19b96880c3f5da81dab5eea",
+      "display_neck": {
+        "schema_version": 1,
+        "pitch_forward_deg": 21.727,
+        "lateral_width_mm": 100.824,
+        "source": "Auckland Museum 2017.66.22, exposed beige display-form neck edges on photo-02, photo-03 and photo-05.",
+        "sha256": "6ba61eaabe11aa98d2e2916ebb57b74ebbbe5ef787fcbc80f989421840b47640"
+      },
+      "initial_sleeve_angle_from_vertical_deg": 0,
+      "max_reference_form_vertex_penetration_mm": {
+        "cloth_solve": 2.53,
+        "exported_surface": 0.0
+      },
+      "flat_metric_absolute_strain_percent": {
+        "median": 2.55,
+        "p95": 15.59
+      },
+      "local_3d": {
+        "distance_to_glb_median_mm": 7.602,
+        "distance_to_glb_p90_mm": 25.114,
+        "held_out_residual_median_proxy_mm": 15.697,
+        "held_out_residual_max_proxy_mm": 19.714,
+        "held_out_residual_median_by_view_proxy_mm": {
+          "photo-01": 16.164,
+          "photo-20": 15.442
+        }
+      }
+    }
+  }
+}

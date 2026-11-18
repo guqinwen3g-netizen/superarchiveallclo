@@ -85,9 +85,21 @@ def hull_mask(volume, low, step, view):
 def mesh_mask(vertices_mm, triangles, view):
     u = view.origin[0] + view.sign * vertices_mm[:, view.axis] / view.mm_per_pixel
     v = view.origin[1] - vertices_mm[:, 2] / view.mm_per_pixel
-    image = Image.new("1", view.mask.shape[::-1])
+    return rasterize_mask(np.column_stack((u, v)), triangles, view.mask.shape)
+
+
+def projected_mesh_mask(vertices_mm, triangles, matrix, shape):
+    """Rasterize a mesh through a camera expressed in the reference millimetre frame."""
+    projected = np.column_stack((vertices_mm, np.ones(len(vertices_mm)))) @ matrix.T
+    if not np.isfinite(projected).all() or np.any(projected[:, 2] <= 0):
+        raise ValueError("The camera does not see the complete candidate mesh")
+    return rasterize_mask(projected[:, :2] / projected[:, 2:], triangles, shape)
+
+
+def rasterize_mask(pixels, triangles, shape):
+    image = Image.new("1", shape[::-1])
     draw = ImageDraw.Draw(image)
-    for triangle in np.column_stack((u, v))[triangles]:
+    for triangle in pixels[triangles]:
         draw.polygon([tuple(p) for p in triangle], fill=1)
     return np.asarray(image, dtype=bool)
 
@@ -109,6 +121,29 @@ def silhouette_metrics(observed, candidate, mm_per_pixel, occluded=None):
         distance = round(float(np.quantile(distances, 0.9)), 2)
     return {"iou": round(float((observed & candidate).sum() / (observed | candidate).sum()), 4),
             "contour_p90_mm": distance}
+
+
+def silhouette_bands(observed, candidate, view, *, band_mm=150):
+    """Localize silhouette errors by image row, in datum-plane height bands."""
+    if not isfinite(band_mm) or band_mm <= 0:
+        raise ValueError("Silhouette band height must be positive and finite")
+    if view.occluded is not None:
+        observed, candidate = observed & ~view.occluded, candidate & ~view.occluded
+    union = observed | candidate
+    if not union.any():
+        return []
+    bands = np.floor((np.arange(len(union)) - view.origin[1]) * view.mm_per_pixel / band_mm).astype(int)
+    overlap = (observed & candidate).sum(axis=1)
+    excess = (candidate & ~observed).sum(axis=1)
+    missing = (observed & ~candidate).sum(axis=1)
+    results = []
+    for index in np.unique(bands[union.any(axis=1)]):
+        rows = bands == index
+        common, extra, absent = (int(count[rows].sum()) for count in (overlap, excess, missing))
+        results.append({"range_below_datum_mm": [(index * band_mm).item(), ((index + 1) * band_mm).item()],
+                        "intersection_pixels": common, "model_only_pixels": extra, "reference_only_pixels": absent,
+                        "iou": round(common / (common + extra + absent), 4)})
+    return results
 
 
 def save_overlay(path, observed, candidate, occluded=None):
@@ -256,6 +291,7 @@ def compare(archive, reference, output, *, blender="blender", step=5.0):
             report["views"][name] = {
                 **entry, "hull": silhouette_metrics(view.mask, hull, view.mm_per_pixel, view.occluded),
                 "glb": silhouette_metrics(view.mask, model, view.mm_per_pixel, view.occluded),
+                "glb_height_bands": silhouette_bands(view.mask, model, view),
             }
         (bundle / "comparison.json").write_text(json.dumps(report, indent=2) + "\n")
         bundle.rename(output)
