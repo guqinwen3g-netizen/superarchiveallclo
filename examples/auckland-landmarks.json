@@ -24,7 +24,8 @@
         "photo-01": [
           383,
           180
-        ]
+        ],
+        "photo-20": [350, 209]
       }
     },
     "cup-line-start": {
@@ -44,7 +45,8 @@
         "photo-01": [
           362,
           195
-        ]
+        ],
+        "photo-20": [330, 223]
       }
     },
     "cup-year-tip": {
@@ -64,7 +66,8 @@
         "photo-01": [
           404,
           217
-        ]
+        ],
+        "photo-20": [371, 244]
       }
     },
     "canterbury-center": {
@@ -84,7 +87,8 @@
         "photo-01": [
           249,
           193
-        ]
+        ],
+        "photo-20": [219, 222]
       }
     },
     "upper-ink-dot": {
@@ -104,7 +108,8 @@
         "photo-01": [
           224,
           241
-        ]
+        ],
+        "photo-20": [195, 269]
       }
     },
     "upper-ink-crossing": {
@@ -124,7 +129,8 @@
         "photo-01": [
           225,
           258
-        ]
+        ],
+        "photo-20": [196, 286]
       }
     },
     "cuff-mark": {
@@ -144,8 +150,21 @@
         "photo-01": [
           450,
           309
-        ]
+        ],
+        "photo-20": [416, 333]
       }
+    },
+    "right-autograph-capital": {
+      "label": "High bend of the dark capital in the right mid-torso autograph",
+      "region": "mid-torso",
+      "fit": {"photo-02": [404, 337], "photo-03": [200, 349]},
+      "held_out": {"photo-01": [387, 230], "photo-20": [355, 257]}
+    },
+    "left-middle-crossing": {
+      "label": "Interior stroke crossing of the diagonal oval autograph on the left mid-torso",
+      "region": "mid-torso",
+      "fit": {"photo-02": [177, 433], "photo-05": [350, 463]},
+      "held_out": {"photo-01": [247, 295], "photo-20": [219, 322]}
     }
   }
 }

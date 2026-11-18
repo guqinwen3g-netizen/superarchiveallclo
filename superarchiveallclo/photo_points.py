@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from hashlib import sha256
 from io import BytesIO
 import json
+from math import isfinite
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -164,6 +165,19 @@ def projected_errors(point, markers, matrices, views):
             for name, pixel in markers.items()}
 
 
+def pixel_sensitivity(point, matrices):
+    """Worst resolved direction in mm for one pixel per observation component."""
+    rows = []
+    for matrix in matrices:
+        uv = project(matrix, point)
+        depth = matrix[2] @ np.r_[point, 1]
+        rows.extend((matrix[:2, :3] - uv[:, None] * matrix[2, :3]) / depth)
+    singular = np.linalg.svd(np.array(rows), compute_uv=False)
+    if len(singular) < 3 or singular[-1] <= singular[0] * 1e-12:
+        return None
+    return round(float(1 / singular[-1]), 3)
+
+
 def score(matrix_sets, views, metadata, annotations, triangles):
     points = {}
     for name, entry in annotations.items():
@@ -174,6 +188,7 @@ def score(matrix_sets, views, metadata, annotations, triangles):
             closest = nearest_surface_point(xyz, triangles)
             measurements[method] = {
                 "position_mm": xyz.round(3).tolist(),
+                "worst_axis_mm_per_pixel": pixel_sensitivity(xyz, [matrices[n] for n in fit]),
                 "fit_residual_proxy_mm": projected_errors(xyz, fit, matrices, views),
                 "held_out_residual_proxy_mm": projected_errors(xyz, hold, matrices, views),
                 "nearest_glb_point_mm": closest.round(3).tolist(),
@@ -219,6 +234,37 @@ def summarize_points(points, methods):
     return summary, by_region
 
 
+def checked_points(points, methods, limit_mm):
+    """Measure coverage after applying the same predeclared photo limit to every point."""
+    if not isfinite(limit_mm) or limit_mm <= 0:
+        raise ValueError("The reprojection limit must be a positive finite number")
+    qualified = {}
+    for method in methods:
+        accepted, rejected = {}, {}
+        for name, point in points.items():
+            measured = point[method]
+            errors = {
+                field: [view for view, error in measured[field].items() if error > limit_mm]
+                for field in ("fit_residual_proxy_mm", "held_out_residual_proxy_mm")
+            }
+            mismatch = {field: views for field, views in errors.items() if views}
+            if mismatch:
+                rejected[name] = mismatch
+            else:
+                accepted[name] = point
+        group, regions = summarize_points(accepted, (method,)) if accepted else ({method: None}, {})
+        qualified[method] = {
+            "checked_count": len(points), "accepted_count": len(accepted),
+            "accepted_ids": list(accepted), "failed_views": rejected,
+            "summary": group[method], "by_region": regions,
+        }
+    return {
+        "limit_mm_at_datum": limit_mm,
+        "scope": "Every fitted and separately observed projection must pass. Camera pose and depth can still have systematic error.",
+        "methods": qualified,
+    }
+
+
 def draw_held_out(directory, photos, views, annotations, points, matrix_sets):
     names = sorted({view for entry in annotations.values() for view in entry["held_out"]})
     colors = {"orthographic": (235, 108, 40), "exif_pinhole": (147, 82, 193),
@@ -241,7 +287,8 @@ def draw_held_out(directory, photos, views, annotations, points, matrix_sets):
         photo.save(directory / f"{name}-landmarks.png")
 
 
-def compare(archive, reference, observations, output, *, blender="blender", camera_solution=None):
+def compare(archive, reference, observations, output, *, blender="blender", camera_solution=None,
+            reprojection_limit_mm=None):
     if output.exists():
         raise ValueError(f"Output already exists: {output}")
     audit = check_archive(archive)
@@ -303,6 +350,8 @@ def compare(archive, reference, observations, output, *, blender="blender", came
     }
     if camera_audit:
         report["camera_solution"] = camera_audit
+    if reprojection_limit_mm is not None:
+        report["reprojection_check"] = checked_points(points, matrix_sets, reprojection_limit_mm)
     output.parent.mkdir(parents=True, exist_ok=True)
     with TemporaryDirectory(dir=output.parent) as tmp:
         bundle = Path(tmp) / "landmarks"
@@ -321,10 +370,12 @@ def main():
     parser.add_argument("-o", "--output", type=Path, required=True)
     parser.add_argument("--blender", default="blender")
     parser.add_argument("--camera-solution", type=Path, help="Use independently supplied image-from-world projection matrices")
+    parser.add_argument("--reprojection-limit-mm", type=float,
+                        help="Report point coverage and surface errors passing this pixel residual converted at the datum")
     args = parser.parse_args()
     try:
         compare(args.archive, args.reference, args.observations, args.output, blender=args.blender,
-                camera_solution=args.camera_solution)
+                camera_solution=args.camera_solution, reprojection_limit_mm=args.reprojection_limit_mm)
     except (KeyError, TypeError, ValueError, OSError, DXFError, np.linalg.LinAlgError) as error:
         parser.error(str(error))
 

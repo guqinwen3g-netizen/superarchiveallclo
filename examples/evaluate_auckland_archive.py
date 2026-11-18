@@ -25,7 +25,7 @@ CASES = {
 }
 
 
-def evaluate(output, blender, *, case_name="netball", measure_sleeve=False):
+def evaluate(output, blender, *, case_name="netball", measure_sleeve=False, reprojection_limit_mm=None):
     config = CASES[case_name]
     data = output / "input"
     data.mkdir(parents=True, exist_ok=True)
@@ -53,7 +53,8 @@ def evaluate(output, blender, *, case_name="netball", measure_sleeve=False):
     markings = Path(__file__).with_name(f'{config["reference"]}-landmarks.json')
     manifest, calibration = drape.prepare(references, garment, json.loads(drape_source.read_bytes()))
     tees.write_json(references / "calibration.json", calibration)
-    local = photo_points.compare(garment, manifest, markings, output / "landmarks", blender=blender)
+    local = photo_points.compare(garment, manifest, markings, output / "landmarks", blender=blender,
+                                 reprojection_limit_mm=reprojection_limit_mm)
     hull = visual_hull.compare(garment, manifest, output / "hull", blender=blender)
     if local["garment_glb_sha256"] != hull["garment_glb_sha256"]:
         raise ValueError("Local points and global silhouette must score the same delivered GLB")
@@ -79,6 +80,7 @@ def evaluate(output, blender, *, case_name="netball", measure_sleeve=False):
             "holdout_projections": {name: view["glb"] for name, view in hull["views"].items() if view["role"] == "held_out"},
             "local_point_summary": local["summary"],
             "local_point_regions": local["by_region"],
+            **({"reprojection_check": local["reprojection_check"]} if "reprojection_check" in local else {}),
             "scope": "Actual mannequin photographs and sparse triangulated points under approximate camera poses.",
         },
     })
@@ -90,8 +92,12 @@ def main():
     parser.add_argument("--blender", default="blender")
     parser.add_argument("--case", choices=CASES, default="netball")
     parser.add_argument("--sleeve-profile", action="store_true", help="Constrain sleeve length using both cuff spans")
+    parser.add_argument("--reprojection-limit-mm", type=float,
+                        help="Report the subset passing this reprojection residual at the datum")
     args = parser.parse_args()
-    print(f"Wrote {evaluate(args.output, args.blender, case_name=args.case, measure_sleeve=args.sleeve_profile)}")
+    result = evaluate(args.output, args.blender, case_name=args.case, measure_sleeve=args.sleeve_profile,
+                      reprojection_limit_mm=args.reprojection_limit_mm)
+    print(f"Wrote {result}")
 
 
 if __name__ == "__main__":

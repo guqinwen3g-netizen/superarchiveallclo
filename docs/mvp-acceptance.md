@@ -11,7 +11,7 @@
 
 当前仓库的照片样例和基准权重基于合成样本，可用于回归入口。实物验收需要一份单独的采集档案。最终报告记录归档版本、样衣标识、已核对部位和剩余误差。
 
-馆藏 `2017.66.22` 的实物实验可用 `python -m examples.evaluate_auckland_archive -o build/auckland-end-to-end` 复现。归档保留两项独立尺寸、袖口近照、同件挂拍三维外包络以及分视角估计的局部布面点。直接布面扫描与打样仍待核对。[完整实物证据](photo-landmark-study.md)
+馆藏 `2017.66.22` 的实物实验可用 `python -m examples.evaluate_auckland_archive --reprojection-limit-mm 25 -o build/auckland-end-to-end` 复现。归档保留两项独立尺寸、袖口近照、同件挂拍三维外包络、九处三维对应点及两张留出实拍的反投影偏差。直接布面扫描与打样仍待核对。[完整实物证据](photo-landmark-study.md)
 
 ## 一次运行独立样衣验收
 
