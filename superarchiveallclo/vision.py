@@ -11,6 +11,8 @@ from PIL import Image, ImageOps
 from scipy import ndimage
 from scipy.spatial import ConvexHull, QhullError
 
+from .flat_measurements import draft_constraints, flat_landmarks
+
 # The card is a 100 mm square of solid magenta printed at actual size.
 CARD_MM = 100.0
 MODEL_VERSION = 1
@@ -153,6 +155,8 @@ def picture_features(image, view=None):
         upper = np.quantile(center.argmax(axis=0), 0.10)
         lower = h - np.median(center[::-1].argmax(axis=0))
         evidence["shoulder_level_to_hem_mm"] = round(float((lower - upper) * mm_per_px), 2)
+        evidence["shoulder_line_y_mm"] = round(float(upper * mm_per_px), 2)
+        evidence["flat_landmarks"] = flat_landmarks(crop, mm_per_px, torso)
     return descriptor, evidence
 
 
@@ -226,14 +230,11 @@ class TeeVision:
             "validation_domain": self.validation_domain,
         }
         if self.view_mode == "front" and "shoulder_level_to_hem_mm" in scale["front"]:
-            # The current symmetric template shares the lower torso and chest width.
-            # Its total panel height equals back length plus back neck depth.
-            front = scale["front"]
-            constrained = {
-                "flat_chest_mm": front["lower_torso_width_mm"],
-                "back_length_mm": front["shoulder_level_to_hem_mm"] - measures["back_neck_depth_mm"],
-            }
+            constrained, methods, reason = draft_constraints(measures, scale["front"])
             inference["regression_before_scan_constraints_mm"] = {key: measures[key] for key in constrained}
+            inference["scan_constraint_sources"] = methods
+            if reason is not None:
+                inference["sleeve_constraint_rejected"] = reason
             inference["bounded_fields"] = [key for key in bounded if key not in constrained]
             measures.update({key: round(value, 3) for key, value in constrained.items()})
         return measures, inference

@@ -20,8 +20,8 @@ from .tee import TeeSpec, draft
 from .vision import FIELDS, TeeVision
 
 ASSUMPTIONS = {
-    "collar_finished_width_mm": 18,
-    "collar_length_ratio": 0.85,
+    "collar_finished_width_mm": TeeSpec.collar_finished_width_mm,
+    "collar_length_ratio": TeeSpec.collar_length_ratio,
 }
 
 
@@ -130,8 +130,8 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
                 values[name], method = ASSUMPTIONS[name], "assumed"
             elif name in predicted:
                 values[name] = predicted[name]
-                if name in inference.get("regression_before_scan_constraints_mm", {}):
-                    method = "scan_with_prior" if name == "back_length_mm" else "scan_silhouette"
+                if name in inference.get("scan_constraint_sources", {}):
+                    method = inference["scan_constraint_sources"][name]
                 elif mode == "front_only" and name == "back_neck_depth_mm":
                     method = "learned_prior"
                 else:

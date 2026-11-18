@@ -1,5 +1,7 @@
 # 实物扫描与裁片对照
 
+本文记录提交 `b4b4cc3` 的基线。该版本中运行本文的命令可复现所列结果。[自动袖口与领口测量后的结果](scan-landmark-study.md)
+
 这次用第一个 RGBench 平铺帧生成的候选归档，比对同件 T 恤另外八帧的实物点云，以及数据集中与其配套的 Style3D 模拟参考网格 `green_tshirt_5k.obj`。所有对照使用原归档纸样。报告保存原始点云、参考 OBJ、生成纸样与平铺 GLB 的哈希。[实验数据与 CC BY 4.0 许可](https://huggingface.co/datasets/RGBench/RGBench-Cloth-Sim2Real-v1) · [RGBench 数据文档](https://github.com/hwk0809/RGBench/blob/main/docs/DATASET.md)
 
 ![左为实物平铺点云与候选网格俯视叠图，右为五块参考裁片和候选裁片叠图](../examples/rgbench-reference-overlay.png)

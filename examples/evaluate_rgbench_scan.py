@@ -1,7 +1,9 @@
 """Reproduce the real single-view flat-lay comparison on RGBench green_tshirt."""
 
 from argparse import ArgumentParser
+from hashlib import sha256
 import json
+from math import dist
 from pathlib import Path
 from statistics import median
 from urllib.request import urlopen
@@ -23,6 +25,7 @@ CAPTURES = {
 FRAME_IDS = ("start", "start-2", "middle")
 INPUT = "18-21-20-start"
 REFERENCE_OBJ = "meshes/Green_Tshirt/green_tshirt_5k.obj"
+REFERENCE_LANDMARKS = "green_tshirt/green_tshirt_fold_2025-07-28-18-21-20/calibration/landmarks.json"
 
 
 def download(directory, filename, remote):
@@ -43,6 +46,25 @@ def summarize(rows, dimensions):
             "median_absolute_difference_mm": round(median(abs(sample - value) for sample in values), 2),
         }
     return comparison
+
+
+def cuff_reference(directory, input_row):
+    encoded = download(directory, "reference-landmarks.json", REFERENCE_LANDMARKS).read_bytes()
+    points = json.loads(encoded)["scan_points"]
+    measured = input_row["flat_landmarks"].get("cuffs", {})
+    pairs = {"image_left": (1, 2), "image_right": (5, 6)}
+    comparisons = {}
+    for side, (a, b) in pairs.items():
+        reference = dist(points[a - 1], points[b - 1]) * 1000
+        observed = measured.get(side, {}).get("folded_opening_mm")
+        comparisons[side] = {
+            "source_point_indices_1_based": [a, b], "source_chord_mm": round(reference, 2),
+            "automated_folded_cuff_mm": observed,
+            "absolute_delta_mm": round(abs(reference - observed), 2) if observed is not None else None,
+        }
+    return {"dataset_path": REFERENCE_LANDMARKS, "sha256": sha256(encoded).hexdigest(),
+            "scope": "Cuff endpoint pairs identified by location in the authors' 3D calibration picks. Compare with the projected automatic chord.",
+            "cuffs": comparisons}
 
 
 def main():
@@ -76,6 +98,7 @@ def main():
                 "cloud_sha256": metadata["cloud_sha256"],
                 "world_to_camera_sha256": metadata["world_to_camera_sha256"],
                 "plane_distance_p95_mm": metadata["plane_distance_p95_mm"],
+                "flat_landmarks": metadata["flat_landmarks"],
                 "observed_mm": {name: metadata[name] for name in ("lower_torso_width_mm", "shoulder_level_to_hem_mm")},
             })
             if key == INPUT:
@@ -119,6 +142,7 @@ def main():
         compare_pattern(candidate, reference, args.output / "pattern-comparison", item_id="rgbench-green-tshirt",
                         source="RGBench green_tshirt_5k Style3D simulation mesh, CC BY 4.0, Sim2Real-v1",
                         order=("front", "back", "sleeve_right", "sleeve_left", "collar"))
+        report["physical_cuff_reference"] = cuff_reference(args.output, next(row for row in rows if row["frame"] == INPUT))
     (args.output / "study.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report["comparison_mm"], indent=2))
 

@@ -1,0 +1,187 @@
+"""Visible landmarks of a metric flat-lay silhouette, before estimating seams."""
+
+import numpy as np
+from scipy import ndimage
+
+from .tee import TeeSpec, body_panel, sleeve_panels
+
+
+def sleeve_cuff(outline, raw, torso_x, torso_width, mm_per_pixel):
+    limit = round(0.62 * len(outline))
+    edge = outline[:limit]
+    extent = edge.max() - torso_x
+    if extent < 0.075 * torso_width:
+        return None
+    start = int(np.flatnonzero(edge >= edge.max() - 3)[0])
+    # The folded cuff is roughly vertical in an upright flat lay. End its
+    # trace at the sustained inward turn toward the underarm seam.
+    rolling = max(2, round(14 / mm_per_pixel))
+    inward_turn = np.gradient(edge, mm_per_pixel) < -0.90
+    turn_support = np.convolve(inward_turn, np.ones(rolling), mode="valid")
+    ends = np.flatnonzero(turn_support >= rolling)
+    ends = ends[ends >= start + round(0.13 * torso_width / mm_per_pixel)]
+    if not ends.size:
+        return None
+    end = int(ends[0])
+    # Refine clean edges against the original pixel trace. The smoothing pass
+    # finds turns on wrinkled cloth but moves the corners of a straight cuff.
+    inset = max(1, round((end - start) * 0.18))
+    core = np.arange(start + inset, end - inset + 1)
+    if len(core) >= 4:
+        slope, intercept = np.polyfit(core, raw[core], 1)
+        error = np.abs(raw - (slope * np.arange(len(raw)) + intercept))
+        if np.quantile(error[core], 0.9) <= 3:
+            margin = round(16 / mm_per_pixel)
+            before = np.flatnonzero(error[max(0, start - margin):core[0]] > 4)
+            after = np.flatnonzero(error[core[-1] + 1:min(limit, end + margin + 1)] > 4)
+            if before.size and after.size:
+                start = max(0, start - margin) + int(before[-1]) + 1
+                end = int(core[-1] + after[0])
+                edge = raw[:limit]
+    delta_y = (end - start) * mm_per_pixel
+    delta_x = edge[end] - edge[start]
+    length = float(np.hypot(delta_x, delta_y))
+    chord = np.linspace(edge[start], edge[end], end - start + 1)
+    precision = float(np.quantile(np.abs(chord - edge[start:end + 1]), 0.9))
+    if not 0.14 * torso_width <= length <= 0.42 * torso_width or abs(delta_x) > delta_y or precision > 0.13 * length:
+        return None
+    torso_rows = np.flatnonzero(outline[end + 1:limit] <= torso_x + max(7, 0.06 * extent))
+    return {
+        "outer_mm": [float(edge[start]), start * mm_per_pixel],
+        "inner_mm": [float(edge[end]), end * mm_per_pixel],
+        "folded_opening_mm": round(length, 2),
+        "edge_fit_p90_mm": round(precision, 2),
+        "underarm_join_y_mm": (end + 1 + int(torso_rows[0])) * mm_per_pixel if torso_rows.size else None,
+    }
+
+
+def visible_neck(mask, center_x, torso_width, mm_per_pixel):
+    width = mask.shape[1]
+    raw = mask.argmax(axis=0).astype(float) * mm_per_pixel
+    top = ndimage.gaussian_filter1d(raw, max(0.65, 6 / mm_per_pixel))
+    x = np.arange(width) * mm_per_pixel
+    offset = x - center_x
+    # Keep the search on the neck-facing ends of the shoulders.
+    left, right = [np.flatnonzero((side * offset >= 0.07 * torso_width) & (side * offset <= 0.28 * torso_width))
+                   for side in (-1, 1)]
+    central = np.flatnonzero(np.abs(offset) <= 0.065 * torso_width)
+    if not len(left) or not len(right) or not len(central):
+        return None
+    a = left[top[left].argmin()]
+    b = right[top[right].argmin()]
+    opening = x[b] - x[a]
+    baseline = (top[a] + top[b]) / 2
+    gap_center = (x >= x[a] + 0.35 * opening) & (x <= x[b] - 0.35 * opening)
+    depth = np.median(top[gap_center]) - baseline
+    mid_offset = abs((x[a] + x[b]) / 2 - center_x)
+    if (not 0.19 * torso_width <= opening <= 0.45 * torso_width or not 12 <= depth <= 0.24 * torso_width
+            or abs(top[a] - top[b]) > 18 or mid_offset > opening * 0.19):
+        return None
+    # Verify that the shoulder extrema bound the central notch rather than
+    # spanning over a second fold at the rim. Use its nearest inner crossings.
+    peak = central[top[central].argmax()]
+    threshold = baseline + 0.25 * (top[peak] - baseline)
+    near_rim = np.flatnonzero(top <= threshold)
+    inner_left = near_rim[near_rim < peak]
+    inner_right = near_rim[near_rim > peak]
+    confirmed = bool(len(inner_left) and len(inner_right)
+                     and x[inner_right[0]] - x[inner_left[-1]] >= 0.72 * opening)
+    if confirmed:
+        refined = ndimage.median_filter(raw, size=3)
+        radius = round(12 / mm_per_pixel)
+        a, b = (int(window[refined[window].argmin()]) for window in (
+            left[abs(left - a) <= radius], right[abs(right - b) <= radius],
+        ))
+        opening = x[b] - x[a]
+    return {
+        "opening_width_mm": round(float(opening), 2),
+        "silhouette_depth_mm": round(float(depth), 2),
+        "corners_mm": [[round(float(x[i]), 2), round(float(top[i]), 2)] for i in (a, b)],
+        "confirmed_by_inner_notch": confirmed,
+    }
+
+
+def flat_landmarks(mask, mm_per_pixel, torso_width):
+    """Return only bilateral landmarks supported by this projected view."""
+    height, width = mask.shape
+    rows = slice(round(0.58 * height), round(0.86 * height))
+    reflect_x = (width - 1) * mm_per_pixel
+    sides = {}
+    body_edges = []
+    for side, image in (("image_right", mask), ("image_left", mask[:, ::-1])):
+        x = (width - 1 - image[:, ::-1].argmax(axis=1)) * mm_per_pixel
+        contour = ndimage.gaussian_filter1d(x.astype(float), max(0.65, 5 / mm_per_pixel))
+        center_edge = float(np.median(contour[rows]))
+        is_left = side == "image_left"
+        body_edges.append(reflect_x - center_edge if is_left else center_edge)
+        cuff = sleeve_cuff(contour, x, center_edge, torso_width, mm_per_pixel)
+        if cuff is None:
+            continue
+        for key in ("outer_mm", "inner_mm"):
+            x, y = cuff[key]
+            cuff[key] = [round(reflect_x - x if is_left else x, 2), round(y, 2)]
+        sides[side] = cuff
+    center = sum(body_edges) / 2
+    evidence = {"torso_center_x_mm": round(center, 2)}
+    if len(sides) == 2:
+        left, right = (sides[side]["folded_opening_mm"] for side in ("image_left", "image_right"))
+        if max(left, right) <= 1.18 * min(left, right):
+            evidence["cuffs"] = sides
+    neckline = visible_neck(mask, center, torso_width, mm_per_pixel)
+    if neckline is not None:
+        evidence["visible_neck"] = neckline
+    return evidence
+
+
+def draft_constraints(measures, evidence):
+    """Constrain observed lengths while retaining priors for hidden seam geometry."""
+    updates = {
+        "flat_chest_mm": evidence["lower_torso_width_mm"],
+        "back_length_mm": evidence["shoulder_level_to_hem_mm"] - measures["back_neck_depth_mm"],
+    }
+    methods = {"flat_chest_mm": "scan_silhouette", "back_length_mm": "scan_with_prior"}
+    landmarks = evidence["flat_landmarks"]
+    neckline = landmarks.get("visible_neck")
+    if neckline and neckline["confirmed_by_inner_notch"]:
+        # The inner opening is visible in silhouette. Approximate the width of
+        # the attachment seam by adding the nominal folded rib at both sides.
+        width = neckline["opening_width_mm"] + 2 * TeeSpec.collar_finished_width_mm
+        if width + 30 < measures["garment_shoulder_width_mm"]:
+            updates["neck_width_mm"] = width
+            methods["neck_width_mm"] = "scan_with_prior"
+
+    if "cuffs" in landmarks:
+        cuffs = landmarks["cuffs"]
+        opening = sum(cuff["folded_opening_mm"] for cuff in cuffs.values())
+        taper = max(0, measures["sleeve_bicep_flat_mm"] - measures["sleeve_opening_flat_mm"])
+        bicep = opening + taper
+        shoulder_slope = measures["shoulder_slope_mm"]
+        armhole = max(measures["armhole_depth_mm"], shoulder_slope + bicep / 2 + 6)
+        proposed = {"sleeve_opening_flat_mm": opening, "sleeve_bicep_flat_mm": bicep, "armhole_depth_mm": armhole}
+        center = landmarks["torso_center_x_mm"]
+        top = evidence["shoulder_line_y_mm"]
+        lengths = []
+        for side, tag in ((-1, "image_left"), (1, "image_right")):
+            cuff = cuffs[tag]
+            outer, inner = np.asarray(cuff["outer_mm"]), np.asarray(cuff["inner_mm"])
+            delta_x, delta_y = inner - outer
+            direction = np.array([side * delta_y, -side * delta_x]) / np.linalg.norm(inner - outer)
+            shoulder = np.array([center + side * measures["garment_shoulder_width_mm"] / 2, top + shoulder_slope])
+            lengths.append(float((outer - shoulder) @ direction))
+        short, long = sorted(lengths)
+        chest = updates["flat_chest_mm"]
+        if 0.17 * chest <= short and long <= min(1.19 * short, 0.60 * chest):
+            proposed["sleeve_length_mm"] = sum(lengths) / 2
+
+        underarms = [cuff["underarm_join_y_mm"] - top for cuff in cuffs.values() if cuff["underarm_join_y_mm"] is not None]
+        if underarms and armhole > min(underarms):
+            return updates, methods, "Required armhole would extend past the visible sleeve-to-body join"
+        spec = TeeSpec(**{**measures, **updates, **proposed})
+        try:
+            spec.check()
+            sleeve_panels(spec, body_panel(spec, True), body_panel(spec, False))
+        except ValueError as error:
+            return updates, methods, str(error)
+        updates.update(proposed)
+        methods.update(dict.fromkeys(proposed, "scan_with_prior"))
+    return updates, methods, None

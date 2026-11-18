@@ -20,7 +20,7 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 运行 `python -m superarchiveallclo.check_archive build/archive` 可回读 DXF 毫米轮廓，核对原图和纸样哈希，并检查 GLB 容器。独立盲测样本可用 `superarchiveallclo.review` 一次生成归档、尺寸和轮廓报告。[实物 MVP 目标与数据格式](docs/mvp-acceptance.md)
 
-程序也能从毫米尺度的实物点云重建单面候选纸样和 3D。已在 RGBench 的真实圆领 T 恤上运行，保存原始点云、量测依据、DXF 和 GLB，并用同件复拍检查平铺三维，用配套数字参考量化各裁片误差。[真实扫描结果](docs/real-scan-study.md) · [逐片误差、平铺三维和复现命令](docs/real-reference-comparison.md)
+程序也能从毫米尺度的实物点云重建单面候选纸样和 3D。已在 RGBench 的真实圆领 T 恤上运行，保存原始点云、量测依据、DXF 和 GLB，并用同件复拍检查平铺三维，用配套数字参考量化各裁片误差。[袖口与领口自动量测、最新误差和复现命令](docs/scan-landmark-study.md)
 
 ## 生成首款 T 恤纸样
 
