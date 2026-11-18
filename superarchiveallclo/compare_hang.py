@@ -14,6 +14,7 @@ from scipy import ndimage
 from scipy.spatial import cKDTree
 
 from .check_archive import check_archive, glb_inventory
+from .cloth_material import mass_observation, material_mass, verify_mass_settings
 from .compare_flat import capture_sleeve_angle
 from .compare_shape import check_frame
 from .hang_supports import observed_pitch, pendulum_forecast, rotate_about_support
@@ -145,7 +146,7 @@ def prepare_swing(source, folder, extrinsic, support_file, evidence_hashes, job)
     }
 
 
-def compare_hang(archive, manifest, output, blender="blender"):
+def compare_hang(archive, manifest, output, blender="blender", *, save_ray_errors=False):
     if output.exists():
         raise ValueError(f"Output already exists: {output}")
     integrity = check_archive(archive)
@@ -173,6 +174,9 @@ def compare_hang(archive, manifest, output, blender="blender"):
     camera = in_world(np.zeros((1, 3)), extrinsic)[0]
     job = {"flat": rest, "camera_world_m": camera, "rest_contacts": contacts(source["rest_contacts_world_m"]),
            "supports": contacts(source["supports_world_m"])}
+    mass = mass_observation(source["garment_mass"]) if "garment_mass" in source else material_mass(capture.get("material"))
+    if mass is not None:
+        job["garment_mass_kg"] = np.asarray(mass["kg"])
     angle, angle_source = capture_sleeve_angle(capture)
     report = {
         "schema_version": 1, "item_id": source["item_id"], "source": source["source"],
@@ -189,6 +193,8 @@ def compare_hang(archive, manifest, output, blender="blender"):
         },
         "reference_scans": [],
     }
+    if mass is not None:
+        report["garment_mass"] = mass
     if "swing_history" in source:
         report["swing_forecast"] = prepare_swing(source, manifest.parent, extrinsic, support_file, evidence_hashes, job)
     for number, name in enumerate(names, 1):
@@ -221,7 +227,14 @@ def compare_hang(archive, manifest, output, blender="blender"):
         if result.returncode:
             raise ValueError("Suspension solve failed: " + (result.stdout + result.stderr)[-2800:])
         report["support_metrics"] = json.loads((workspace / "support-metrics.json").read_text())
+        if mass is not None:
+            verify_mass_settings(mass, report["support_metrics"].get("mass_settings"))
         with np.load(workspace / "hang-metrics.npz", allow_pickle=False) as data:
+            if save_ray_errors:
+                ray_errors = bundle / "gravity-ray-errors.npz"
+                keys = [row["id"] for row in report["reference_scans"]]
+                np.savez_compressed(ray_errors, **{key: data[f"after_{key}_ray_depth_mm"] for key in keys})
+                report["gravity_ray_errors"] = {"file": ray_errors.name, "sha256": sha256(ray_errors.read_bytes()).hexdigest()}
             for variant, filename in (("before", "before-gravity.glb"), ("after", "gravity-pose.glb")):
                 model_path = workspace / filename
                 report[variant] = {**glb_inventory(model_path), "sha256": sha256(model_path.read_bytes()).hexdigest()}

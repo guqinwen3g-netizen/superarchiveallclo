@@ -338,13 +338,15 @@ def fit_metric(vertices, edges, target_lengths, pins, *, lock_height=False):
         vertices[pins] = original[pins]
 
 
-def configure_cloth(model, pins, *, frame_end=FRAME):
+def configure_cloth(model, pins, *, frame_end=FRAME, garment_mass_kg=None):
     group = model.vertex_groups.new(name="Mannequin shoulder support")
     if len(pins):
         group.add(pins, 1, "REPLACE")
     cloth = model.modifiers.new("Cloth drape", "CLOTH")
     cloth.settings.quality = 10
-    cloth.settings.mass = 0.15
+    vertex_count = len(model.data.vertices)
+    vertex_mass = 0.15 if garment_mass_kg is None else garment_mass_kg / vertex_count
+    cloth.settings.mass = vertex_mass
     cloth.settings.tension_stiffness = 32
     cloth.settings.compression_stiffness = 32
     cloth.settings.shear_stiffness = 19
@@ -357,6 +359,11 @@ def configure_cloth(model, pins, *, frame_end=FRAME):
     cloth.collision_settings.use_self_collision = True
     cloth.collision_settings.self_distance_min = 0.0015
     cloth.point_cache.frame_end = frame_end
+    return {
+        "mesh_vertex_count": vertex_count, "vertex_mass_kg": float(cloth.settings.mass),
+        "requested_garment_mass_kg": garment_mass_kg,
+        "distribution": "reference_solver_setting" if garment_mass_kg is None else "uniform_over_sewn_vertices",
+    }
 
 
 def evaluated_positions(garment):
@@ -608,11 +615,14 @@ def main():
                         choices=("torso_with_arms", "torso_only", "display_torso"))
     parser.add_argument("--frames", type=int, default=FRAME)
     parser.add_argument("--arm-angle", type=float)
+    parser.add_argument("--garment-mass-kg", type=float)
     parser.add_argument("--photo-appearance", action="store_true")
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
     source, output, form = args.source, args.output, args.form
     if args.frames < 2:
         parser.error("Drape requires at least two frames")
+    if args.garment_mass_kg is not None and (not np.isfinite(args.garment_mass_kg) or args.garment_mass_kg <= 0):
+        parser.error("Measured garment mass must be positive and finite")
     try:
         angle = arm_angle(form, args.arm_angle)
     except ValueError as error:
@@ -632,7 +642,8 @@ def main():
     appearance = json.loads((output / "appearance.json").read_bytes()) if args.photo_appearance else None
     photo_uv = texture_coordinates(uv, panels, appearance) if appearance is not None else None
     garment, opening_loops = sewn_mesh(points, welded_faces, faces, uv, panels, photo_uv=photo_uv)
-    configure_cloth(garment, [] if contact_only else pins, frame_end=args.frames)
+    mass_settings = configure_cloth(garment, [] if contact_only else pins, frame_end=args.frames,
+                                    garment_mass_kg=args.garment_mass_kg)
     earlier_frame = max(1, args.frames - 5)
     for frame in range(1, args.frames + 1):
         scene.frame_set(frame)
@@ -664,6 +675,7 @@ def main():
         "seam_connection": "Shared vertices throughout draping",
         "evaluated_frame": args.frames,
         "frames_per_second": scene.render.fps / scene.render.fps_base,
+        "mass_settings": mass_settings,
         "last_interval_vertex_displacement_mm": motion,
         "flat_metric_absolute_strain_percent": {
             "median": round(float(np.median(strain)) * 100, 2),

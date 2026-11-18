@@ -1,0 +1,229 @@
+{
+  "item_id": "rgbench-green-tshirt",
+  "pattern_sha256": "919924d8ad85b91b743d677d463426240e11d28333825097ce633ed219599333",
+  "publisher_mass": {
+    "kg": 0.255,
+    "source": "https://raw.githubusercontent.com/hwk0809/RGBench/1631f595ecad273c9a56104d183a95b0d9318a9c/configs/cloth_params/green_tshirt_5k.yaml"
+  },
+  "publisher_config_sha256": "e36bbe0ed8903eb8b3de9bf9f89f639f8be9eccc44a9b654781749db760a288d",
+  "baseline_solver": {
+    "flat_translation_world_m": [
+      0.12356487939567844,
+      0.020546800173266933,
+      0.0027030181252901695
+    ],
+    "rest_registration_gaps_mm": [
+      7.09,
+      3.56
+    ],
+    "pinned_vertices_per_patch": [
+      5,
+      5
+    ],
+    "natural_patch_centroid_separation_mm": 545.42,
+    "target_support_separation_mm": 459.12,
+    "pinned_patch_centroid_drift_mm": [
+      0.0,
+      0.0
+    ],
+    "edge_strain_p95_percent": 9.45,
+    "frame": 55,
+    "fps": 24,
+    "time_scale": 0.8,
+    "last_interval_vertex_displacement_mm": {
+      "frames": [
+        47,
+        55
+      ],
+      "median": 2.04,
+      "p90": 6.45
+    },
+    "openings": 4,
+    "cloth_mass_setting": 0.15000000596046448,
+    "mass_settings": {
+      "mesh_vertex_count": 6848,
+      "vertex_mass_kg": 0.15000000596046448,
+      "requested_garment_mass_kg": null,
+      "distribution": "reference_solver_setting"
+    }
+  },
+  "publisher_mass_solver": {
+    "flat_translation_world_m": [
+      0.12356487939567844,
+      0.020546800173266933,
+      0.0027030181252901695
+    ],
+    "rest_registration_gaps_mm": [
+      7.09,
+      3.56
+    ],
+    "pinned_vertices_per_patch": [
+      5,
+      5
+    ],
+    "natural_patch_centroid_separation_mm": 545.42,
+    "target_support_separation_mm": 459.12,
+    "pinned_patch_centroid_drift_mm": [
+      0.0,
+      0.0
+    ],
+    "edge_strain_p95_percent": 9.49,
+    "frame": 55,
+    "fps": 24,
+    "time_scale": 0.8,
+    "last_interval_vertex_displacement_mm": {
+      "frames": [
+        47,
+        55
+      ],
+      "median": 1.39,
+      "p90": 2.68
+    },
+    "openings": 4,
+    "cloth_mass_setting": 3.7237150536384434e-05,
+    "mass_settings": {
+      "mesh_vertex_count": 6848,
+      "vertex_mass_kg": 3.7237150536384434e-05,
+      "requested_garment_mass_kg": 0.255,
+      "distribution": "uniform_over_sewn_vertices"
+    }
+  },
+  "scope": "No scoring frame changes garment mass, initial placement, stiffness, supports or solver settings.",
+  "summary": {
+    "baseline": {
+      "front_iou": 0.8708,
+      "absolute_depth_median_mm": 22.095,
+      "absolute_depth_p90_mm": 54.845
+    },
+    "publisher_mass": {
+      "front_iou": 0.74525,
+      "absolute_depth_median_mm": 10.395,
+      "absolute_depth_p90_mm": 35.26
+    }
+  },
+  "frames": [
+    {
+      "scan": "scan-01",
+      "sha256": "2fb2f6834c48163d2a6646e7f83c797c88a56e00f60935507950405f3ac6a386",
+      "measured_rays": 65308,
+      "common_hits": 64245,
+      "baseline_hit_rays": 64245,
+      "publisher_mass_hit_rays": 65121,
+      "baseline_depth_mm": {
+        "signed_median_mm": 4.43,
+        "absolute_median_mm": 8.39,
+        "absolute_p90_mm": 36.2
+      },
+      "publisher_mass_depth_mm": {
+        "signed_median_mm": -7.43,
+        "absolute_median_mm": 9.55,
+        "absolute_p90_mm": 29.05
+      },
+      "baseline_front_iou": 0.8723,
+      "publisher_mass_front_iou": 0.7452
+    },
+    {
+      "scan": "scan-02",
+      "sha256": "cb0fcee0d7a66f1a90460a71e816e7f140e6d1a5d9d8780909b3e85e195c899e",
+      "measured_rays": 66814,
+      "common_hits": 65380,
+      "baseline_hit_rays": 65380,
+      "publisher_mass_hit_rays": 66525,
+      "baseline_depth_mm": {
+        "signed_median_mm": 17.8,
+        "absolute_median_mm": 21.86,
+        "absolute_p90_mm": 48.21
+      },
+      "publisher_mass_depth_mm": {
+        "signed_median_mm": 7.02,
+        "absolute_median_mm": 10.18,
+        "absolute_p90_mm": 30.19
+      },
+      "baseline_front_iou": 0.8673,
+      "publisher_mass_front_iou": 0.7439
+    },
+    {
+      "scan": "scan-03",
+      "sha256": "4d5b7eb0e105ec0da5f3b13f9240c79dba3bba75ec9d3e82d3ecd31aca01a29d",
+      "measured_rays": 68043,
+      "common_hits": 66206,
+      "baseline_hit_rays": 66206,
+      "publisher_mass_hit_rays": 67581,
+      "baseline_depth_mm": {
+        "signed_median_mm": 22.48,
+        "absolute_median_mm": 24.8,
+        "absolute_p90_mm": 72.7
+      },
+      "publisher_mass_depth_mm": {
+        "signed_median_mm": 11.32,
+        "absolute_median_mm": 12.81,
+        "absolute_p90_mm": 49.16
+      },
+      "baseline_front_iou": 0.8626,
+      "publisher_mass_front_iou": 0.7394
+    },
+    {
+      "scan": "scan-04",
+      "sha256": "5d0c3211594de48e87a3f075de049740e5cf54900d2b0c155ff24e51357bf603",
+      "measured_rays": 68430,
+      "common_hits": 66642,
+      "baseline_hit_rays": 66643,
+      "publisher_mass_hit_rays": 68037,
+      "baseline_depth_mm": {
+        "signed_median_mm": 21.57,
+        "absolute_median_mm": 24.2,
+        "absolute_p90_mm": 75.33
+      },
+      "publisher_mass_depth_mm": {
+        "signed_median_mm": 10.61,
+        "absolute_median_mm": 12.37,
+        "absolute_p90_mm": 52.36
+      },
+      "baseline_front_iou": 0.8693,
+      "publisher_mass_front_iou": 0.7453
+    },
+    {
+      "scan": "scan-05",
+      "sha256": "f0a5606c781f45e08feedb3ce63167846830d523923724a2a0e35895b73f950d",
+      "measured_rays": 67804,
+      "common_hits": 66513,
+      "baseline_hit_rays": 66516,
+      "publisher_mass_hit_rays": 67600,
+      "baseline_depth_mm": {
+        "signed_median_mm": 19.62,
+        "absolute_median_mm": 22.33,
+        "absolute_p90_mm": 61.48
+      },
+      "publisher_mass_depth_mm": {
+        "signed_median_mm": 8.83,
+        "absolute_median_mm": 10.61,
+        "absolute_p90_mm": 40.33
+      },
+      "baseline_front_iou": 0.8782,
+      "publisher_mass_front_iou": 0.7488
+    },
+    {
+      "scan": "scan-06",
+      "sha256": "359688e37390ed43c4327f70459df36e3873a736d07b862bb471a86ad8492496",
+      "measured_rays": 67076,
+      "common_hits": 66118,
+      "baseline_hit_rays": 66125,
+      "publisher_mass_hit_rays": 66958,
+      "baseline_depth_mm": {
+        "signed_median_mm": 15.95,
+        "absolute_median_mm": 19.18,
+        "absolute_p90_mm": 43.92
+      },
+      "publisher_mass_depth_mm": {
+        "signed_median_mm": 5.5,
+        "absolute_median_mm": 8.44,
+        "absolute_p90_mm": 25.54
+      },
+      "baseline_front_iou": 0.8844,
+      "publisher_mass_front_iou": 0.7501
+    }
+  ],
+  "initial_glb_sha256": "dc2f3d556cbed962d04fe3df272402cdb91859f5dc5a7055932da9f3587eaf94",
+  "baseline_glb_sha256": "4ea6ea6eb8e871004eec9bfd73e6b7813cc9ad3f3885e7c02eb5bbcd8d8e8660",
+  "publisher_mass_glb_sha256": "7bf36a3fd6937849cb35acf0be01b1a68a3336657f2dbc722182988e7541f80c"
+}

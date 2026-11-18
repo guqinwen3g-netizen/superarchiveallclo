@@ -64,9 +64,10 @@ def main():
         supports = job["supports"]
         camera = job["camera_world_m"] if "camera_world_m" in job else None
         forecast = job["forecast_rotation_radians"] if "forecast_rotation_radians" in job else None
+        mass = float(job["garment_mass_kg"]) if "garment_mass_kg" in job else None
     garment, loops = sewn_mesh(posed, triangles, faces, uv, panels)
     save_pose(garment, posed, directory / "before-gravity.glb")
-    configure_cloth(garment, np.concatenate(patches).tolist(), frame_end=FRAME)
+    mass_settings = configure_cloth(garment, np.concatenate(patches).tolist(), frame_end=FRAME, garment_mass_kg=mass)
     cloth = garment.modifiers["Cloth drape"]
     cloth.settings.effector_weights.gravity = 1.0
     cloth.settings.time_scale = 0.8
@@ -90,7 +91,7 @@ def main():
         "last_interval_vertex_displacement_mm": displacement_summary(
             earlier, final, FRAME - MOTION_INTERVAL_FRAMES, FRAME,
         ),
-        "openings": len(loops), "cloth_mass_setting": 0.15,
+        "openings": len(loops), "cloth_mass_setting": mass_settings["vertex_mass_kg"], "mass_settings": mass_settings,
     }, indent=2) + "\n")
     metrics = {}
     for variant, name in (("before", "before-gravity.glb"), ("after", "gravity-pose.glb")):

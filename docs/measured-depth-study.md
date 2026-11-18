@@ -19,6 +19,30 @@
 
 此实验的直接深度证据属于 RGBench 的双点悬挂 T 恤。馆藏 T 恤的人台对照仍使用照片外包络，两者的姿态条件及真实样衣各自记录。[馆藏人台外包络](drape-support-study.md)
 
+## 记录整衣重量后的对照
+
+RGBench 发布的绿色 T 恤两组网格配置均记录整衣重量 **0.255 kg**。本实验按发布方模型的整衣质量使用，单独的称重原始记录仍缺。Blender 的质量设置按顶点定义。程序把整衣质量均分到同版缝合网格的 **6,848** 个顶点，约 **0.00003724 kg/顶点**。对照版沿用参考求解器默认的 **0.15/顶点**。两版使用相同已校验的纸样和仿真前 GLB，固定支撑、刚度、接触设置、帧数和重力相同。RGBench 在其求解器中拟合的伸长、弯曲和摩擦系数保留在原配置。[发布配置](https://github.com/hwk0809/RGBench/blob/1631f595ecad273c9a56104d183a95b0d9318a9c/configs/cloth_params/green_tshirt_5k.yaml) · [RGBench 的求解器说明](https://github.com/hwk0809/RGBench/blob/main/docs/BENCHMARK.md) · [Blender 质量字段](https://docs.blender.org/api/4.5/bpy.types.ClothSettings.html#bpy.types.ClothSettings.mass)
+
+| 六帧留出指标的中位数 | 参考求解器设置 | 发布方整衣重量 |
+| --- | ---: | ---: |
+| 正视轮廓交并比 | 87.08% | 74.53% |
+| 共同命中射线绝对深度中位数 | 22.10 mm | 10.40 mm |
+| 共同命中射线绝对深度 P90 | 54.85 mm | 35.26 mm |
+| 仿真最后八帧顶点位移 P90 | 6.45 mm | 2.68 mm |
+
+六帧共同命中率为 **97.30%–98.57%**，深度统计比较同一批射线。只改变质量使布面深度更接近实测，同时使正视轮廓重合下降。整衣质量已接入出档和复核，袖片垂落仍需结合实测弯曲、拉伸及支撑形态验证。
+
+![参考设置和发布方整衣重量下的两帧实物悬挂轮廓](../examples/rgbench-mass-overlay.png)
+
+橙色为仿真独有区域，蓝色为实物独有区域，深灰为重叠。按整衣重量计算时，袖子和领肩附近伸出了更多轮廓。实物扫描来自 Hu 等人，许可为 CC BY 4.0。[逐帧指标和网格哈希](rgbench-mass-study.json)
+
+```sh
+python -m examples.evaluate_rgbench_material build/rgbench-scan/frames/18-21-20-start/archive \
+  build/rgbench-forecast/data/suspension.json -o build/rgbench-mass
+```
+
+归档及悬挂参考清单可以用下节命令生成。程序校验发布方配置哈希，`study.json` 保存同版纸样哈希和逐帧指标，两组子目录保留各自 GLB 和用于共同射线评分的原始差值。
+
 ## 数据入口核查
 
 已从格拉斯哥大学 CC BY 4.0 的 CloPeMa Clothes 高分辨率档案读取首卷签名和末卷索引，核对 6,073 项条目，其中包括先前实验所用两件 T 恤的第 0 帧 RGB、深度和分割记录。索引列出 PNG、MAT 和目录，未发现单列的标定文件。原始分卷为约 25.77 GB，本次核查使用远程范围读取文件索引。[正式数据档案](https://researchdata.gla.ac.uk/270/)
@@ -26,6 +50,8 @@
 同校另一个立体服装数据库在论文中列出了每个姿态的相机 XML、视差、掩码以及平铺和悬挂拍摄。已从网页存档找回原发布页的七个数据链接，逐一访问均返回访问限制。论文标明数据用于科学研究。[原始论文](https://arxiv.org/abs/1311.7295) · [历史数据附件页](https://web.archive.org/web/20201010190742id_/https://sites.google.com/site/ugstereodatabase/attachments)
 
 Flat’n’Fold 的目录确认 CC BY 4.0，公开的相机文件和样本说明列出同步正视、侧视和顶视 RGB-D。实际访问代码库所列的共享目录，页面提示链接已过期。校方档案页仍有数据申请入口。ETH Zurich 的 4D-DRESS 具有同步原图、相机参数与实穿扫描，其数据许可限于非商业学术用途，且以所属机构邮箱申请。[Flat’n’Fold 校方档案](https://researchdata.gla.ac.uk/1881/) · [采集文件说明](https://github.com/lipeng-zhuang521/flat-n-fold#dataset) · [4D-DRESS 内容](https://eth-ait.github.io/4d-dress/) · [4D-DRESS 数据许可](https://4d-dress.ait.ethz.ch/)
+
+已下载 Sánchez-Banderas 等人的布样实测表。共 86 条布样，其中 19 条为平纹针织 `jersey`，包含克重、厚度和真实 Cusick 垂坠测量。该布样表可供材料试验复核，未标注与 RGBench 绿色 T 恤相同的面料。[作者发布与数据入口](https://gabrielcirio.gitlab.io/#publications)
 
 ## 复现
 

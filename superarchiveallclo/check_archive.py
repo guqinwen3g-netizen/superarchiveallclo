@@ -12,6 +12,8 @@ import ezdxf
 from ezdxf import units
 from PIL import Image
 
+from .cloth_material import material_mass, verify_mass_settings
+
 
 def dxf_inventory(path, pattern):
     source = ezdxf.readfile(path)
@@ -118,6 +120,9 @@ def check_archive(root: Path):
     checksum = sha256(pattern_bytes).hexdigest()
     if checksum != simulation["pattern_sha256"]:
         raise ValueError("3D simulation refers to a different source pattern")
+    recorded_mass = material_mass(capture.get("material"))
+    if recorded_mass is not None:
+        verify_mass_settings(recorded_mass, simulation.get("mass_settings"))
     if "opening_perimeters_mm" in simulation:
         openings = simulation["opening_perimeters_mm"]
         if not isinstance(openings, dict) or openings.keys() != {"neck", "sleeve_left", "sleeve_right", "hem"}:
@@ -153,6 +158,7 @@ def check_archive(root: Path):
         "seams": len(pattern["seams"]),
         "garment_openings": simulation["welded_opening_count"],
         "glb": glb_inventory(root / "model/garment.glb", atlas=atlas),
+        **({"garment_mass_kg": recorded_mass["kg"]} if recorded_mass is not None else {}),
     }
 
 
