@@ -62,4 +62,4 @@ python -m superarchiveallclo.check_archive build/smoke-archive
 - GarmentCodeData 提供参数化纸样及模拟服装。可用作制板和渲染对照，真实 T 恤验收仍需同一件实物的照片与尺寸。[GarmentCode 官方资料](https://github.com/maria-korosteleva/GarmentCode)
 - DeepFashion2 收录商家及消费者照片，并提供遮挡、关键点和像素掩码。公开标注说明中的尺度是图像内尺度分档，没有对应的实物毫米制板数据。[DeepFashion2 标注与访问说明](https://github.com/switchablenorms/DeepFashion2)
 - SAFT 的真实评测提供布料的 RGB、深度及点云。可用于研究布料形变，现有说明没有可直接用于本项目盲测的同款 T 恤纸样和实测尺寸。[SAFT 论文](https://openaccess.thecvf.com/content/ICCV2025/papers/Stotko_SAFT_Shape_and_Appearance_of_Fabrics_from_Template_via_Differentiable_ICCV_2025_paper.pdf)
-- LiDAR 服装测量研究公布了 330 组 RGB、深度、点云和关键点标注。该方法从单张平铺照测量，公开目录尚未确认同一原件的正背照、实测纸样和明确的数据再使用条款。可继续核对它是否适合单视图测量对照。[研究仓库与数据说明](https://github.com/ZinoStudio931/Automatic-Garments-Size-Measurement-using-HRNet-and-Point-Cloud)
+- LiDAR 服装测量研究的两个公开实验各列出 330 张 RGB 图及深度、PLY 和 COCO 标注。每份 COCO 标注包含 100 条短袖上衣记录，各自对应不同的 `pair_id`。图像字段未给出正背面，标注未提供实测毫米尺寸或版片，两份 JSON 的许可列表也为空。该来源可继续用于核对单视图测量方法，实物归档验收仍需要同件正背照、独立尺寸、结构证据及使用授权。[研究说明](https://github.com/ZinoStudio931/Automatic-Garments-Size-Measurement-using-HRNet-and-Point-Cloud) · [公开实验目录](https://drive.google.com/drive/folders/1ePJE7KybnQlHRa-4QxiX-jPfpIYKf_Oa)

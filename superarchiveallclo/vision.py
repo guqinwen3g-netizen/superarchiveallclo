@@ -1,12 +1,15 @@
 """Calibrated silhouette features and a learned tee measurement regressor."""
 
+from argparse import ArgumentParser
 from hashlib import sha256
 from io import BytesIO
+import json
 from pathlib import Path
 
 import numpy as np
 from PIL import Image, ImageOps
 from scipy import ndimage
+from scipy.spatial import ConvexHull, QhullError
 
 # The card is a 100 mm square of solid magenta printed at actual size.
 CARD_MM = 100.0
@@ -25,28 +28,46 @@ def regions(mask):
     return labels, sizes
 
 
-def picture_features(image):
-    """Return metric dimensions and crop-relative silhouette descriptors."""
-    image = ImageOps.exif_transpose(image).convert("RGB")
-    image.thumbnail((720, 720), Image.Resampling.BOX)
-    rgb = np.asarray(image, dtype=np.int16)
+def card_shape(x, y):
+    """Measure the marker along its projected edges rather than image axes."""
+    coordinates = np.column_stack((x, y)).astype(float)
+    try:
+        hull = coordinates[ConvexHull(coordinates).vertices]
+    except QhullError:
+        return None
+    edges = np.roll(hull, -1, axis=0) - hull
+    angles = np.mod(np.arctan2(edges[:, 1], edges[:, 0]), np.pi / 2)
+    c, s = np.cos(angles), np.sin(angles)
+    widths = np.ptp(hull[:, 0, None] * c + hull[:, 1, None] * s, axis=0) + 1
+    heights = np.ptp(hull[:, 1, None] * c - hull[:, 0, None] * s, axis=0) + 1
+    index = np.argmin(widths * heights)
+    a, b = sorted((widths[index], heights[index]))
+    return float(b / a), float(len(x) / (a * b))
+
+
+def calibration(rgb):
     height, width = rgb.shape[:2]
     r, g, b = rgb.transpose(2, 0, 1)
     card = (r - g > 48) & (b - g > 42) & (r > 130) & (b > 115)
     labels, sizes = regions(card)
-    possible_cards = []
+    candidates, possible_cards = 0, []
     for index in np.flatnonzero(sizes >= 100):
         yy, xx = np.where(labels == index)
         span_x, span_y = np.ptp(xx) + 1, np.ptp(yy) + 1
         area = sizes[index]
         if (
-            0.82 <= span_x / span_y <= 1.22 and area >= 0.73 * span_x * span_y
+            0.60 <= span_x / span_y <= 1.67 and area >= 0.46 * span_x * span_y
             and min(xx.min(), yy.min(), width - 1 - xx.max(), height - 1 - yy.max()) > 1
         ):
-            possible_cards.append((int(index), yy, xx))
+            candidates += 1
+            shape = card_shape(xx, yy)
+            if shape is not None and shape[0] <= 1.12 and shape[1] >= 0.84:
+                possible_cards.append((int(index), yy, xx, *shape))
+    if not possible_cards and candidates:
+        raise ValueError("Calibration marker looks distorted. Place it flat and shoot directly overhead")
     if len(possible_cards) != 1:
         raise ValueError("Show one full 100 mm magenta calibration card, separate from the garment")
-    card_id, yy, xx = possible_cards[0]
+    card_id, yy, xx, aspect, fill = possible_cards[0]
     # JPEG spreads color across the card edge. Integrate the local chroma
     # rather than counting all pixels whose color passed the locating threshold.
     signal = (r + b) * 0.5 - g
@@ -57,9 +78,22 @@ def picture_features(image):
     area = (window - local_background).sum() / max(chroma, 1)
     if not 0.68 * sizes[card_id] <= area <= 1.23 * sizes[card_id]:
         raise ValueError("Keep the calibration card clear of garment edges and shadows")
-    mm_per_px = float(CARD_MM / np.sqrt(area))
     exclusion = ndimage.binary_dilation(labels == card_id, iterations=3)
+    return float(CARD_MM / np.sqrt(area)), exclusion, {
+        "method": "magenta_card_chroma_area",
+        "card_mm": CARD_MM,
+        "card_aspect_ratio": round(aspect, 4),
+        "card_rectangular_fill": round(fill, 4),
+    }
 
+
+def picture_features(image):
+    """Return metric dimensions and crop-relative silhouette descriptors."""
+    image = ImageOps.exif_transpose(image).convert("RGB")
+    image.thumbnail((720, 720), Image.Resampling.BOX)
+    rgb = np.asarray(image, dtype=np.int16)
+    height, width = rgb.shape[:2]
+    mm_per_px, exclusion, scale = calibration(rgb)
     border = np.concatenate((rgb[:4].reshape(-1, 3), rgb[-4:].reshape(-1, 3),
                              rgb[:, :4].reshape(-1, 3), rgb[:, -4:].reshape(-1, 3)))
     backdrop = np.median(border, axis=0)
@@ -92,22 +126,36 @@ def picture_features(image):
         [actual_width, actual_height],
         row_widths, top_edges, bottom_edges, np.asarray(small).ravel() / 255.0,
     ))
+    torso = float(np.median(row_widths[30:42]))
     return descriptor, {
-        "method": "magenta_card_chroma_area", "card_mm": CARD_MM,
+        **scale,
         "processed_mm_per_pixel": round(mm_per_px, 5),
         "processed_image_px": [width, height],
+        "processed_image_sha256": sha256(image.tobytes()).hexdigest(),
         "garment_crop_px": [left, top, right, bottom],
         "garment_box_mm": [round(actual_width, 2), round(actual_height, 2)],
+        "lower_torso_width_mm": round(torso, 2),
     }
 
 
 def paired_features(front, back):
     front_features, front_scale = picture_features(front)
     back_features, back_scale = picture_features(back)
-    heights = [evidence["garment_box_mm"][1] for evidence in (front_scale, back_scale)]
-    if max(heights) / min(heights) > 1.20:
-        raise ValueError("Front and back photographs disagree on garment length")
+    if front_scale["processed_image_sha256"] == back_scale["processed_image_sha256"]:
+        raise ValueError("Provide two distinct photographs, one front and one back")
+    if not have_consistent_dimensions(front_scale, back_scale):
+        raise ValueError("Front and back photographs disagree on garment length or torso width")
     return np.r_[front_features, back_features], {"front": front_scale, "back": back_scale}
+
+
+def have_consistent_dimensions(front, back):
+    for a, b in (
+        (front["garment_box_mm"][1], back["garment_box_mm"][1]),
+        (front["lower_torso_width_mm"], back["lower_torso_width_mm"]),
+    ):
+        if min(a, b) <= 0 or max(a, b) / min(a, b) > 1.12:
+            return False
+    return True
 
 
 class TeeVision:
@@ -151,3 +199,20 @@ class TeeVision:
         clipped = np.clip(values, self.target_min, self.target_max)
         measures = {key: round(float(value), 3) for key, value in zip(FIELDS, clipped, strict=True)}
         return measures, [field for field, raw, used in zip(FIELDS, values, clipped) if raw != used]
+
+
+def main():
+    parser = ArgumentParser(description="Check a calibrated front/back photo pair before creating a 3D archive.")
+    parser.add_argument("front", type=Path)
+    parser.add_argument("back", type=Path)
+    args = parser.parse_args()
+    try:
+        with Image.open(args.front) as front, Image.open(args.back) as back:
+            _, evidence = paired_features(front, back)
+    except (ValueError, OSError) as error:
+        parser.error(str(error))
+    print(json.dumps(evidence, indent=2))
+
+
+if __name__ == "__main__":
+    main()
