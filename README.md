@@ -36,6 +36,8 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 同一件馆藏圆领 T 恤另用标定挂拍构造三维外包络，在留出照片及三维体素上评估同版 GLB，并量化人台手臂支撑的影响。[人台三维对照与复现](docs/mannequin-study.md)
 
+一条命令可从奥克兰馆藏正背原照重跑盲测、毫米 DXF、同版 3D、独立挂拍外包络和局部三维点对照。[完整实物实验与复现](docs/photo-landmark-study.md)
+
 双面采集可分别恢复腋下胸宽与下摆宽，把侧缝收窄或放宽的幅度写入毫米纸样及同版仿真。[两件实物的衣身宽度对照](docs/body-profile-study.md)
 
 展台仿真可以使用无臂人台的接触支撑。对照报告记录模型随高度变化的前后深度，以及导出时布料的位移。[同版垂坠对照](docs/drape-support-study.md)

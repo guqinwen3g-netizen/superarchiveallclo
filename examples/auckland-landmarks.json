@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "item_id": "auckland-2017.66.22",
+  "exif_focal_plane_axes": "landscape_sensor",
+  "annotation_size_px": [
+    576,
+    864
+  ],
+  "points": {
+    "cup-spiral": {
+      "label": "Dark core of the spiral inside the circular World Youth Cup crest",
+      "region": "chest",
+      "fit": {
+        "photo-02": [
+          399,
+          258
+        ],
+        "photo-03": [
+          202,
+          265
+        ]
+      },
+      "held_out": {
+        "photo-01": [
+          383,
+          180
+        ]
+      }
+    },
+    "cup-line-start": {
+      "label": "Left end of the first printed text line under the cup crest",
+      "region": "chest",
+      "fit": {
+        "photo-02": [
+          362,
+          279
+        ],
+        "photo-03": [
+          174,
+          293
+        ]
+      },
+      "held_out": {
+        "photo-01": [
+          362,
+          195
+        ]
+      }
+    },
+    "cup-year-tip": {
+      "label": "Lower-right ink tip of the final digit at the end of the cup text",
+      "region": "chest",
+      "fit": {
+        "photo-02": [
+          425,
+          320
+        ],
+        "photo-03": [
+          207,
+          324
+        ]
+      },
+      "held_out": {
+        "photo-01": [
+          404,
+          217
+        ]
+      }
+    },
+    "canterbury-center": {
+      "label": "Inward junction between the middle and largest curls of the black Canterbury logo",
+      "region": "chest",
+      "fit": {
+        "photo-02": [
+          178,
+          274
+        ],
+        "photo-05": [
+          326,
+          275
+        ]
+      },
+      "held_out": {
+        "photo-01": [
+          249,
+          193
+        ]
+      }
+    },
+    "upper-ink-dot": {
+      "label": "Upper dot of the signature to the left of the chest panel",
+      "region": "chest",
+      "fit": {
+        "photo-02": [
+          141,
+          350
+        ],
+        "photo-05": [
+          321,
+          347
+        ]
+      },
+      "held_out": {
+        "photo-01": [
+          224,
+          241
+        ]
+      }
+    },
+    "upper-ink-crossing": {
+      "label": "Stroke crossing at the long horizontal loop in the same signature",
+      "region": "chest",
+      "fit": {
+        "photo-02": [
+          142,
+          377
+        ],
+        "photo-05": [
+          316,
+          376
+        ]
+      },
+      "held_out": {
+        "photo-01": [
+          225,
+          258
+        ]
+      }
+    },
+    "cuff-mark": {
+      "label": "Center of the small gray circular mark on the sleeve just above the cuff",
+      "region": "sleeve",
+      "fit": {
+        "photo-02": [
+          502,
+          459
+        ],
+        "photo-03": [
+          277,
+          475
+        ]
+      },
+      "held_out": {
+        "photo-01": [
+          450,
+          309
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,700 @@
+{
+  "schema_version": 1,
+  "capture_kind": "physical",
+  "item_id": "auckland-2017.66.22",
+  "rights": "Auckland War Memorial Museum Tāmaki Paenga Hira, CC BY 4.0, https://creativecommons.org/licenses/by/4.0/",
+  "execution": {
+    "blender": "4.3.2",
+    "weights_sha256": "c11748bd32e5d9134b1e5f25af16d893a8e16a6e80d68167e5ab9a0ac20b59d0",
+    "reference_form": "display_torso",
+    "frames": 38
+  },
+  "input_and_output": {
+    "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+    "textured_garment_glb_sha256": "acb04a55714091df9e2f609a64ea3f37305e3607bfa547e438640051aa02e621",
+    "archive_audit": {
+      "capture_kind": "physical",
+      "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+      "source_photos": 4,
+      "vision_estimates": 10,
+      "dxf_panels": 5,
+      "seams": 15,
+      "garment_openings": 4,
+      "glb": {
+        "meshes": 1,
+        "bounds_span_m": [
+          0.57,
+          0.7058,
+          0.3227
+        ],
+        "embedded_photo_atlases": 1
+      }
+    }
+  },
+  "independent_dimensions": {
+    "reference_mm": {
+      "flat_chest_mm": 515.0,
+      "garment_shoulder_width_mm": 505.0
+    },
+    "reference_sources": {
+      "flat_chest_mm": "catalogue_measurement",
+      "garment_shoulder_width_mm": "catalogue_measurement"
+    },
+    "inferred_mm": {
+      "flat_chest_mm": 552.38,
+      "back_length_mm": 670.432,
+      "garment_shoulder_width_mm": 502.682,
+      "shoulder_slope_mm": 50.993,
+      "armhole_depth_mm": 238.729,
+      "sleeve_length_mm": 243.582,
+      "sleeve_bicep_flat_mm": 377.213,
+      "sleeve_opening_flat_mm": 327.031,
+      "neck_width_mm": 160.001,
+      "front_neck_depth_mm": 73.057,
+      "back_neck_depth_mm": 20.568,
+      "flat_hem_mm": 625.67
+    },
+    "absolute_error_mm": {
+      "flat_chest_mm": 37.38,
+      "garment_shoulder_width_mm": 2.318
+    },
+    "training_overlap_check": "training_fingerprints_unavailable",
+    "photo_sha256": {
+      "front": "bd7ecb97196fe1c95ab4acec7c13bb6f2ae3cecd501f7a2ef4c55c9031c03047",
+      "back": "82d20186e3eb1e0d3f9c55e0f1fba158672069d63ab4d107ac9f5779dc31d7f3",
+      "sleeve_outer": "d3f2f7e4b371c3833efb3a089bb7eeda807c8508e9aedccec3810f393923a211",
+      "sleeve_inner": "0c511f5f3242120d5a9f46b303cae4f0d31f986bef123961d0f629a7a0babfa4"
+    },
+    "signed_error_mm": {
+      "flat_chest_mm": 37.38,
+      "garment_shoulder_width_mm": -2.318
+    }
+  },
+  "visible_construction": {
+    "scope": "Physical photos show the cuff fold and the interior seam. Seam allowances and original cuts are unmeasured.",
+    "photos": {
+      "sleeve_outer": {
+        "photo": "netball-17.jpg",
+        "sha256": "d3f2f7e4b371c3833efb3a089bb7eeda807c8508e9aedccec3810f393923a211",
+        "source_url": "https://commons.wikimedia.org/?curid=83524168"
+      },
+      "sleeve_inner": {
+        "photo": "netball-18.jpg",
+        "sha256": "0c511f5f3242120d5a9f46b303cae4f0d31f986bef123961d0f629a7a0babfa4",
+        "source_url": "https://commons.wikimedia.org/?curid=83524170"
+      }
+    },
+    "simulated_openings_mm": {
+      "hem": {
+        "perimeter": 1255.763,
+        "perimeter_64_chords": 1224.997
+      },
+      "sleeve_right": {
+        "perimeter": 327.861,
+        "perimeter_64_chords": 319.716
+      },
+      "sleeve_left": {
+        "perimeter": 327.714,
+        "perimeter_64_chords": 323.473
+      },
+      "neck": {
+        "perimeter": 421.748,
+        "perimeter_64_chords": 419.837
+      }
+    }
+  },
+  "independent_photo_reference": {
+    "photo_sha256": {
+      "photo-01": "1b64a9ca2387d0cd410814ce3189c7bd3d4d6f03e8157b8494c223266bd53590",
+      "photo-02": "5a5c4cd1990a8ab3654d500f6ebf261606bde0374485aa342098c88b6142eb5c",
+      "photo-03": "29b5aa5937538945f75c6a805ecd5e16be7d7c52aa140d282d08a0f21ff21020",
+      "photo-04": "68317716866117d72395c1f5ec0d74a8803fb96eb9d54cb3d48464153e7ade0a",
+      "photo-05": "2eeaa45e2a405e059a7c5a2795ba88abbf8764b4709b04f42dfaced5163547e2"
+    },
+    "reference_config_sha256": "20c55f4132e890eca4e3a05b4665516d2598d478b802acc26b43e3c15c15b9f6",
+    "landmarks_sha256": "70d627d39161d55159a7efba9107f973e5ef76b33c974e1a2a18b6a042d6137a",
+    "pole_and_scale_evidence": {
+      "photo": "netball-20.jpg",
+      "photo_sha256": "ba8e12bf0e2a200f91942d1af03baa8222ffcf20841334f1c46f258907350686",
+      "rulers": [
+        {
+          "name": "Auckland Museum 50 cm ruler",
+          "points_original_px": [
+            [
+              662,
+              4805
+            ],
+            [
+              2462,
+              4797
+            ]
+          ],
+          "length_mm": 500,
+          "mm_per_original_pixel": 0.27777503433419637
+        },
+        {
+          "name": "Tiffen chart centimetre scale",
+          "points_original_px": [
+            [
+              1297,
+              4505
+            ],
+            [
+              2032,
+              4509
+            ]
+          ],
+          "length_mm": 200,
+          "mm_per_original_pixel": 0.27210481406377945
+        }
+      ],
+      "scale_mm_per_original_pixel": 0.27493992419898794,
+      "pole": {
+        "width_original_px": 65.0,
+        "center_original_px": 1697.5,
+        "width_p10_p90_original_px": [
+          64.0,
+          65.0
+        ],
+        "sample_rows": 1074
+      },
+      "pole_diameter_estimate_mm": 17.871095072934217,
+      "views": {
+        "photo-01": {
+          "pole": {
+            "width_original_px": 66.0,
+            "center_original_px": 1852.0,
+            "width_p10_p90_original_px": [
+              66.0,
+              67.0
+            ],
+            "sample_rows": 1140
+          },
+          "exif_focal_length_mm": 28.0,
+          "mm_per_mask_pixel": 1.6246450066303835,
+          "same_distance_exif_only_mm_per_mask_pixel": 1.6496395451939276
+        },
+        "photo-02": {
+          "pole": {
+            "width_original_px": 112.0,
+            "center_original_px": 1646.5,
+            "width_p10_p90_original_px": [
+              111.0,
+              112.0
+            ],
+            "sample_rows": 270
+          },
+          "exif_focal_length_mm": 41.0,
+          "mm_per_mask_pixel": 0.9573800931929045,
+          "same_distance_exif_only_mm_per_mask_pixel": 1.1265831040348775
+        },
+        "photo-03": {
+          "pole": {
+            "width_original_px": 108.0,
+            "center_original_px": 1756.0,
+            "width_p10_p90_original_px": [
+              108.0,
+              109.0
+            ],
+            "sample_rows": 156
+          },
+          "exif_focal_length_mm": 45.0,
+          "mm_per_mask_pixel": 0.9928386151630121,
+          "same_distance_exif_only_mm_per_mask_pixel": 1.0264423836762215
+        },
+        "photo-04": {
+          "pole": {
+            "width_original_px": 108.0,
+            "center_original_px": 1541.0,
+            "width_p10_p90_original_px": [
+              108.0,
+              109.0
+            ],
+            "sample_rows": 156
+          },
+          "exif_focal_length_mm": 42.0,
+          "mm_per_mask_pixel": 0.9928386151630121,
+          "same_distance_exif_only_mm_per_mask_pixel": 1.0997596967959518
+        },
+        "photo-05": {
+          "pole": {
+            "width_original_px": 108.0,
+            "center_original_px": 1450.0,
+            "width_p10_p90_original_px": [
+              108.0,
+              109.0
+            ],
+            "sample_rows": 156
+          },
+          "exif_focal_length_mm": 40.0,
+          "mm_per_mask_pixel": 0.9928386151630121,
+          "same_distance_exif_only_mm_per_mask_pixel": 1.1547476816357494
+        }
+      }
+    },
+    "orthographic_holdout_silhouette": {
+      "iou": 0.8011,
+      "contour_p90_mm": 54.23
+    },
+    "photo_hull_distance": {
+      "triangle_area_outside_by_more_than_one_voxel_fraction": 0.4224,
+      "one_sided_triangle_center_distance_p90_mm": 38.65
+    },
+    "approximate_camera_focal_length_pixels": {
+      "photo-01": [
+        1067.161,
+        1052.421
+      ],
+      "photo-02": [
+        1562.628,
+        1541.045
+      ],
+      "photo-03": [
+        1715.08,
+        1691.391
+      ],
+      "photo-04": [
+        1600.741,
+        1578.631
+      ],
+      "photo-05": [
+        1524.515,
+        1503.458
+      ]
+    },
+    "local_summary": {
+      "orthographic": {
+        "distance_to_glb_median_mm": 7.571,
+        "distance_to_glb_p90_mm": 19.428,
+        "held_out_residual_median_proxy_mm": 17.326,
+        "held_out_residual_max_proxy_mm": 24.62
+      },
+      "exif_pinhole": {
+        "distance_to_glb_median_mm": 7.371,
+        "distance_to_glb_p90_mm": 12.371,
+        "held_out_residual_median_proxy_mm": 28.872,
+        "held_out_residual_max_proxy_mm": 34.772
+      }
+    },
+    "local_points": {
+      "cup-spiral": {
+        "label": "Dark core of the spiral inside the circular World Youth Cup crest",
+        "region": "chest",
+        "orthographic": {
+          "position_mm": [
+            119.274,
+            -90.017,
+            -178.41
+          ],
+          "fit_residual_proxy_mm": {
+            "photo-02": 1.294,
+            "photo-03": 1.294
+          },
+          "held_out_residual_proxy_mm": {
+            "photo-01": 11.769
+          },
+          "nearest_glb_point_mm": [
+            112.524,
+            -78.882,
+            -180.887
+          ],
+          "distance_to_glb_mm": 13.255
+        },
+        "exif_pinhole": {
+          "position_mm": [
+            113.014,
+            -84.633,
+            -191.254
+          ],
+          "fit_residual_proxy_mm": {
+            "photo-02": 2.239,
+            "photo-03": 2.225
+          },
+          "held_out_residual_proxy_mm": {
+            "photo-01": 22.516
+          },
+          "nearest_glb_point_mm": [
+            112.465,
+            -81.092,
+            -191.713
+          ],
+          "distance_to_glb_mm": 3.612
+        },
+        "camera_assumption_displacement_mm": 15.269
+      },
+      "cup-line-start": {
+        "label": "Left end of the first printed text line under the cup crest",
+        "region": "chest",
+        "orthographic": {
+          "position_mm": [
+            83.851,
+            -117.817,
+            -202.362
+          ],
+          "fit_residual_proxy_mm": {
+            "photo-02": 5.141,
+            "photo-03": 5.141
+          },
+          "held_out_residual_proxy_mm": {
+            "photo-01": 12.411
+          },
+          "nearest_glb_point_mm": [
+            75.464,
+            -99.445,
+            -206.882
+          ],
+          "distance_to_glb_mm": 20.695
+        },
+        "exif_pinhole": {
+          "position_mm": [
+            78.225,
+            -112.941,
+            -213.894
+          ],
+          "fit_residual_proxy_mm": {
+            "photo-02": 2.93,
+            "photo-03": 3.035
+          },
+          "held_out_residual_proxy_mm": {
+            "photo-01": 30.537
+          },
+          "nearest_glb_point_mm": [
+            74.303,
+            -100.671,
+            -214.597
+          ],
+          "distance_to_glb_mm": 12.9
+        },
+        "camera_assumption_displacement_mm": 13.726
+      },
+      "cup-year-tip": {
+        "label": "Lower-right ink tip of the final digit at the end of the cup text",
+        "region": "chest",
+        "orthographic": {
+          "position_mm": [
+            144.165,
+            -85.053,
+            -237.377
+          ],
+          "fit_residual_proxy_mm": {
+            "photo-02": 0.904,
+            "photo-03": 0.904
+          },
+          "held_out_residual_proxy_mm": {
+            "photo-01": 16.708
+          },
+          "nearest_glb_point_mm": [
+            137.265,
+            -68.439,
+            -242.034
+          ],
+          "distance_to_glb_mm": 18.583
+        },
+        "exif_pinhole": {
+          "position_mm": [
+            137.064,
+            -78.804,
+            -247.975
+          ],
+          "fit_residual_proxy_mm": {
+            "photo-02": 2.597,
+            "photo-03": 2.534
+          },
+          "held_out_residual_proxy_mm": {
+            "photo-01": 24.491
+          },
+          "nearest_glb_point_mm": [
+            131.323,
+            -74.308,
+            -249.059
+          ],
+          "distance_to_glb_mm": 7.371
+        },
+        "camera_assumption_displacement_mm": 14.205
+      },
+      "canterbury-center": {
+        "label": "Inward junction between the middle and largest curls of the black Canterbury logo",
+        "region": "chest",
+        "orthographic": {
+          "position_mm": [
+            -92.307,
+            -83.729,
+            -194.508
+          ],
+          "fit_residual_proxy_mm": {
+            "photo-02": 2.074,
+            "photo-05": 2.074
+          },
+          "held_out_residual_proxy_mm": {
+            "photo-01": 17.326
+          },
+          "nearest_glb_point_mm": [
+            -93.098,
+            -86.067,
+            -193.554
+          ],
+          "distance_to_glb_mm": 2.645
+        },
+        "exif_pinhole": {
+          "position_mm": [
+            -86.317,
+            -81.811,
+            -205.913
+          ],
+          "fit_residual_proxy_mm": {
+            "photo-02": 2.542,
+            "photo-05": 2.533
+          },
+          "held_out_residual_proxy_mm": {
+            "photo-01": 28.872
+          },
+          "nearest_glb_point_mm": [
+            -86.015,
+            -90.156,
+            -205.942
+          ],
+          "distance_to_glb_mm": 8.35
+        },
+        "camera_assumption_displacement_mm": 13.024
+      },
+      "upper-ink-dot": {
+        "label": "Upper dot of the signature to the left of the chest panel",
+        "region": "chest",
+        "orthographic": {
+          "position_mm": [
+            -127.73,
+            -78.765,
+            -266.63
+          ],
+          "fit_residual_proxy_mm": {
+            "photo-02": 1.436,
+            "photo-05": 1.436
+          },
+          "held_out_residual_proxy_mm": {
+            "photo-01": 24.602
+          },
+          "nearest_glb_point_mm": [
+            -128.284,
+            -79.434,
+            -266.484
+          ],
+          "distance_to_glb_mm": 0.88
+        },
+        "exif_pinhole": {
+          "position_mm": [
+            -120.411,
+            -76.278,
+            -275.854
+          ],
+          "fit_residual_proxy_mm": {
+            "photo-02": 3.03,
+            "photo-05": 2.935
+          },
+          "held_out_residual_proxy_mm": {
+            "photo-01": 34.772
+          },
+          "nearest_glb_point_mm": [
+            -123.017,
+            -82.852,
+            -275.603
+          ],
+          "distance_to_glb_mm": 7.076
+        },
+        "camera_assumption_displacement_mm": 12.035
+      },
+      "upper-ink-crossing": {
+        "label": "Stroke crossing at the long horizontal loop in the same signature",
+        "region": "chest",
+        "orthographic": {
+          "position_mm": [
+            -126.773,
+            -73.801,
+            -293.951
+          ],
+          "fit_residual_proxy_mm": {
+            "photo-02": 2.908,
+            "photo-05": 2.908
+          },
+          "held_out_residual_proxy_mm": {
+            "photo-01": 24.62
+          },
+          "nearest_glb_point_mm": [
+            -129.922,
+            -80.68,
+            -293.662
+          ],
+          "distance_to_glb_mm": 7.571
+        },
+        "exif_pinhole": {
+          "position_mm": [
+            -119.944,
+            -71.705,
+            -301.683
+          ],
+          "fit_residual_proxy_mm": {
+            "photo-02": 4.175,
+            "photo-05": 4.031
+          },
+          "held_out_residual_proxy_mm": {
+            "photo-01": 34.544
+          },
+          "nearest_glb_point_mm": [
+            -124.677,
+            -82.749,
+            -301.467
+          ],
+          "distance_to_glb_mm": 12.018
+        },
+        "camera_assumption_displacement_mm": 10.527
+      },
+      "cuff-mark": {
+        "label": "Center of the small gray circular mark on the sleeve just above the cuff",
+        "region": "sleeve",
+        "orthographic": {
+          "position_mm": [
+            217.884,
+            -15.554,
+            -378.874
+          ],
+          "fit_residual_proxy_mm": {
+            "photo-02": 9.326,
+            "photo-03": 9.326
+          },
+          "held_out_residual_proxy_mm": {
+            "photo-01": 23.871
+          },
+          "nearest_glb_point_mm": [
+            211.374,
+            -11.919,
+            -379.204
+          ],
+          "distance_to_glb_mm": 7.463
+        },
+        "exif_pinhole": {
+          "position_mm": [
+            216.149,
+            -14.104,
+            -382.11
+          ],
+          "fit_residual_proxy_mm": {
+            "photo-02": 7.606,
+            "photo-03": 6.743
+          },
+          "held_out_residual_proxy_mm": {
+            "photo-01": 27.164
+          },
+          "nearest_glb_point_mm": [
+            211.511,
+            -11.81,
+            -382.237
+          ],
+          "distance_to_glb_mm": 5.175
+        },
+        "camera_assumption_displacement_mm": 3.948
+      }
+    }
+  },
+  "same_pattern_pose_sensitivity": {
+    "armed": {
+      "reference_form": "torso_with_arms",
+      "frames": 38,
+      "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+      "glb_sha256": "886d9c6b431879af57c778c6d41060321fbc57b6b71515a90b8e3a92ca61592e",
+      "summary": {
+        "orthographic": {
+          "distance_to_glb_median_mm": 15.162,
+          "distance_to_glb_p90_mm": 23.086,
+          "held_out_residual_median_proxy_mm": 17.326,
+          "held_out_residual_max_proxy_mm": 24.62
+        },
+        "exif_pinhole": {
+          "distance_to_glb_median_mm": 7.714,
+          "distance_to_glb_p90_mm": 18.231,
+          "held_out_residual_median_proxy_mm": 28.872,
+          "held_out_residual_max_proxy_mm": 34.772
+        }
+      },
+      "cuff_mark_distance_mm": {
+        "orthographic": 21.106,
+        "exif_pinhole": 18.967
+      }
+    },
+    "torso": {
+      "reference_form": "torso_only",
+      "frames": 38,
+      "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+      "glb_sha256": "3f609c167a862a55a5bd0da78fe375a151ac1b01767289d5a6315b0a8bda4953",
+      "summary": {
+        "orthographic": {
+          "distance_to_glb_median_mm": 7.265,
+          "distance_to_glb_p90_mm": 17.296,
+          "held_out_residual_median_proxy_mm": 17.326,
+          "held_out_residual_max_proxy_mm": 24.62
+        },
+        "exif_pinhole": {
+          "distance_to_glb_median_mm": 6.681,
+          "distance_to_glb_p90_mm": 14.393,
+          "held_out_residual_median_proxy_mm": 28.872,
+          "held_out_residual_max_proxy_mm": 34.772
+        }
+      },
+      "cuff_mark_distance_mm": {
+        "orthographic": 18.659,
+        "exif_pinhole": 22.268
+      }
+    },
+    "contact": {
+      "reference_form": "display_torso",
+      "frames": 38,
+      "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+      "glb_sha256": "296ec2ecc1ab8be84e78b67865427cfe1b307b9fe30c89b618ac6ec7ded2f772",
+      "summary": {
+        "orthographic": {
+          "distance_to_glb_median_mm": 7.571,
+          "distance_to_glb_p90_mm": 19.428,
+          "held_out_residual_median_proxy_mm": 17.326,
+          "held_out_residual_max_proxy_mm": 24.62
+        },
+        "exif_pinhole": {
+          "distance_to_glb_median_mm": 7.371,
+          "distance_to_glb_p90_mm": 12.371,
+          "held_out_residual_median_proxy_mm": 28.872,
+          "held_out_residual_max_proxy_mm": 34.772
+        }
+      },
+      "cuff_mark_distance_mm": {
+        "orthographic": 7.463,
+        "exif_pinhole": 5.175
+      }
+    },
+    "contact-late": {
+      "reference_form": "display_torso",
+      "frames": 76,
+      "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+      "glb_sha256": "9f9ba41ea9dcde25c835bcf7b3d2975b4c662bf49eff2372b7d0670dd5b29f85",
+      "summary": {
+        "orthographic": {
+          "distance_to_glb_median_mm": 5.57,
+          "distance_to_glb_p90_mm": 18.653,
+          "held_out_residual_median_proxy_mm": 17.326,
+          "held_out_residual_max_proxy_mm": 24.62
+        },
+        "exif_pinhole": {
+          "distance_to_glb_median_mm": 5.144,
+          "distance_to_glb_p90_mm": 12.068,
+          "held_out_residual_median_proxy_mm": 28.872,
+          "held_out_residual_max_proxy_mm": 34.772
+        }
+      },
+      "cuff_mark_distance_mm": {
+        "orthographic": 2.969,
+        "exif_pinhole": 2.03
+      }
+    }
+  },
+  "remaining_evidence": [
+    "Direct calibrated surface scan and exact camera extrinsics",
+    "Full-garment physical cut and seam dimensions",
+    "Fabric response and sample sewing"
+  ]
+}

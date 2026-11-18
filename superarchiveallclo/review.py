@@ -33,7 +33,8 @@ def verify_prediction(capture, sample, model, result):
             raise ValueError(f"{name}: archived prediction differs from the scored prediction")
 
 
-def review(dataset, item_id, weights, output, blender, shape_reference=None):
+def review(dataset, item_id, weights, output, blender, shape_reference=None, *,
+           form="torso_with_arms", photo_appearance=False):
     if output.exists():
         raise ValueError(f"Output already exists: {output}")
     samples, dataset_checksum = load_dataset(dataset)
@@ -64,7 +65,7 @@ def review(dataset, item_id, weights, output, blender, shape_reference=None):
         }
         if result["status"] == "pattern_passed":
             candidate = bundle / "archive"
-            archive(sample.session, candidate, blender, snapshot, blind=True)
+            archive(sample.session, candidate, blender, snapshot, blind=True, form=form, photo_appearance=photo_appearance)
             capture = json.loads((candidate / "capture.json").read_text(encoding="utf8"))
             verify_prediction(capture, sample, model, result)
             report["archive"] = {
