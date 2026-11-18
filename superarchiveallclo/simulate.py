@@ -38,13 +38,21 @@ def panel_edges(panel):
     ]
 
 
-def flat_mesh(edges, steps):
+def flat_mesh(edges, steps, *, sleeve_fold=False):
     perimeter = []
     refs = {}
     for edge in edges:
         count = steps[edge.id]
-        refs[edge.id] = list(range(len(perimeter), len(perimeter) + count + 1))
-        perimeter.extend(edge.point_at(i / count)[0] for i in range(count))
+        points = [edge.point_at(i / count)[0] for i in range(count)]
+        if sleeve_fold and edge.role == "hem":
+            middle = (0.0, edge.start[1])
+            index = next(i for i, point in enumerate([*points, edge.end]) if point[0] * edge.start[0] <= 0)
+            if 0 < index < len(points) and abs(points[index][0]) < 0.001:
+                points[index] = middle
+            else:
+                points.insert(index, middle)
+        refs[edge.id] = list(range(len(perimeter), len(perimeter) + len(points) + 1))
+        perimeter.extend(points)
     for indices in refs.values():
         indices[-1] %= len(perimeter)
     x, y = zip(*perimeter)
@@ -65,8 +73,20 @@ def flat_mesh(edges, steps):
         separation = delta - np.clip(projection, 0, 1)[..., None] * border
         inside = (separation ** 2).sum(axis=2).min(axis=1) > (STEP_MM * 0.38) ** 2
         interior.extend(batch[inside].tolist())
+    constraints = []
+    if sleeve_fold:
+        seam = [i for i, (x, _) in enumerate(perimeter) if abs(x) < 0.001]
+        apex = min(seam, key=lambda i: perimeter[i][1])
+        cuff = max(seam, key=lambda i: perimeter[i][1])
+        top, bottom = perimeter[apex][1], perimeter[cuff][1]
+        interior = [point for point in interior if abs(point[0]) >= 0.001]
+        fold_y = np.linspace(top, bottom, ceil((bottom - top) / STEP_MM) + 1)[1:-1]
+        start = len(perimeter) + len(interior)
+        fold = [apex, *range(start, start + len(fold_y)), cuff]
+        interior.extend((0.0, y) for y in fold_y)
+        constraints = list(zip(fold, fold[1:]))
     verts, _, faces, origins, _, _ = delaunay_2d_cdt(
-        [Vector(p) for p in perimeter + interior], [], [list(range(len(perimeter)))], 1, 0.001,
+        [Vector(p) for p in perimeter + interior], constraints, [list(range(len(perimeter)))], 1, 0.001,
     )
     retained = sorted({i for face in faces for i in face})
     compact = {i: j for j, i in enumerate(retained)}
@@ -182,7 +202,12 @@ def spread_border_adjustments(positions, rest, faces, anchors):
     return original + delta
 
 
-def build_assembly(pattern, place_vertex=place, place_body_border=body_border, *, lock_height=False):
+def triangle_edges(faces):
+    return np.array(sorted({tuple(sorted((a, b))) for f in faces for a, b in zip(f, (*f[1:], f[0]))}))
+
+
+def build_assembly(pattern, place_vertex=place, place_body_border=body_border, *, lock_height=False,
+                   sleeve_fold=False, relax=None, seam_edge_indices=None):
     edges = {panel["id"]: panel_edges(panel) for panel in pattern["panels"]}
     steps = {
         (name, edge.id): max(1, ceil(edge.length() / STEP_MM))
@@ -197,7 +222,8 @@ def build_assembly(pattern, place_vertex=place, place_body_border=body_border, *
     candidates = defaultdict(list)
     shoulder_points = set()
     for name, panel in edges.items():
-        verts, triangles, local_refs = flat_mesh(panel, {edge.id: steps[name, edge.id] for edge in panel})
+        verts, triangles, local_refs = flat_mesh(panel, {edge.id: steps[name, edge.id] for edge in panel},
+                                                 sleeve_fold=sleeve_fold and name.startswith("sleeve_"))
         offset = len(positions)
         positions.extend(place_vertex(pattern, name, panel, v) for v in verts)
         uv.extend(tuple(v / 1000) for v in verts)
@@ -249,10 +275,21 @@ def build_assembly(pattern, place_vertex=place, place_body_border=body_border, *
     vertices = np.array([placed[group].mean(axis=0) for group in groups.values()])
     welded_faces = [tuple(transform[i] for i in f) for f in faces]
     pins = sorted({int(transform[i]) for i in shoulder_points})
-    source_edges = np.array(sorted({tuple(sorted((a, b))) for f in faces for a, b in zip(f, (*f[1:], f[0]))}))
+    source_edges = triangle_edges(faces)
     basis = np.asarray(uv)
     target_lengths = np.linalg.norm(basis[source_edges[:, 0]] - basis[source_edges[:, 1]], axis=1)
-    fit_metric(vertices, transform[source_edges], target_lengths, pins, lock_height=lock_height)
+    if seam_edge_indices is not None:
+        edge_lookup = {tuple(indices): i for i, indices in enumerate(source_edges)}
+        for seam in pattern["seams"]:
+            groups = []
+            for key in ("a", "b"):
+                curve = refs[tuple(seam[key])]
+                groups.append([edge_lookup[tuple(sorted((a, b)))] for a, b in zip(curve, curve[1:])])
+            seam_edge_indices[seam["id"]] = groups
+    if relax is None:
+        fit_metric(vertices, transform[source_edges], target_lengths, pins, lock_height=lock_height)
+    else:
+        relax(vertices, transform[source_edges], target_lengths, pins, welded_faces)
     return vertices, welded_faces, faces, uv, pins, transform[source_edges], target_lengths, panels
 
 

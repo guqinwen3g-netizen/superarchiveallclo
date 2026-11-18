@@ -14,9 +14,11 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from superarchiveallclo.pattern import Edge
 from superarchiveallclo.read_garment_glb import mesh_geometry
-from superarchiveallclo.simulate import build_assembly, sewn_mesh
+from superarchiveallclo.mesh_relax import relax_flat_metric
+from superarchiveallclo.simulate import build_assembly, sewn_mesh, triangle_edges
 
 FRONT_LEVEL_M = 0.002
+SLEEVE_UNDERARM_WEIGHT = 2.0
 
 
 def body_point(name, x, y):
@@ -31,7 +33,7 @@ def body_border(pattern, name, edge, fraction):
     return point
 
 
-def place_flat(pattern, name, edges, point, angle):
+def place_flat(pattern, name, edges, point, angle, sleeve_fold=True):
     x, y = point
     if name in ("front", "back"):
         return body_point(name, x, y)
@@ -62,19 +64,33 @@ def place_flat(pattern, name, edges, point, angle):
     # Place the lower sleeve from its underarm seam. Fade the corresponding
     # shoulder correction through the cap so the cuff keeps its metric run.
     shoulder_offset = (shoulder_point - origin) * max(0, 1 - y / cap_height)
-    return origin + (along * y + across * abs(x)) / 1000 + shoulder_offset
+    point = origin + (along * y + across * abs(x)) / 1000 + shoulder_offset
+    if sleeve_fold and abs(x) < 0.001:
+        point.z = FRONT_LEVEL_M / 2
+    return point
 
 
 def main():
-    filename, runtime, angle = sys.argv[sys.argv.index("--") + 1:]
+    filename, runtime, angle, solver = sys.argv[sys.argv.index("--") + 1:]
     target = Path(runtime)
     pattern = json.loads(Path(filename).read_bytes())
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete(use_global=False)
     bpy.context.scene.unit_settings.system = "METRIC"
-    position = partial(place_flat, angle=radians(float(angle)))
+    sleeve_fold = solver == "relaxed"
+    position = partial(place_flat, angle=radians(float(angle)), sleeve_fold=sleeve_fold)
+    seam_edges = {}
+
+    def relax(points, edges, lengths, pins, faces):
+        weights = np.ones(len(edges))
+        for name, (a_edges, b_edges) in seam_edges.items():
+            if name.startswith("sleeve_underarm_"):
+                weights[a_edges + b_edges] = SLEEVE_UNDERARM_WEIGHT
+        relax_flat_metric(points, edges, lengths, pins, faces, weights)
+
     points, welded, faces, uv, _, edges, lengths, panels = build_assembly(
-        pattern, position, body_border, lock_height=True,
+        pattern, position, body_border, lock_height=True, sleeve_fold=sleeve_fold,
+        relax=relax if sleeve_fold else None, seam_edge_indices=seam_edges,
     )
     model, openings = sewn_mesh(points, welded, faces, uv, panels)
     model.select_set(True)
@@ -84,9 +100,31 @@ def main():
 
     vertices, triangles = mesh_geometry(mesh_path)
     surface = BVHTree.FromPolygons(vertices.tolist(), triangles.tolist(), all_triangles=True)
-    strain = np.abs(np.linalg.norm(points[edges[:, 0]] - points[edges[:, 1]], axis=1) / lengths - 1)
+    actual = np.linalg.norm(points[edges[:, 0]] - points[edges[:, 1]], axis=1)
+    strain = np.abs(actual / lengths - 1)
     results = {"vertices": vertices, "triangles": triangles, "openings": openings,
-               "mesh_edge_strain_p95_percent": np.quantile(strain, 0.95) * 100}
+               "sleeve_underarm_solver_weight": SLEEVE_UNDERARM_WEIGHT if sleeve_fold else 1.0,
+               "mesh_edge_strain_quantiles_percent": np.quantile(strain, [0.5, 0.95, 0.99]) * 100}
+    source_edges = triangle_edges(faces)
+    for name, panel in panels.items():
+        start = panel["vertex_start"]
+        belongs = (source_edges[:, 0] >= start) & (source_edges[:, 0] < start + panel["vertex_count"])
+        results[f"{name}_strain_quantiles_percent"] = np.quantile(strain[belongs], [0.5, 0.95, 0.99]) * 100
+        if name.startswith("sleeve_"):
+            x = np.asarray(uv)[source_edges[belongs], 0]
+            results[f"{name}_edges_crossing_fold"] = ((x.min(axis=1) < -1e-6) & (x.max(axis=1) > 1e-6)).sum()
+    results["seam_strain_json"] = json.dumps({
+        seam["id"]: {
+            key: {
+                "pattern_edge": seam[key],
+                "rest_mm": round(float(lengths[indices].sum() * 1000), 2),
+                "posed_mm": round(float(actual[indices].sum() * 1000), 2),
+                "edge_strain_p95_percent": round(float(np.quantile(strain[indices], 0.95) * 100), 2),
+            }
+            for key, indices in zip(("a", "b"), seam_edges[seam["id"]], strict=True)
+        }
+        for seam in pattern["seams"]
+    })
     with np.load(target / "reference-points.npz", allow_pickle=False) as refs:
         for key in refs.files:
             cloud = refs[key]

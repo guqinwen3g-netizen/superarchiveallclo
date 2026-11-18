@@ -1,0 +1,1204 @@
+{
+  "baseline_commit": "c96aa00bbde99a2a8421c0f345a245ab721d8253",
+  "sewn_mesh_diagnostics": {
+    "Before": {
+      "sleeve_right_edges_crossing_fold": 13,
+      "mesh_edge_strain_percent": {
+        "median": 0.09,
+        "p95": 12.17,
+        "p99": 21.99
+      },
+      "sleeve_right_strain_p95_percent": 22.05,
+      "sleeve_underarm_right_p95_percent": 20.33,
+      "sleeve_underarm_right_posed_mm": 106.63
+    },
+    "After": {
+      "sleeve_right_edges_crossing_fold": 0,
+      "mesh_edge_strain_percent": {
+        "median": 0.57,
+        "p95": 8.37,
+        "p99": 14.02
+      },
+      "sleeve_right_strain_p95_percent": 13.2,
+      "sleeve_underarm_right_p95_percent": 7.58,
+      "sleeve_underarm_right_posed_mm": 106.33
+    }
+  },
+  "same_pattern_before": {
+    "schema_version": 1,
+    "item_id": "rgbench-green-tshirt",
+    "reference_setup": "RGBench green_tshirt, RealSense D455, eight reference frames, CC BY 4.0",
+    "pattern_sha256": "919924d8ad85b91b743d677d463426240e11d28333825097ce633ed219599333",
+    "capture_clouds_sha256": [
+      "fc09af2cb4af4536794c4960b62811ec9cf13f72bae095b811d799b743a47769"
+    ],
+    "model_pose": "Sewn panels with sleeves placed from the underarm joins on a flat support",
+    "solver": "legacy_edge_iterations",
+    "sleeve_angle_below_horizontal_deg": 18.185952693944415,
+    "sleeve_angle_source": "Mean of cuff directions from the reconstruction input",
+    "alignment": "Translation of the top and horizontal midpoint, with median scan height at the upper layer",
+    "scope": "Overhead silhouette and one-way observed-point-to-mesh distances in flat pose",
+    "reference_axes": {
+      "right": "y",
+      "down": "x"
+    },
+    "references": [
+      {
+        "id": "scan-01",
+        "file": "18-21-20-start-2.pcd",
+        "cloud_sha256": "7e83920079ee7b1f8f22c34fee3d766f2c93ecd8631ba95615956774a42ff0d6",
+        "point_count": 69595,
+        "plane_distance_p95_mm": 9.145,
+        "intersection_over_union": 0.9034,
+        "contour_distance_mm": {
+          "median": 14.14,
+          "p90": 30.0
+        },
+        "model_minus_reference_width_height_mm": [
+          -13.8,
+          17.27
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.15,
+          "p90": 7.52
+        },
+        "reference_translation_mm": [
+          8.88,
+          123.19,
+          -1.03
+        ],
+        "overlay": "scan-01-overlay.png"
+      },
+      {
+        "id": "scan-02",
+        "file": "18-21-20-middle.pcd",
+        "cloud_sha256": "0e8d52dfeac8a36be9dbc75c385f35b592828c00b1b6e1bf3d34c9d0bd30d062",
+        "point_count": 69654,
+        "plane_distance_p95_mm": 10.236,
+        "intersection_over_union": 0.9153,
+        "contour_distance_mm": {
+          "median": 12.17,
+          "p90": 26.0
+        },
+        "model_minus_reference_width_height_mm": [
+          -9.8,
+          11.27
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.32,
+          "p90": 7.91
+        },
+        "reference_translation_mm": [
+          7.45,
+          115.86,
+          -1.31
+        ],
+        "overlay": "scan-02-overlay.png"
+      },
+      {
+        "id": "scan-03",
+        "file": "18-22-41-start.pcd",
+        "cloud_sha256": "abdca3fbfd8ab72f4b04adba3acbb97e265a54b7cc1059add3a393f002fd3efb",
+        "point_count": 69357,
+        "plane_distance_p95_mm": 10.393,
+        "intersection_over_union": 0.9177,
+        "contour_distance_mm": {
+          "median": 12.0,
+          "p90": 27.8
+        },
+        "model_minus_reference_width_height_mm": [
+          -13.8,
+          11.27
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.36,
+          "p90": 8.28
+        },
+        "reference_translation_mm": [
+          -25.76,
+          109.8,
+          -1.09
+        ],
+        "overlay": "scan-03-overlay.png"
+      },
+      {
+        "id": "scan-04",
+        "file": "18-22-41-start-2.pcd",
+        "cloud_sha256": "1a91087c9ff3873919d3a7136467ff0b334184f51c9473e57dac2053f766a5aa",
+        "point_count": 68947,
+        "plane_distance_p95_mm": 10.367,
+        "intersection_over_union": 0.9217,
+        "contour_distance_mm": {
+          "median": 12.0,
+          "p90": 26.08
+        },
+        "model_minus_reference_width_height_mm": [
+          -19.8,
+          11.27
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.37,
+          "p90": 8.13
+        },
+        "reference_translation_mm": [
+          -21.19,
+          109.0,
+          -1.15
+        ],
+        "overlay": "scan-04-overlay.png"
+      },
+      {
+        "id": "scan-05",
+        "file": "18-22-41-middle.pcd",
+        "cloud_sha256": "90d90081fe7b01c8ab9daa9630237f4e78109f92d1e0661f3c40d4dcc0c85066",
+        "point_count": 68657,
+        "plane_distance_p95_mm": 10.748,
+        "intersection_over_union": 0.9127,
+        "contour_distance_mm": {
+          "median": 13.42,
+          "p90": 27.78
+        },
+        "model_minus_reference_width_height_mm": [
+          -25.8,
+          11.27
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.43,
+          "p90": 8.54
+        },
+        "reference_translation_mm": [
+          -20.75,
+          108.58,
+          -1.67
+        ],
+        "overlay": "scan-05-overlay.png"
+      },
+      {
+        "id": "scan-06",
+        "file": "18-29-24-start.pcd",
+        "cloud_sha256": "6b7a1f68143e5f19b660ff3670582bcfa7c96c9268177cdab2f7225b7fb16f47",
+        "point_count": 69316,
+        "plane_distance_p95_mm": 9.157,
+        "intersection_over_union": 0.9148,
+        "contour_distance_mm": {
+          "median": 12.65,
+          "p90": 25.3
+        },
+        "model_minus_reference_width_height_mm": [
+          -11.8,
+          7.27
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.22,
+          "p90": 7.4
+        },
+        "reference_translation_mm": [
+          -14.51,
+          105.31,
+          -1.97
+        ],
+        "overlay": "scan-06-overlay.png"
+      },
+      {
+        "id": "scan-07",
+        "file": "18-29-24-start-2.pcd",
+        "cloud_sha256": "001bd74aaf44ed86c2995bf9e69c5850a90c04eda1d6780d04794cb1acabab36",
+        "point_count": 69278,
+        "plane_distance_p95_mm": 9.61,
+        "intersection_over_union": 0.9074,
+        "contour_distance_mm": {
+          "median": 14.0,
+          "p90": 27.73
+        },
+        "model_minus_reference_width_height_mm": [
+          -15.8,
+          5.27
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.26,
+          "p90": 7.79
+        },
+        "reference_translation_mm": [
+          -11.08,
+          108.06,
+          -2.01
+        ],
+        "overlay": "scan-07-overlay.png"
+      },
+      {
+        "id": "scan-08",
+        "file": "18-29-24-middle.pcd",
+        "cloud_sha256": "24209e0702bb4e5359946a33d893af7aa5c1f9b34febfc572bff1efc7ef166e3",
+        "point_count": 68535,
+        "plane_distance_p95_mm": 9.572,
+        "intersection_over_union": 0.9032,
+        "contour_distance_mm": {
+          "median": 12.65,
+          "p90": 30.55
+        },
+        "model_minus_reference_width_height_mm": [
+          -13.8,
+          17.27
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.22,
+          "p90": 7.63
+        },
+        "reference_translation_mm": [
+          -15.84,
+          115.29,
+          -1.93
+        ],
+        "overlay": "scan-08-overlay.png"
+      }
+    ],
+    "world_to_camera_sha256": "726c3ebb132b79b8f4f28e999c608c3947ed3bddccb14b45de3e0de420f3e3d5",
+    "flat_glb": {
+      "meshes": 1,
+      "bounds_span_m": [
+        0.9302,
+        0.0025,
+        0.7513
+      ],
+      "sha256": "1cac110c23fdecabe6a9b7c022183f0b85a1eab05e18a3390f6099f955a72cc3",
+      "welded_openings": 4,
+      "mesh_edge_strain_p95_percent": 12.17,
+      "mesh_edge_strain_percent": {
+        "median": 0.09,
+        "p95": 12.17,
+        "p99": 21.99
+      },
+      "panel_strain_percent": {
+        "front": {
+          "median": 0.03,
+          "p95": 3.32,
+          "p99": 10.37
+        },
+        "back": {
+          "median": 0.03,
+          "p95": 3.33,
+          "p99": 8.8
+        },
+        "sleeve_right": {
+          "median": 6.78,
+          "p95": 22.05,
+          "p99": 31.21
+        },
+        "sleeve_left": {
+          "median": 6.78,
+          "p95": 22.05,
+          "p99": 31.21
+        },
+        "collar": {
+          "median": 3.61,
+          "p95": 15.94,
+          "p99": 21.34
+        }
+      },
+      "edges_crossing_sleeve_fold": {
+        "left": 13,
+        "right": 13
+      },
+      "seam_strain": {
+        "attach_back_neck_right": {
+          "a": {
+            "pattern_edge": [
+              "back",
+              "neck_right"
+            ],
+            "rest_mm": 107.98,
+            "posed_mm": 104.71,
+            "edge_strain_p95_percent": 5.24
+          },
+          "b": {
+            "pattern_edge": [
+              "collar",
+              "attach_back_neck_right"
+            ],
+            "rest_mm": 91.91,
+            "posed_mm": 104.71,
+            "edge_strain_p95_percent": 17.86
+          }
+        },
+        "attach_front_neck_right": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "neck_right"
+            ],
+            "rest_mm": 136.99,
+            "posed_mm": 134.34,
+            "edge_strain_p95_percent": 3.58
+          },
+          "b": {
+            "pattern_edge": [
+              "collar",
+              "attach_front_neck_right"
+            ],
+            "rest_mm": 116.53,
+            "posed_mm": 134.34,
+            "edge_strain_p95_percent": 17.04
+          }
+        },
+        "attach_front_neck_left": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "neck_left"
+            ],
+            "rest_mm": 136.99,
+            "posed_mm": 134.23,
+            "edge_strain_p95_percent": 3.98
+          },
+          "b": {
+            "pattern_edge": [
+              "collar",
+              "attach_front_neck_left"
+            ],
+            "rest_mm": 116.53,
+            "posed_mm": 134.23,
+            "edge_strain_p95_percent": 17.06
+          }
+        },
+        "attach_back_neck_left": {
+          "a": {
+            "pattern_edge": [
+              "back",
+              "neck_left"
+            ],
+            "rest_mm": 107.98,
+            "posed_mm": 104.86,
+            "edge_strain_p95_percent": 5.21
+          },
+          "b": {
+            "pattern_edge": [
+              "collar",
+              "attach_back_neck_left"
+            ],
+            "rest_mm": 91.91,
+            "posed_mm": 104.86,
+            "edge_strain_p95_percent": 17.98
+          }
+        },
+        "collar_join": {
+          "a": {
+            "pattern_edge": [
+              "collar",
+              "join_right"
+            ],
+            "rest_mm": 18.0,
+            "posed_mm": 17.75,
+            "edge_strain_p95_percent": 2.35
+          },
+          "b": {
+            "pattern_edge": [
+              "collar",
+              "join_left"
+            ],
+            "rest_mm": 18.0,
+            "posed_mm": 17.75,
+            "edge_strain_p95_percent": 2.35
+          }
+        },
+        "shoulder_right": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "shoulder_right"
+            ],
+            "rest_mm": 160.29,
+            "posed_mm": 161.03,
+            "edge_strain_p95_percent": 6.06
+          },
+          "b": {
+            "pattern_edge": [
+              "back",
+              "shoulder_right"
+            ],
+            "rest_mm": 160.29,
+            "posed_mm": 161.03,
+            "edge_strain_p95_percent": 6.06
+          }
+        },
+        "side_right": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "side_right"
+            ],
+            "rest_mm": 406.0,
+            "posed_mm": 401.42,
+            "edge_strain_p95_percent": 6.89
+          },
+          "b": {
+            "pattern_edge": [
+              "back",
+              "side_right"
+            ],
+            "rest_mm": 406.0,
+            "posed_mm": 401.42,
+            "edge_strain_p95_percent": 6.89
+          }
+        },
+        "front_armhole_right": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "armhole_right"
+            ],
+            "rest_mm": 309.94,
+            "posed_mm": 308.95,
+            "edge_strain_p95_percent": 7.02
+          },
+          "b": {
+            "pattern_edge": [
+              "sleeve_right",
+              "cap_front"
+            ],
+            "rest_mm": 309.91,
+            "posed_mm": 308.95,
+            "edge_strain_p95_percent": 7.04
+          }
+        },
+        "back_armhole_right": {
+          "a": {
+            "pattern_edge": [
+              "back",
+              "armhole_right"
+            ],
+            "rest_mm": 304.64,
+            "posed_mm": 305.11,
+            "edge_strain_p95_percent": 6.33
+          },
+          "b": {
+            "pattern_edge": [
+              "sleeve_right",
+              "cap_back"
+            ],
+            "rest_mm": 304.64,
+            "posed_mm": 305.11,
+            "edge_strain_p95_percent": 6.32
+          }
+        },
+        "sleeve_underarm_right": {
+          "a": {
+            "pattern_edge": [
+              "sleeve_right",
+              "underarm_front"
+            ],
+            "rest_mm": 110.47,
+            "posed_mm": 106.63,
+            "edge_strain_p95_percent": 20.33
+          },
+          "b": {
+            "pattern_edge": [
+              "sleeve_right",
+              "underarm_back"
+            ],
+            "rest_mm": 110.47,
+            "posed_mm": 106.63,
+            "edge_strain_p95_percent": 20.33
+          }
+        },
+        "shoulder_left": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "shoulder_left"
+            ],
+            "rest_mm": 160.29,
+            "posed_mm": 160.95,
+            "edge_strain_p95_percent": 5.99
+          },
+          "b": {
+            "pattern_edge": [
+              "back",
+              "shoulder_left"
+            ],
+            "rest_mm": 160.29,
+            "posed_mm": 160.95,
+            "edge_strain_p95_percent": 5.99
+          }
+        },
+        "side_left": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "side_left"
+            ],
+            "rest_mm": 406.0,
+            "posed_mm": 401.42,
+            "edge_strain_p95_percent": 6.89
+          },
+          "b": {
+            "pattern_edge": [
+              "back",
+              "side_left"
+            ],
+            "rest_mm": 406.0,
+            "posed_mm": 401.42,
+            "edge_strain_p95_percent": 6.89
+          }
+        },
+        "front_armhole_left": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "armhole_left"
+            ],
+            "rest_mm": 309.94,
+            "posed_mm": 308.95,
+            "edge_strain_p95_percent": 7.02
+          },
+          "b": {
+            "pattern_edge": [
+              "sleeve_left",
+              "cap_front"
+            ],
+            "rest_mm": 309.91,
+            "posed_mm": 308.95,
+            "edge_strain_p95_percent": 7.04
+          }
+        },
+        "back_armhole_left": {
+          "a": {
+            "pattern_edge": [
+              "back",
+              "armhole_left"
+            ],
+            "rest_mm": 304.64,
+            "posed_mm": 305.11,
+            "edge_strain_p95_percent": 6.33
+          },
+          "b": {
+            "pattern_edge": [
+              "sleeve_left",
+              "cap_back"
+            ],
+            "rest_mm": 304.64,
+            "posed_mm": 305.11,
+            "edge_strain_p95_percent": 6.32
+          }
+        },
+        "sleeve_underarm_left": {
+          "a": {
+            "pattern_edge": [
+              "sleeve_left",
+              "underarm_front"
+            ],
+            "rest_mm": 110.47,
+            "posed_mm": 106.63,
+            "edge_strain_p95_percent": 20.33
+          },
+          "b": {
+            "pattern_edge": [
+              "sleeve_left",
+              "underarm_back"
+            ],
+            "rest_mm": 110.47,
+            "posed_mm": 106.63,
+            "edge_strain_p95_percent": 20.33
+          }
+        }
+      },
+      "sleeve_underarm_solver_weight": 1.0
+    }
+  },
+  "same_pattern_after": {
+    "schema_version": 1,
+    "item_id": "rgbench-green-tshirt",
+    "reference_setup": "RGBench green_tshirt, RealSense D455, eight reference frames, CC BY 4.0",
+    "pattern_sha256": "919924d8ad85b91b743d677d463426240e11d28333825097ce633ed219599333",
+    "capture_clouds_sha256": [
+      "fc09af2cb4af4536794c4960b62811ec9cf13f72bae095b811d799b743a47769"
+    ],
+    "model_pose": "Sewn panels with meshed sleeve folds and planar edge-length relaxation above a flat support",
+    "solver": "projected_edges_global_relaxation",
+    "sleeve_angle_below_horizontal_deg": 18.185952693944415,
+    "sleeve_angle_source": "Mean of cuff directions from the reconstruction input",
+    "alignment": "Translation of the top and horizontal midpoint, with median scan height at the upper layer",
+    "scope": "Overhead silhouette and one-way observed-point-to-mesh distances in flat pose",
+    "reference_axes": {
+      "right": "y",
+      "down": "x"
+    },
+    "references": [
+      {
+        "id": "scan-01",
+        "file": "18-21-20-start-2.pcd",
+        "cloud_sha256": "7e83920079ee7b1f8f22c34fee3d766f2c93ecd8631ba95615956774a42ff0d6",
+        "point_count": 69595,
+        "plane_distance_p95_mm": 9.145,
+        "intersection_over_union": 0.8996,
+        "contour_distance_mm": {
+          "median": 15.23,
+          "p90": 32.98
+        },
+        "model_minus_reference_width_height_mm": [
+          -1.2,
+          18.02
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.15,
+          "p90": 7.64
+        },
+        "reference_translation_mm": [
+          8.88,
+          124.11,
+          -1.03
+        ],
+        "overlay": "scan-01-overlay.png"
+      },
+      {
+        "id": "scan-02",
+        "file": "18-21-20-middle.pcd",
+        "cloud_sha256": "0e8d52dfeac8a36be9dbc75c385f35b592828c00b1b6e1bf3d34c9d0bd30d062",
+        "point_count": 69654,
+        "plane_distance_p95_mm": 10.236,
+        "intersection_over_union": 0.9117,
+        "contour_distance_mm": {
+          "median": 12.0,
+          "p90": 28.0
+        },
+        "model_minus_reference_width_height_mm": [
+          2.8,
+          12.02
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.32,
+          "p90": 7.98
+        },
+        "reference_translation_mm": [
+          7.45,
+          116.79,
+          -1.31
+        ],
+        "overlay": "scan-02-overlay.png"
+      },
+      {
+        "id": "scan-03",
+        "file": "18-22-41-start.pcd",
+        "cloud_sha256": "abdca3fbfd8ab72f4b04adba3acbb97e265a54b7cc1059add3a393f002fd3efb",
+        "point_count": 69357,
+        "plane_distance_p95_mm": 10.393,
+        "intersection_over_union": 0.9143,
+        "contour_distance_mm": {
+          "median": 12.0,
+          "p90": 30.46
+        },
+        "model_minus_reference_width_height_mm": [
+          -1.2,
+          12.02
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.37,
+          "p90": 8.4
+        },
+        "reference_translation_mm": [
+          -25.76,
+          110.73,
+          -1.09
+        ],
+        "overlay": "scan-03-overlay.png"
+      },
+      {
+        "id": "scan-04",
+        "file": "18-22-41-start-2.pcd",
+        "cloud_sha256": "1a91087c9ff3873919d3a7136467ff0b334184f51c9473e57dac2053f766a5aa",
+        "point_count": 68947,
+        "plane_distance_p95_mm": 10.367,
+        "intersection_over_union": 0.9178,
+        "contour_distance_mm": {
+          "median": 12.0,
+          "p90": 28.72
+        },
+        "model_minus_reference_width_height_mm": [
+          -7.2,
+          12.02
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.38,
+          "p90": 8.23
+        },
+        "reference_translation_mm": [
+          -21.19,
+          109.93,
+          -1.15
+        ],
+        "overlay": "scan-04-overlay.png"
+      },
+      {
+        "id": "scan-05",
+        "file": "18-22-41-middle.pcd",
+        "cloud_sha256": "90d90081fe7b01c8ab9daa9630237f4e78109f92d1e0661f3c40d4dcc0c85066",
+        "point_count": 68657,
+        "plane_distance_p95_mm": 10.748,
+        "intersection_over_union": 0.909,
+        "contour_distance_mm": {
+          "median": 14.0,
+          "p90": 29.73
+        },
+        "model_minus_reference_width_height_mm": [
+          -13.2,
+          12.02
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.43,
+          "p90": 8.61
+        },
+        "reference_translation_mm": [
+          -20.75,
+          109.51,
+          -1.67
+        ],
+        "overlay": "scan-05-overlay.png"
+      },
+      {
+        "id": "scan-06",
+        "file": "18-29-24-start.pcd",
+        "cloud_sha256": "6b7a1f68143e5f19b660ff3670582bcfa7c96c9268177cdab2f7225b7fb16f47",
+        "point_count": 69316,
+        "plane_distance_p95_mm": 9.157,
+        "intersection_over_union": 0.9154,
+        "contour_distance_mm": {
+          "median": 12.0,
+          "p90": 26.0
+        },
+        "model_minus_reference_width_height_mm": [
+          0.8,
+          8.02
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.21,
+          "p90": 7.4
+        },
+        "reference_translation_mm": [
+          -14.51,
+          106.24,
+          -1.97
+        ],
+        "overlay": "scan-06-overlay.png"
+      },
+      {
+        "id": "scan-07",
+        "file": "18-29-24-start-2.pcd",
+        "cloud_sha256": "001bd74aaf44ed86c2995bf9e69c5850a90c04eda1d6780d04794cb1acabab36",
+        "point_count": 69278,
+        "plane_distance_p95_mm": 9.61,
+        "intersection_over_union": 0.9057,
+        "contour_distance_mm": {
+          "median": 14.0,
+          "p90": 28.0
+        },
+        "model_minus_reference_width_height_mm": [
+          -3.2,
+          6.02
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.26,
+          "p90": 7.81
+        },
+        "reference_translation_mm": [
+          -11.08,
+          108.99,
+          -2.01
+        ],
+        "overlay": "scan-07-overlay.png"
+      },
+      {
+        "id": "scan-08",
+        "file": "18-29-24-middle.pcd",
+        "cloud_sha256": "24209e0702bb4e5359946a33d893af7aa5c1f9b34febfc572bff1efc7ef166e3",
+        "point_count": 68535,
+        "plane_distance_p95_mm": 9.572,
+        "intersection_over_union": 0.901,
+        "contour_distance_mm": {
+          "median": 12.17,
+          "p90": 32.98
+        },
+        "model_minus_reference_width_height_mm": [
+          -1.2,
+          18.02
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.22,
+          "p90": 7.65
+        },
+        "reference_translation_mm": [
+          -15.84,
+          116.22,
+          -1.93
+        ],
+        "overlay": "scan-08-overlay.png"
+      }
+    ],
+    "world_to_camera_sha256": "726c3ebb132b79b8f4f28e999c608c3947ed3bddccb14b45de3e0de420f3e3d5",
+    "flat_glb": {
+      "meshes": 1,
+      "bounds_span_m": [
+        0.9428,
+        0.0025,
+        0.752
+      ],
+      "sha256": "053179e498d2a041409fc62d1f4d7dfc74d980aa58565bcf6df6d441c6ac2404",
+      "welded_openings": 4,
+      "mesh_edge_strain_p95_percent": 8.37,
+      "mesh_edge_strain_percent": {
+        "median": 0.57,
+        "p95": 8.37,
+        "p99": 14.02
+      },
+      "panel_strain_percent": {
+        "front": {
+          "median": 0.32,
+          "p95": 4.77,
+          "p99": 10.01
+        },
+        "back": {
+          "median": 0.31,
+          "p95": 4.78,
+          "p99": 9.54
+        },
+        "sleeve_right": {
+          "median": 4.79,
+          "p95": 13.2,
+          "p99": 15.49
+        },
+        "sleeve_left": {
+          "median": 4.79,
+          "p95": 13.2,
+          "p99": 15.49
+        },
+        "collar": {
+          "median": 2.77,
+          "p95": 15.68,
+          "p99": 17.71
+        }
+      },
+      "edges_crossing_sleeve_fold": {
+        "left": 0,
+        "right": 0
+      },
+      "seam_strain": {
+        "attach_back_neck_right": {
+          "a": {
+            "pattern_edge": [
+              "back",
+              "neck_right"
+            ],
+            "rest_mm": 107.98,
+            "posed_mm": 104.16,
+            "edge_strain_p95_percent": 5.87
+          },
+          "b": {
+            "pattern_edge": [
+              "collar",
+              "attach_back_neck_right"
+            ],
+            "rest_mm": 91.91,
+            "posed_mm": 104.16,
+            "edge_strain_p95_percent": 15.83
+          }
+        },
+        "attach_front_neck_right": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "neck_right"
+            ],
+            "rest_mm": 136.99,
+            "posed_mm": 133.76,
+            "edge_strain_p95_percent": 3.37
+          },
+          "b": {
+            "pattern_edge": [
+              "collar",
+              "attach_front_neck_right"
+            ],
+            "rest_mm": 116.53,
+            "posed_mm": 133.76,
+            "edge_strain_p95_percent": 16.4
+          }
+        },
+        "attach_front_neck_left": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "neck_left"
+            ],
+            "rest_mm": 136.99,
+            "posed_mm": 133.59,
+            "edge_strain_p95_percent": 3.7
+          },
+          "b": {
+            "pattern_edge": [
+              "collar",
+              "attach_front_neck_left"
+            ],
+            "rest_mm": 116.53,
+            "posed_mm": 133.59,
+            "edge_strain_p95_percent": 16.43
+          }
+        },
+        "attach_back_neck_left": {
+          "a": {
+            "pattern_edge": [
+              "back",
+              "neck_left"
+            ],
+            "rest_mm": 107.98,
+            "posed_mm": 104.4,
+            "edge_strain_p95_percent": 5.08
+          },
+          "b": {
+            "pattern_edge": [
+              "collar",
+              "attach_back_neck_left"
+            ],
+            "rest_mm": 91.91,
+            "posed_mm": 104.4,
+            "edge_strain_p95_percent": 16.07
+          }
+        },
+        "collar_join": {
+          "a": {
+            "pattern_edge": [
+              "collar",
+              "join_right"
+            ],
+            "rest_mm": 18.0,
+            "posed_mm": 17.72,
+            "edge_strain_p95_percent": 1.89
+          },
+          "b": {
+            "pattern_edge": [
+              "collar",
+              "join_left"
+            ],
+            "rest_mm": 18.0,
+            "posed_mm": 17.72,
+            "edge_strain_p95_percent": 1.89
+          }
+        },
+        "shoulder_right": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "shoulder_right"
+            ],
+            "rest_mm": 160.29,
+            "posed_mm": 160.13,
+            "edge_strain_p95_percent": 9.58
+          },
+          "b": {
+            "pattern_edge": [
+              "back",
+              "shoulder_right"
+            ],
+            "rest_mm": 160.29,
+            "posed_mm": 160.13,
+            "edge_strain_p95_percent": 9.58
+          }
+        },
+        "side_right": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "side_right"
+            ],
+            "rest_mm": 406.0,
+            "posed_mm": 405.01,
+            "edge_strain_p95_percent": 2.03
+          },
+          "b": {
+            "pattern_edge": [
+              "back",
+              "side_right"
+            ],
+            "rest_mm": 406.0,
+            "posed_mm": 405.01,
+            "edge_strain_p95_percent": 2.03
+          }
+        },
+        "front_armhole_right": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "armhole_right"
+            ],
+            "rest_mm": 309.94,
+            "posed_mm": 306.36,
+            "edge_strain_p95_percent": 8.17
+          },
+          "b": {
+            "pattern_edge": [
+              "sleeve_right",
+              "cap_front"
+            ],
+            "rest_mm": 309.91,
+            "posed_mm": 306.36,
+            "edge_strain_p95_percent": 8.18
+          }
+        },
+        "back_armhole_right": {
+          "a": {
+            "pattern_edge": [
+              "back",
+              "armhole_right"
+            ],
+            "rest_mm": 304.64,
+            "posed_mm": 303.82,
+            "edge_strain_p95_percent": 8.87
+          },
+          "b": {
+            "pattern_edge": [
+              "sleeve_right",
+              "cap_back"
+            ],
+            "rest_mm": 304.64,
+            "posed_mm": 303.82,
+            "edge_strain_p95_percent": 8.89
+          }
+        },
+        "sleeve_underarm_right": {
+          "a": {
+            "pattern_edge": [
+              "sleeve_right",
+              "underarm_front"
+            ],
+            "rest_mm": 110.47,
+            "posed_mm": 106.33,
+            "edge_strain_p95_percent": 7.58
+          },
+          "b": {
+            "pattern_edge": [
+              "sleeve_right",
+              "underarm_back"
+            ],
+            "rest_mm": 110.47,
+            "posed_mm": 106.33,
+            "edge_strain_p95_percent": 7.58
+          }
+        },
+        "shoulder_left": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "shoulder_left"
+            ],
+            "rest_mm": 160.29,
+            "posed_mm": 160.06,
+            "edge_strain_p95_percent": 9.49
+          },
+          "b": {
+            "pattern_edge": [
+              "back",
+              "shoulder_left"
+            ],
+            "rest_mm": 160.29,
+            "posed_mm": 160.06,
+            "edge_strain_p95_percent": 9.49
+          }
+        },
+        "side_left": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "side_left"
+            ],
+            "rest_mm": 406.0,
+            "posed_mm": 405.01,
+            "edge_strain_p95_percent": 2.03
+          },
+          "b": {
+            "pattern_edge": [
+              "back",
+              "side_left"
+            ],
+            "rest_mm": 406.0,
+            "posed_mm": 405.01,
+            "edge_strain_p95_percent": 2.03
+          }
+        },
+        "front_armhole_left": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "armhole_left"
+            ],
+            "rest_mm": 309.94,
+            "posed_mm": 306.37,
+            "edge_strain_p95_percent": 8.17
+          },
+          "b": {
+            "pattern_edge": [
+              "sleeve_left",
+              "cap_front"
+            ],
+            "rest_mm": 309.91,
+            "posed_mm": 306.37,
+            "edge_strain_p95_percent": 8.19
+          }
+        },
+        "back_armhole_left": {
+          "a": {
+            "pattern_edge": [
+              "back",
+              "armhole_left"
+            ],
+            "rest_mm": 304.64,
+            "posed_mm": 303.81,
+            "edge_strain_p95_percent": 8.86
+          },
+          "b": {
+            "pattern_edge": [
+              "sleeve_left",
+              "cap_back"
+            ],
+            "rest_mm": 304.64,
+            "posed_mm": 303.81,
+            "edge_strain_p95_percent": 8.89
+          }
+        },
+        "sleeve_underarm_left": {
+          "a": {
+            "pattern_edge": [
+              "sleeve_left",
+              "underarm_front"
+            ],
+            "rest_mm": 110.47,
+            "posed_mm": 106.33,
+            "edge_strain_p95_percent": 7.58
+          },
+          "b": {
+            "pattern_edge": [
+              "sleeve_left",
+              "underarm_back"
+            ],
+            "rest_mm": 110.47,
+            "posed_mm": 106.33,
+            "edge_strain_p95_percent": 7.58
+          }
+        }
+      },
+      "sleeve_underarm_solver_weight": 2.0
+    }
+  },
+  "archive": {
+    "capture_kind": "physical",
+    "pattern_sha256": "919924d8ad85b91b743d677d463426240e11d28333825097ce633ed219599333",
+    "source_photos": 1,
+    "vision_estimates": 3,
+    "dxf_panels": 5,
+    "seams": 15,
+    "garment_openings": 4,
+    "glb": {
+      "meshes": 1,
+      "bounds_span_m": [
+        0.8027,
+        0.7553,
+        0.3747
+      ]
+    }
+  }
+}

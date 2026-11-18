@@ -74,9 +74,10 @@ def main():
     parser.add_argument("--archive", action="store_true", help="Also generate the input frame's DXF and GLB")
     parser.add_argument("--compare-references", action="store_true", help="Generate the archive and compare net panels and the flat-pose GLB")
     parser.add_argument("--baseline-archive", type=Path, help="Compare a previous archive with the same flat-pose solver and reference scans")
+    parser.add_argument("--compare-legacy-flat", action="store_true", help="Re-run the same reconstructed pattern with the prior flat solver")
     parser.add_argument("--blender", default="blender")
     args = parser.parse_args()
-    compare_references = args.compare_references or args.baseline_archive is not None
+    compare_references = args.compare_references or args.compare_legacy_flat or args.baseline_archive is not None
     generate_archive = args.archive or compare_references
     args.output.mkdir(parents=True, exist_ok=True)
     if (args.output / "frames").exists():
@@ -145,6 +146,9 @@ def main():
             compare_flat(args.baseline_archive, scans, args.output / "flat-baseline-comparison", item_id="rgbench-green-tshirt",
                          setup=setup, transform=transform, right="y", down="x", blender=args.blender,
                          sleeve_angle=current_flat["sleeve_angle_below_horizontal_deg"])
+        if args.compare_legacy_flat:
+            compare_flat(candidate, scans, args.output / "flat-legacy-comparison", item_id="rgbench-green-tshirt",
+                         setup=setup, transform=transform, right="y", down="x", blender=args.blender, legacy_solver=True)
         reference = download(args.output, "green_tshirt_5k.obj", REFERENCE_OBJ)
         compare_pattern(candidate, reference, args.output / "pattern-comparison", item_id="rgbench-green-tshirt",
                         source="RGBench green_tshirt_5k Style3D simulation mesh, CC BY 4.0, Sim2Real-v1",

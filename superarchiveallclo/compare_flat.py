@@ -42,7 +42,7 @@ def capture_sleeve_angle(capture):
 
 
 def compare_flat(archive, clouds, output, *, item_id, setup, transform=None, right="x", down="y",
-                 sleeve_angle=None, blender="blender"):
+                 sleeve_angle=None, blender="blender", legacy_solver=False):
     if output.exists():
         raise ValueError(f"Output already exists: {output}")
     if sleeve_angle is not None and not 0 <= sleeve_angle <= 50:
@@ -67,7 +67,11 @@ def compare_flat(archive, clouds, output, *, item_id, setup, transform=None, rig
         "reference_setup": setup,
         "pattern_sha256": integrity["pattern_sha256"],
         "capture_clouds_sha256": sorted(digest for digest in original if digest),
-        "model_pose": "Sewn panels supported flat with a 2 mm layer separation and sleeves placed from the underarm joins",
+        "model_pose": (
+            "Sewn panels with sleeves placed from the underarm joins on a flat support"
+            if legacy_solver else "Sewn panels with meshed sleeve folds and planar edge-length relaxation above a flat support"
+        ),
+        "solver": "legacy_edge_iterations" if legacy_solver else "projected_edges_global_relaxation",
         "sleeve_angle_below_horizontal_deg": sleeve_angle,
         "sleeve_angle_source": angle_source,
         "alignment": "Translation of the top and horizontal midpoint, with median scan height at the upper layer",
@@ -109,7 +113,7 @@ def compare_flat(archive, clouds, output, *, item_id, setup, transform=None, rig
         np.savez_compressed(working / "reference-points.npz", **points)
         process = run([
             blender, "-b", "--factory-startup", "--python-exit-code", "1", "--python", str(script),
-            "--", str(snapshot), str(working), str(sleeve_angle),
+            "--", str(snapshot), str(working), str(sleeve_angle), "legacy" if legacy_solver else "relaxed",
         ], capture_output=True, text=True, check=False)
         result = working / "metrics.npz"
         if process.returncode or not result.is_file():
@@ -120,7 +124,19 @@ def compare_flat(archive, clouds, output, *, item_id, setup, transform=None, rig
         with np.load(result, allow_pickle=False) as values:
             model_grid, model_span = project_mesh(values["vertices"], values["triangles"], "top")
             report["flat_glb"]["welded_openings"] = int(values["openings"])
-            report["flat_glb"]["mesh_edge_strain_p95_percent"] = round(float(values["mesh_edge_strain_p95_percent"]), 2)
+            names = ("median", "p95", "p99")
+            strain = dict(zip(names, values["mesh_edge_strain_quantiles_percent"].round(2).tolist(), strict=True))
+            report["flat_glb"]["mesh_edge_strain_p95_percent"] = strain["p95"]
+            report["flat_glb"]["mesh_edge_strain_percent"] = strain
+            report["flat_glb"]["panel_strain_percent"] = {
+                name.removesuffix("_strain_quantiles_percent"): dict(zip(names, values[name].round(2).tolist(), strict=True))
+                for name in values.files if name.endswith("_strain_quantiles_percent") and not name.startswith("mesh_")
+            }
+            report["flat_glb"]["edges_crossing_sleeve_fold"] = {
+                side: int(values[f"sleeve_{side}_edges_crossing_fold"]) for side in ("left", "right")
+            }
+            report["flat_glb"]["seam_strain"] = json.loads(str(values["seam_strain_json"]))
+            report["flat_glb"]["sleeve_underarm_solver_weight"] = float(values["sleeve_underarm_solver_weight"])
             for entry in report["references"]:
                 key = entry["id"]
                 observed = scans[key]
