@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "item_id": "auckland-2017.66.37",
+  "image_size_px": [576, 864],
+  "reference_view": "photo-02",
+  "scope": "Visible mannequin geometry at the neck and articulated arms; centers of silhouette joins are approximate correspondences.",
+  "markers": {
+    "neck": {"photo-01": [289, 55], "photo-02": [300, 73], "photo-21": [298, 41]},
+    "left-elbow": {"photo-01": [131, 394], "photo-02": [86, 499], "photo-05": [316, 546], "photo-21": [130, 386]},
+    "left-wrist": {"photo-01": [131, 490], "photo-02": [89, 623], "photo-05": [295, 713], "photo-21": [127, 482]},
+    "left-tip": {"photo-01": [130, 547], "photo-02": [88, 695], "photo-05": [284, 805], "photo-21": [128, 541]},
+    "right-elbow": {"photo-01": [440, 395], "photo-02": [487, 503], "photo-03": [347, 537], "photo-21": [438, 387]},
+    "right-wrist": {"photo-01": [438, 498], "photo-02": [482, 637], "photo-03": [345, 714], "photo-21": [435, 496]},
+    "right-tip": {"photo-01": [432, 556], "photo-02": [478, 710], "photo-03": [339, 797], "photo-21": [431, 553]}
+  },
+  "front_views": ["photo-01", "photo-21"],
+  "front_fit": ["neck", "left-wrist", "right-wrist", "left-tip", "right-tip"],
+  "front_checks": ["left-elbow", "right-elbow"],
+  "side_views": {
+    "photo-03": {"fit": ["right-elbow", "right-tip"], "check": "right-wrist"},
+    "photo-05": {"fit": ["left-elbow", "left-tip"], "check": "left-wrist"}
+  }
+}

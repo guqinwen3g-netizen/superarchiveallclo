@@ -42,6 +42,8 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 第二件馆藏圆领 T 恤的挂拍评测支持显式标记人台遮挡，并按高度报告袖部和衣身的宽度与深度偏差。[带臂人台的实物对照](docs/stellenbosch-drape-study.md)
 
+照片三维对照可从独立实测标记求出相机投影，也可读取已有相机矩阵。馆藏挂拍用留出标记核对相机误差，真实 Kinect 数据验证原生彩图和三维坐标的配准。[标定格式、结果和复现](docs/camera-calibration-study.md)
+
 双面采集可分别恢复腋下胸宽与下摆宽，把侧缝收窄或放宽的幅度写入毫米纸样及同版仿真。不同宽松度的实物已用馆方胸宽和肩宽做盲测。[衣身宽度对照](docs/body-profile-study.md) · [馆藏正背照与尺寸](docs/paired-photo-study.md)
 
 展台仿真可以使用无臂人台的接触支撑。对照报告记录模型随高度变化的前后深度，以及导出时布料的位移。[同版垂坠对照](docs/drape-support-study.md)

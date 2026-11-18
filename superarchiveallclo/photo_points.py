@@ -21,13 +21,13 @@ from .visual_hull import AXES
 @dataclass
 class PointCamera:
     size: tuple[int, int]
-    axis: int
-    sign: int
+    axis: int | None
+    sign: int | None
     origin: np.ndarray
     mm_per_pixel: float
 
 
-def read_point_view(raw, entry, size):
+def read_point_view(raw, entry, size, *, supplied_projection=False):
     if sha256(raw).hexdigest() != entry["photo_sha256"]:
         raise ValueError(f'{entry["photo"]}: photograph does not match the reference checksum')
     with Image.open(BytesIO(raw)) as photo:
@@ -38,7 +38,7 @@ def read_point_view(raw, entry, size):
     if (origin.shape != (2,) or not np.isfinite(origin).all() or np.any(origin < 0)
             or np.any(origin >= size) or not 0.05 <= scale <= 20):
         raise ValueError("Provide an in-frame camera datum and a finite millimetre scale")
-    axis, sign = AXES[entry["axis"]]
+    axis, sign = (None, None) if supplied_projection else AXES[entry["axis"]]
     return PointCamera(size, axis, sign, origin, scale)
 
 
@@ -77,6 +77,31 @@ def project(camera, point):
     if q[2] <= 0:
         raise ValueError("A reference point projects behind a camera")
     return q[:2] / q[2]
+
+
+def supplied_matrices(raw, item_id, size, hashes):
+    """Read image-from-world matrices from an independently recorded camera solution."""
+    source = json.loads(raw)
+    if (not isinstance(source, dict) or source.get("schema_version") != 1 or source.get("item_id") != item_id
+            or source.get("world_unit") != "mm" or source.get("image_size_px") != list(size)):
+        raise ValueError("Supply camera matrices for this garment, raster and millimetre frame")
+    description = source.get("source")
+    entries = source.get("views")
+    if (not isinstance(description, str) or not description.strip()
+            or not isinstance(entries, dict) or entries.keys() != hashes.keys()):
+        raise ValueError("Identify the camera solution source and provide a matrix for each photograph")
+    matrices = {}
+    for name, entry in entries.items():
+        if entry["photo_sha256"] != hashes[name]:
+            raise ValueError(f"{name}: camera solution names a different original photograph")
+        matrix = np.asarray(entry["image_from_world"], dtype=float)
+        if matrix.shape != (3, 4) or not np.isfinite(matrix).all() or matrix[2, 3] == 0:
+            raise ValueError(f"{name}: expected a finite 3 by 4 matrix with a finite projection of the world datum")
+        matrix = matrix / matrix[2, 3]
+        if not np.isfinite(matrix).all() or np.linalg.matrix_rank(matrix) != 3:
+            raise ValueError(f"{name}: the image projection is degenerate")
+        matrices[name] = matrix
+    return matrices, {"source": description, "sha256": sha256(raw).hexdigest()}
 
 
 def triangulate(matrices, views, observations):
@@ -121,8 +146,8 @@ def nearest_surface_point(point, triangles):
 
 def observed_markers(entry, views, metadata):
     fit, hold = entry["fit"], entry["held_out"]
-    if {views[name].axis for name in fit} != {0, 1} or not hold or set(fit) & set(hold):
-        raise ValueError("Each point needs a front/back and side fit, plus a separate held-out photograph")
+    if len(fit) < 2 or not hold or set(fit) & set(hold):
+        raise ValueError("Each point needs two distinct fit photographs and a separate held-out photograph")
     if any(metadata[name]["role"] != "carve" for name in fit) or any(metadata[name]["role"] != "held_out" for name in hold):
         raise ValueError("Landmark fit and holdout must follow the declared reference roles")
     markers = {}
@@ -196,7 +221,8 @@ def summarize_points(points, methods):
 
 def draw_held_out(directory, photos, views, annotations, points, matrix_sets):
     names = sorted({view for entry in annotations.values() for view in entry["held_out"]})
-    colors = {"orthographic": (235, 108, 40), "exif_pinhole": (147, 82, 193)}
+    colors = {"orthographic": (235, 108, 40), "exif_pinhole": (147, 82, 193),
+              "supplied_projection": (40, 145, 81)}
     for name in names:
         with Image.open(BytesIO(photos[name])) as raw:
             photo = raw.convert("RGB").resize(views[name].size, Image.Resampling.LANCZOS)
@@ -215,7 +241,7 @@ def draw_held_out(directory, photos, views, annotations, points, matrix_sets):
         photo.save(directory / f"{name}-landmarks.png")
 
 
-def compare(archive, reference, observations, output, *, blender="blender"):
+def compare(archive, reference, observations, output, *, blender="blender", camera_solution=None):
     if output.exists():
         raise ValueError(f"Output already exists: {output}")
     audit = check_archive(archive)
@@ -234,16 +260,21 @@ def compare(archive, reference, observations, output, *, blender="blender"):
     check_frame(*size)
     metadata = source["views"]
     photos = {name: (reference.parent / entry["photo"]).read_bytes() for name, entry in metadata.items()}
-    views = {name: read_point_view(photos[name], entry, size) for name, entry in metadata.items()}
-    hashes = [entry["photo_sha256"] for entry in metadata.values()]
-    if len(set(hashes)) != len(hashes) or set(hashes) & capture_photo_hashes(capture["views"]):
+    views = {name: read_point_view(photos[name], entry, size, supplied_projection=camera_solution is not None)
+             for name, entry in metadata.items()}
+    hashes = {name: entry["photo_sha256"] for name, entry in metadata.items()}
+    if len(set(hashes.values())) != len(hashes) or set(hashes.values()) & capture_photo_hashes(capture["views"]):
         raise ValueError("Reference photographs must be distinct and withheld from the paper reconstruction")
     axes = labels.get("exif_focal_plane_axes")
     if axes not in (None, "image", "landscape_sensor"):
         raise ValueError("Declare how the EXIF focal plane axes correspond to the image")
-    matrix_sets = {"orthographic": {name: projection_matrix(view) for name, view in views.items()}}
-    focal = {}
-    if axes is not None:
+    focal, camera_audit = {}, {}
+    if camera_solution is not None:
+        matrices, camera_audit = supplied_matrices(camera_solution.read_bytes(), source["item_id"], size, hashes)
+        matrix_sets = {"supplied_projection": matrices}
+    else:
+        matrix_sets = {"orthographic": {name: projection_matrix(view) for name, view in views.items()}}
+    if axes is not None and camera_solution is None:
         pinhole = {}
         for name, view in views.items():
             pixels = exif_focal_pixels(photos[name], view.size, axes)
@@ -264,12 +295,14 @@ def compare(archive, reference, observations, output, *, blender="blender"):
     summary, by_region = summarize_points(points, matrix_sets)
     report = {
         "schema_version": 1, "item_id": source["item_id"], "setup": source["setup"],
-        "scope": "Sparse physical points under declared camera approximations. Reprojection residuals use datum-plane scales.",
+        "scope": "Sparse physical points under the supplied or default camera model. Reprojection residuals use datum-plane scales.",
         "reference_sha256": sha256(raw).hexdigest(), "observations_sha256": sha256(marked).hexdigest(),
         "pattern_sha256": audit["pattern_sha256"], "garment_glb_sha256": checksum, "archive_audit": audit,
-        "exif_focal_pixels": focal, "reference_photo_sha256": dict(zip(views, hashes, strict=True)),
+        "exif_focal_pixels": focal, "reference_photo_sha256": hashes,
         "model_origin_mm": placement.tolist(), "summary": summary, "by_region": by_region, "points": points,
     }
+    if camera_audit:
+        report["camera_solution"] = camera_audit
     output.parent.mkdir(parents=True, exist_ok=True)
     with TemporaryDirectory(dir=output.parent) as tmp:
         bundle = Path(tmp) / "landmarks"
@@ -287,9 +320,11 @@ def main():
     parser.add_argument("observations", type=Path)
     parser.add_argument("-o", "--output", type=Path, required=True)
     parser.add_argument("--blender", default="blender")
+    parser.add_argument("--camera-solution", type=Path, help="Use independently supplied image-from-world projection matrices")
     args = parser.parse_args()
     try:
-        compare(args.archive, args.reference, args.observations, args.output, blender=args.blender)
+        compare(args.archive, args.reference, args.observations, args.output, blender=args.blender,
+                camera_solution=args.camera_solution)
     except (KeyError, TypeError, ValueError, OSError, DXFError, np.linalg.LinAlgError) as error:
         parser.error(str(error))
 
