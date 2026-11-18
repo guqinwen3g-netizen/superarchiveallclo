@@ -19,6 +19,7 @@ from mathutils.geometry import delaunay_2d_cdt
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from superarchiveallclo.mesh_openings import boundary_loops, sewn_opening_perimeters
 from superarchiveallclo.pattern import Edge
+from superarchiveallclo.reference_form import DEFAULT_ARM_ANGLE_DEG, arm_angle, upper_arm
 
 STEP_MM = 13
 NECK_Z = 1.52
@@ -386,7 +387,7 @@ def collider(name, location, scale, direction=None):
     return form
 
 
-def add_form(pattern, *, with_arms=True):
+def add_form(pattern, *, with_arms=True, arm_angle_deg=DEFAULT_ARM_ANGLE_DEG):
     flat_chest = pattern["measurements"]["flat_chest_mm"] / 1000
     length = pattern["measurements"]["back_center_length_mm"] / 1000
     # Neck, shoulders, chest, waist and hip heights on a neutral fitting form.
@@ -422,11 +423,9 @@ def add_form(pattern, *, with_arms=True):
     torso.hide_render = True
 
     forms = [torso]
-    for side in ((-1, 1) if with_arms else ()):
-        forms.append(collider(
-            "Reference upper arm", (side * 0.235 * scale_x, 0, NECK_Z - 0.148 * length / 0.68),
-            (0.041 * scale_x, 0.047 * scale_x, 0.15 * length / 0.68), (side, 0, -1),
-        ))
+    if with_arms:
+        for side in (-1, 1):
+            forms.append(collider("Reference upper arm", *upper_arm(side, scale_x, length / 0.68, NECK_Z, arm_angle_deg)))
     return forms
 
 
@@ -608,11 +607,16 @@ def main():
     parser.add_argument("form", nargs="?", default="torso_with_arms",
                         choices=("torso_with_arms", "torso_only", "display_torso"))
     parser.add_argument("--frames", type=int, default=FRAME)
+    parser.add_argument("--arm-angle", type=float)
     parser.add_argument("--photo-appearance", action="store_true")
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
     source, output, form = args.source, args.output, args.form
     if args.frames < 2:
         parser.error("Drape requires at least two frames")
+    try:
+        angle = arm_angle(form, args.arm_angle)
+    except ValueError as error:
+        parser.error(str(error))
     pattern = json.loads(source.read_text())
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete(use_global=False)
@@ -620,7 +624,7 @@ def main():
     scene.unit_settings.system = "METRIC"
     scene.render.threads_mode, scene.render.threads = "FIXED", 4
     scene.frame_end = args.frames
-    forms = add_form(pattern, with_arms=form == "torso_with_arms")
+    forms = add_form(pattern, with_arms=angle is not None, arm_angle_deg=angle)
     contact_only = form == "display_torso"
     sleeve_angle = 20 if contact_only else 45
     placement = partial(place, sleeve_angle_from_vertical=sleeve_angle)
@@ -654,6 +658,7 @@ def main():
     report = {
         "solver": "Flat edge-length fit followed by Blender Cloth on a sewn surface",
         "reference_form": form,
+        "reference_upper_arm_angle_from_vertical_deg": angle,
         "cloth_support": "contact_only" if contact_only else "fixed_shoulders_and_contact",
         "initial_sleeve_angle_from_vertical_deg": sleeve_angle,
         "seam_connection": "Shared vertices throughout draping",

@@ -19,11 +19,27 @@
 
 照片外包络横跨约 615 mm，GLB 横跨约 674 mm。颈顶以下 200–300 mm 的一段，GLB 比外包络宽约 114 mm。400–500 mm 段的顺序反转，GLB 窄约 190 mm。600–700 mm 的衣身横跨差约 6 mm。横跨误差随高度变化，主要差距集中在袖子和其支撑附近。这里同时受袖片、通用人台形状和相机近似影响，仍缺同件实物的直接布面扫描和物性测试。
 
+## 同版上臂支撑实验
+
+从正面 #02 的布袖下方标记人台上臂布套的缝线，左右在图像平面上分别与竖直成 14.5° 和 16.8°。取均值 15.7°，让现有椭球上臂绕同一近肩点转动。保持纸样哈希、仿真 38 帧、初始袖位、物性和贴图一致。服装遮住近肩部分，也缺人台各关节的直接三维坐标。[标记所在实拍](https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-2).jpg)
+
+| 指标 | 原支撑 45° | 实拍估算支撑 15.7° |
+| --- | ---: | ---: |
+| 留出 #01 正面轮廓交并比 | 85.25% | 77.84% |
+| 留出 #21 正面轮廓交并比 | 84.10% | 75.86% |
+| 三维对应点到 GLB 的距离中位数 | 55.53 mm | 42.92 mm |
+| 实体穿入最大顶点深度 | 0 mm | 36.31 mm |
+| 200–300 mm 高度带宽度偏差 | +113.78 mm | +76.40 mm |
+| 400–500 mm 高度带宽度偏差 | −189.78 mm | −161.32 mm |
+
+支撑角降低使这两段袖部宽度差缩小，同时出现明显的实体穿入、布面变形和轮廓退化。当前样本的默认交付继续用 45° 支撑。调整角度的版本用于定位建模差异。
+
 ## 复现
 
 ```sh
 python -m examples.evaluate_auckland_archive --case stellenbosch -o build/stellenbosch-review
 python -m superarchiveallclo.check_archive build/stellenbosch-review/review/archive
+python -m examples.evaluate_stellenbosch_support build/stellenbosch-review -o build/stellenbosch-arm-study
 ```
 
 实验使用 Blender 4.3.2。`evidence.json` 记录尺寸和文件校验。`reference/calibration.json` 保留物理尺和立杆读数，`hull/comparison.json` 记录每个视角和高度带的数值，`landmarks/comparison.json` 保存点位和留出反投影。两种对照均校验同一交付 GLB 的哈希。
