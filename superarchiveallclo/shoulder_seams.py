@@ -1,7 +1,12 @@
 """Find narrow, sustained sleeve seam traces on calibrated flat-lay photos."""
 
+from dataclasses import replace
+from math import isfinite
+
 import numpy as np
 from scipy import ndimage
+
+from .tee import draft
 
 
 def trace_side(ridge, interior, top, underarm, chest, step, noise):
@@ -90,3 +95,45 @@ def paired_evidence(views, predicted_width):
     average = (a + b) / 2
     return {"status": "measured_projection", **result, "projected_width_mm": round(average, 2),
             "pattern_minus_projection_mm": round(predicted_width - average, 2)}
+
+
+def refine_width(spec, pattern, capture):
+    """Use a stable projected shoulder width while retaining a sewable candidate."""
+    field = "garment_shoulder_width_mm"
+    measurement = capture["measurements"][field]
+    if "observation" in measurement:
+        return spec, pattern, {"status": "retained_supplied_measurement"}
+    observed = {}
+    scale = capture.get("inference", {}).get("scale_evidence", {})
+    for name in ("front", "back"):
+        if name not in capture["views"]:
+            continue
+        view = capture["views"][name]
+        detail = view.get("calibration", {}).get("registered_color_seams", {})
+        traces = detail.get("projected_shoulder_seams") or scale.get(name, {}).get("projected_shoulder_seams")
+        if traces is None:
+            return spec, pattern, {"status": "unavailable", "reason": f"No bilateral seam traces in the {name} view"}
+        width = float(traces["projected_width_mm"])
+        low, high = map(float, traces["near_tie_width_range_mm"])
+        if (not all(map(isfinite, (low, width, high))) or not 0 < low <= width <= high
+                or high - low > max(20, 0.05 * width)):
+            return spec, pattern, {"status": "uncertain_trace", "view": name,
+                                   "near_tie_width_range_mm": [low, high]}
+        observed[name] = {"projected_shoulder_seams": traces}
+    proposed = float(observed["front"]["projected_shoulder_seams"]["projected_width_mm"])
+    result = {"regression_before_mm": spec.shoulder_width_mm, "widths_by_view_mm": {
+        name: values["projected_shoulder_seams"]["projected_width_mm"] for name, values in observed.items()}}
+    if "back" in observed:
+        paired = paired_evidence(observed, spec.shoulder_width_mm)
+        if paired["status"] != "measured_projection":
+            return spec, pattern, {**result, **paired}
+        proposed = paired["projected_width_mm"]
+    selected = replace(spec, garment_shoulder_width_mm=proposed)
+    try:
+        revised = draft(selected)
+    except ValueError as error:
+        return spec, pattern, {**result, "status": "pattern_incompatible", "reason": str(error)}
+    capture["measurements"][field] = {
+        "source": "projected_shoulder_seams", "value": proposed, "before_fit_mm": spec.shoulder_width_mm,
+    }
+    return selected, revised, {**result, "status": "applied", "selected_mm": proposed}

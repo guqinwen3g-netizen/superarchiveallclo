@@ -1,0 +1,1636 @@
+{
+  "source": "https://doi.org/10.3390/app12105286",
+  "item_id": "hifiai-exp1-green-crew-tee",
+  "input_frame": "000031",
+  "independent_frames": [
+    "000037",
+    "000039"
+  ],
+  "source_sha256": {
+    "000031.jpg": "305441ab13239bb60c4c2e51496264e3d5a483de9a9a29c104fa5ce2af0e484b",
+    "000031.ply": "910921a4c3d0d39fa715941ad8f48dcd9892717526c6889fc68e9ab644761f2e",
+    "000037.jpg": "c907687e73c4782250ef0de4d77b191726f614d51682f69c4d70d8b8b1e34c4c",
+    "000037.ply": "5a00cee9b9e590ec7ba5e60f60da3d1f85576df0159f7f5fd3a9096e770dc2e1",
+    "000039.jpg": "72e4a8d36a1ea69e4d1d5a2c86618096b8393fb1fe707def585dee539f9b3c49",
+    "000039.ply": "5839c0b1c81f994137c87398fa20f33be91a4548ce7b6f175676b899fbccc230"
+  },
+  "input_model_sha256": "a1a8e84125d3d55e0b1bdc1b51a5a56afceb33a3643bcc212e9a0da59e6d315e",
+  "held_out_flat_chest_projection": {
+    "000037": {
+      "measured_scan_projection_mm": 518.43,
+      "pattern_minus_scan_mm": 4.57
+    },
+    "000039": {
+      "measured_scan_projection_mm": 520.82,
+      "pattern_minus_scan_mm": 2.18
+    }
+  },
+  "shoulder_seam_fit": {
+    "regression_before_mm": 374.706,
+    "widths_by_view_mm": {
+      "front": 484.49
+    },
+    "status": "applied",
+    "selected_mm": 484.49
+  },
+  "armhole_silhouette_fit": {
+    "status": "applied",
+    "initial_armhole_depth_mm": 200.151,
+    "projected_armhole_depth_limit_mm": 302.83,
+    "selected_armhole_depth_mm": 268.604,
+    "trials": [
+      {
+        "armhole_depth_mm": 200.151,
+        "sleeve_length_mm": 147.952,
+        "mesh_edge_strain_p95_percent": 4.423,
+        "intersection_over_union": 0.9028,
+        "contour_distance_mm": {
+          "median": 12.0,
+          "p90": 29.73
+        }
+      },
+      {
+        "armhole_depth_mm": 234.377,
+        "sleeve_length_mm": 187.621,
+        "mesh_edge_strain_p95_percent": 5.071,
+        "intersection_over_union": 0.9163,
+        "contour_distance_mm": {
+          "median": 12.0,
+          "p90": 26.0
+        }
+      },
+      {
+        "armhole_depth_mm": 268.604,
+        "sleeve_length_mm": 224.983,
+        "mesh_edge_strain_p95_percent": 7.282,
+        "intersection_over_union": 0.9258,
+        "contour_distance_mm": {
+          "median": 10.0,
+          "p90": 20.88
+        }
+      },
+      {
+        "armhole_depth_mm": 302.83,
+        "sleeve_length_mm": 259.638,
+        "mesh_edge_strain_p95_percent": 6.809,
+        "intersection_over_union": 0.8926,
+        "contour_distance_mm": {
+          "median": 14.0,
+          "p90": 30.46
+        }
+      }
+    ],
+    "cuff_angles_below_horizontal_deg": {
+      "image_left": 23.720395572304593,
+      "image_right": 39.28940686250036
+    },
+    "selection": "Highest front input silhouette IoU, then shortest contour-distance P90"
+  },
+  "sleeve_span_fit": {
+    "status": "applied",
+    "input_cuff_span_mm": 782.0,
+    "cuff_angles_below_horizontal_deg": {
+      "image_left": 23.720395572304593,
+      "image_right": 39.28940686250036
+    },
+    "tolerance_mm": 4.0,
+    "evaluations": [
+      {
+        "length_mm": 184.35820743358573,
+        "mesh_span_mm": 723.977
+      },
+      {
+        "length_mm": 218.702,
+        "mesh_span_mm": 773.028
+      },
+      {
+        "length_mm": 224.983,
+        "mesh_span_mm": 780.715
+      }
+    ],
+    "selected_sleeve_length_mm": 224.983,
+    "scope": "Candidate matched to the input's cuff-tip projection at native scale"
+  },
+  "seam_projection_evidence": {
+    "000031": {
+      "scope": "Visible seam traces projected onto the measured support plane",
+      "output_to_source_px": [
+        [
+          1.030727441479609,
+          -0.013696643663687802,
+          419.4054412445217
+        ],
+        [
+          -0.005999149528587829,
+          1.0276896901607748,
+          157.5763548649114
+        ],
+        [
+          -7.98366899538882e-06,
+          -1.4512435567985504e-05,
+          1.0
+        ]
+      ],
+      "orthographic_mm_per_pixel": 0.75,
+      "orthographic_image_px": [
+        1121,
+        1024
+      ],
+      "processed_image_sha256": "fa64ed62d1a510dbd6ab976698b4f88cc511d7c3bb8206aac2ac2741cfd19973",
+      "processed_image_px": [
+        720,
+        658
+      ],
+      "garment_crop_px": [
+        15,
+        15,
+        704,
+        642
+      ],
+      "processed_mm_per_pixel": 1.16744,
+      "torso_profile": {
+        "chest_width_mm": 518.87,
+        "hem_width_mm": 521.32,
+        "chest_points_crop_px": [
+          [
+            107.82,
+            247.86
+          ],
+          [
+            551.26,
+            277.57
+          ]
+        ],
+        "hem_points_crop_px": [
+          [
+            96.99,
+            619.0
+          ],
+          [
+            542.54,
+            619.0
+          ]
+        ],
+        "side_fit_p90_mm": [
+          2.81,
+          2.57
+        ]
+      },
+      "projected_shoulder_seams": {
+        "projected_width_mm": 484.49,
+        "near_tie_width_range_mm": [
+          475.15,
+          491.49
+        ],
+        "image_left": {
+          "shoulder_crop_px": [
+            143,
+            32
+          ],
+          "trace_crop_px": [
+            [
+              149.92,
+              68.7
+            ],
+            [
+              150.37,
+              73.01
+            ],
+            [
+              150.75,
+              77.33
+            ],
+            [
+              151.05,
+              81.65
+            ],
+            [
+              151.27,
+              85.96
+            ],
+            [
+              151.42,
+              90.28
+            ],
+            [
+              151.5,
+              94.6
+            ],
+            [
+              151.49,
+              98.92
+            ],
+            [
+              151.41,
+              103.23
+            ],
+            [
+              151.26,
+              107.55
+            ],
+            [
+              151.03,
+              111.87
+            ],
+            [
+              150.72,
+              116.19
+            ],
+            [
+              150.33,
+              120.5
+            ],
+            [
+              149.88,
+              124.82
+            ],
+            [
+              149.34,
+              129.14
+            ],
+            [
+              148.73,
+              133.45
+            ],
+            [
+              148.04,
+              137.77
+            ],
+            [
+              147.28,
+              142.09
+            ],
+            [
+              146.44,
+              146.41
+            ],
+            [
+              145.52,
+              150.72
+            ],
+            [
+              144.53,
+              155.04
+            ],
+            [
+              143.46,
+              159.36
+            ],
+            [
+              142.32,
+              163.67
+            ],
+            [
+              141.1,
+              167.99
+            ],
+            [
+              139.8,
+              172.31
+            ],
+            [
+              138.43,
+              176.63
+            ],
+            [
+              136.98,
+              180.94
+            ],
+            [
+              135.46,
+              185.26
+            ],
+            [
+              133.86,
+              189.58
+            ],
+            [
+              132.18,
+              193.9
+            ],
+            [
+              130.43,
+              198.21
+            ],
+            [
+              128.6,
+              202.53
+            ],
+            [
+              126.7,
+              206.85
+            ],
+            [
+              124.72,
+              211.16
+            ],
+            [
+              122.67,
+              215.48
+            ]
+          ],
+          "supported_apex_x_crop_px": [
+            137,
+            147
+          ],
+          "contrast_score": 2.116,
+          "section_support": [
+            1.0,
+            0.857,
+            0.857,
+            0.429,
+            0.714
+          ]
+        },
+        "image_right": {
+          "shoulder_crop_px": [
+            558,
+            62
+          ],
+          "trace_crop_px": [
+            [
+              537.08,
+              98.65
+            ],
+            [
+              535.11,
+              102.96
+            ],
+            [
+              533.25,
+              107.27
+            ],
+            [
+              531.48,
+              111.58
+            ],
+            [
+              529.82,
+              115.89
+            ],
+            [
+              528.27,
+              120.2
+            ],
+            [
+              526.82,
+              124.52
+            ],
+            [
+              525.47,
+              128.83
+            ],
+            [
+              524.22,
+              133.14
+            ],
+            [
+              523.08,
+              137.45
+            ],
+            [
+              522.04,
+              141.76
+            ],
+            [
+              521.1,
+              146.07
+            ],
+            [
+              520.27,
+              150.38
+            ],
+            [
+              519.54,
+              154.7
+            ],
+            [
+              518.92,
+              159.01
+            ],
+            [
+              518.4,
+              163.32
+            ],
+            [
+              517.98,
+              167.63
+            ],
+            [
+              517.67,
+              171.94
+            ],
+            [
+              517.45,
+              176.25
+            ],
+            [
+              517.35,
+              180.56
+            ],
+            [
+              517.34,
+              184.87
+            ],
+            [
+              517.44,
+              189.19
+            ],
+            [
+              517.64,
+              193.5
+            ],
+            [
+              517.95,
+              197.81
+            ],
+            [
+              518.36,
+              202.12
+            ],
+            [
+              518.87,
+              206.43
+            ],
+            [
+              519.49,
+              210.74
+            ],
+            [
+              520.21,
+              215.05
+            ],
+            [
+              521.03,
+              219.37
+            ],
+            [
+              521.96,
+              223.68
+            ],
+            [
+              522.99,
+              227.99
+            ],
+            [
+              524.12,
+              232.3
+            ],
+            [
+              525.36,
+              236.61
+            ],
+            [
+              526.7,
+              240.92
+            ],
+            [
+              528.14,
+              245.23
+            ]
+          ],
+          "supported_apex_x_crop_px": [
+            554,
+            558
+          ],
+          "contrast_score": 1.983,
+          "section_support": [
+            0.857,
+            1.0,
+            1.0,
+            0.857,
+            0.429
+          ]
+        }
+      }
+    },
+    "000037": {
+      "scope": "Visible seam traces projected onto the measured support plane",
+      "output_to_source_px": [
+        [
+          1.0344461735137587,
+          -0.01367291078398778,
+          366.2022105702788
+        ],
+        [
+          -0.005989522980371033,
+          1.0314140717193185,
+          186.67924551684075
+        ],
+        [
+          -7.970514252757492e-06,
+          -1.4487275081683073e-05,
+          1.0
+        ]
+      ],
+      "orthographic_mm_per_pixel": 0.75,
+      "orthographic_image_px": [
+        1112,
+        1016
+      ],
+      "processed_image_sha256": "41f5dbff9b91e2d0f92ded94c8a7047a23725f5b3e586bffcd8278b02c314183",
+      "processed_image_px": [
+        720,
+        658
+      ],
+      "garment_crop_px": [
+        16,
+        15,
+        705,
+        643
+      ],
+      "processed_mm_per_pixel": 1.15819,
+      "torso_profile": {
+        "chest_width_mm": 519.14,
+        "hem_width_mm": 523.0,
+        "chest_points_crop_px": [
+          [
+            125.74,
+            270.71
+          ],
+          [
+            572.97,
+            256.36
+          ]
+        ],
+        "hem_points_crop_px": [
+          [
+            142.02,
+            618.0
+          ],
+          [
+            592.58,
+            618.0
+          ]
+        ],
+        "side_fit_p90_mm": [
+          2.4,
+          2.91
+        ]
+      },
+      "projected_shoulder_seams": {
+        "projected_width_mm": 500.34,
+        "near_tie_width_range_mm": [
+          491.07,
+          507.29
+        ],
+        "image_left": {
+          "shoulder_crop_px": [
+            132,
+            52
+          ],
+          "trace_crop_px": [
+            [
+              149.69,
+              89.18
+            ],
+            [
+              151.21,
+              93.55
+            ],
+            [
+              152.61,
+              97.93
+            ],
+            [
+              153.9,
+              102.3
+            ],
+            [
+              155.07,
+              106.68
+            ],
+            [
+              156.11,
+              111.05
+            ],
+            [
+              157.05,
+              115.43
+            ],
+            [
+              157.86,
+              119.8
+            ],
+            [
+              158.55,
+              124.17
+            ],
+            [
+              159.13,
+              128.55
+            ],
+            [
+              159.59,
+              132.92
+            ],
+            [
+              159.93,
+              137.3
+            ],
+            [
+              160.15,
+              141.67
+            ],
+            [
+              160.26,
+              146.05
+            ],
+            [
+              160.25,
+              150.42
+            ],
+            [
+              160.11,
+              154.79
+            ],
+            [
+              159.87,
+              159.17
+            ],
+            [
+              159.5,
+              163.54
+            ],
+            [
+              159.01,
+              167.92
+            ],
+            [
+              158.41,
+              172.29
+            ],
+            [
+              157.69,
+              176.66
+            ],
+            [
+              156.85,
+              181.04
+            ],
+            [
+              155.89,
+              185.41
+            ],
+            [
+              154.82,
+              189.79
+            ],
+            [
+              153.63,
+              194.16
+            ],
+            [
+              152.32,
+              198.54
+            ],
+            [
+              150.89,
+              202.91
+            ],
+            [
+              149.34,
+              207.28
+            ],
+            [
+              147.67,
+              211.66
+            ],
+            [
+              145.89,
+              216.03
+            ],
+            [
+              143.99,
+              220.41
+            ],
+            [
+              141.97,
+              224.78
+            ],
+            [
+              139.84,
+              229.16
+            ],
+            [
+              137.58,
+              233.53
+            ],
+            [
+              135.21,
+              237.9
+            ]
+          ],
+          "supported_apex_x_crop_px": [
+            126,
+            140
+          ],
+          "contrast_score": 2.377,
+          "section_support": [
+            1.0,
+            1.0,
+            0.714,
+            0.429,
+            0.571
+          ]
+        },
+        "image_right": {
+          "shoulder_crop_px": [
+            564,
+            39
+          ],
+          "trace_crop_px": [
+            [
+              552.41,
+              75.95
+            ],
+            [
+              551.34,
+              80.3
+            ],
+            [
+              550.34,
+              84.65
+            ],
+            [
+              549.4,
+              88.99
+            ],
+            [
+              548.52,
+              93.34
+            ],
+            [
+              547.7,
+              97.69
+            ],
+            [
+              546.95,
+              102.03
+            ],
+            [
+              546.26,
+              106.38
+            ],
+            [
+              545.63,
+              110.73
+            ],
+            [
+              545.07,
+              115.08
+            ],
+            [
+              544.57,
+              119.42
+            ],
+            [
+              544.13,
+              123.77
+            ],
+            [
+              543.75,
+              128.12
+            ],
+            [
+              543.44,
+              132.46
+            ],
+            [
+              543.19,
+              136.81
+            ],
+            [
+              543.0,
+              141.16
+            ],
+            [
+              542.88,
+              145.51
+            ],
+            [
+              542.82,
+              149.85
+            ],
+            [
+              542.82,
+              154.2
+            ],
+            [
+              542.88,
+              158.55
+            ],
+            [
+              543.0,
+              162.9
+            ],
+            [
+              543.19,
+              167.24
+            ],
+            [
+              543.44,
+              171.59
+            ],
+            [
+              543.76,
+              175.94
+            ],
+            [
+              544.14,
+              180.28
+            ],
+            [
+              544.57,
+              184.63
+            ],
+            [
+              545.08,
+              188.98
+            ],
+            [
+              545.64,
+              193.33
+            ],
+            [
+              546.27,
+              197.67
+            ],
+            [
+              546.96,
+              202.02
+            ],
+            [
+              547.71,
+              206.37
+            ],
+            [
+              548.53,
+              210.71
+            ],
+            [
+              549.41,
+              215.06
+            ],
+            [
+              550.35,
+              219.41
+            ],
+            [
+              551.35,
+              223.76
+            ]
+          ],
+          "supported_apex_x_crop_px": [
+            564,
+            564
+          ],
+          "contrast_score": 2.444,
+          "section_support": [
+            1.0,
+            1.0,
+            1.0,
+            0.429,
+            0.286
+          ]
+        }
+      }
+    },
+    "000039": {
+      "scope": "Visible seam traces projected onto the measured support plane",
+      "output_to_source_px": [
+        [
+          1.0311374708434111,
+          0.040338168196255936,
+          339.7642515842967
+        ],
+        [
+          -0.05988016419566193,
+          1.0271382558207385,
+          209.59573124865827
+        ],
+        [
+          -7.271099718869856e-06,
+          -1.4898522587515611e-05,
+          1.0
+        ]
+      ],
+      "orthographic_mm_per_pixel": 0.75,
+      "orthographic_image_px": [
+        1142,
+        1015
+      ],
+      "processed_image_sha256": "1bcdb522be05595fe5f44962ebc2c10555f5f9289393c64aae144320332ea6ac",
+      "processed_image_px": [
+        720,
+        640
+      ],
+      "garment_crop_px": [
+        15,
+        15,
+        705,
+        625
+      ],
+      "processed_mm_per_pixel": 1.18952,
+      "torso_profile": {
+        "chest_width_mm": 516.79,
+        "hem_width_mm": 520.95,
+        "chest_points_crop_px": [
+          [
+            125.41,
+            258.71
+          ],
+          [
+            558.86,
+            270.86
+          ]
+        ],
+        "hem_points_crop_px": [
+          [
+            122.33,
+            605.0
+          ],
+          [
+            559.28,
+            605.0
+          ]
+        ],
+        "side_fit_p90_mm": [
+          2.21,
+          2.44
+        ]
+      },
+      "projected_shoulder_seams": {
+        "projected_width_mm": 510.3,
+        "near_tie_width_range_mm": [
+          510.3,
+          519.82
+        ],
+        "image_left": {
+          "shoulder_crop_px": [
+            126,
+            48
+          ],
+          "trace_crop_px": [
+            [
+              145.92,
+              83.82
+            ],
+            [
+              147.78,
+              88.03
+            ],
+            [
+              149.54,
+              92.25
+            ],
+            [
+              151.19,
+              96.46
+            ],
+            [
+              152.74,
+              100.68
+            ],
+            [
+              154.19,
+              104.89
+            ],
+            [
+              155.54,
+              109.11
+            ],
+            [
+              156.79,
+              113.32
+            ],
+            [
+              157.93,
+              117.53
+            ],
+            [
+              158.97,
+              121.75
+            ],
+            [
+              159.91,
+              125.96
+            ],
+            [
+              160.75,
+              130.18
+            ],
+            [
+              161.48,
+              134.39
+            ],
+            [
+              162.11,
+              138.61
+            ],
+            [
+              162.64,
+              142.82
+            ],
+            [
+              163.07,
+              147.03
+            ],
+            [
+              163.4,
+              151.25
+            ],
+            [
+              163.62,
+              155.46
+            ],
+            [
+              163.74,
+              159.68
+            ],
+            [
+              163.76,
+              163.89
+            ],
+            [
+              163.68,
+              168.1
+            ],
+            [
+              163.49,
+              172.32
+            ],
+            [
+              163.21,
+              176.53
+            ],
+            [
+              162.82,
+              180.75
+            ],
+            [
+              162.33,
+              184.96
+            ],
+            [
+              161.73,
+              189.18
+            ],
+            [
+              161.04,
+              193.39
+            ],
+            [
+              160.24,
+              197.6
+            ],
+            [
+              159.34,
+              201.82
+            ],
+            [
+              158.33,
+              206.03
+            ],
+            [
+              157.23,
+              210.25
+            ],
+            [
+              156.02,
+              214.46
+            ],
+            [
+              154.71,
+              218.68
+            ],
+            [
+              153.3,
+              222.89
+            ],
+            [
+              151.79,
+              227.1
+            ]
+          ],
+          "supported_apex_x_crop_px": [
+            122,
+            126
+          ],
+          "contrast_score": 2.667,
+          "section_support": [
+            1.0,
+            0.714,
+            0.857,
+            1.0,
+            1.0
+          ]
+        },
+        "image_right": {
+          "shoulder_crop_px": [
+            555,
+            50
+          ],
+          "trace_crop_px": [
+            [
+              538.0,
+              87.55
+            ],
+            [
+              536.43,
+              91.96
+            ],
+            [
+              534.94,
+              96.38
+            ],
+            [
+              533.54,
+              100.8
+            ],
+            [
+              532.23,
+              105.22
+            ],
+            [
+              531.0,
+              109.63
+            ],
+            [
+              529.87,
+              114.05
+            ],
+            [
+              528.82,
+              118.47
+            ],
+            [
+              527.87,
+              122.88
+            ],
+            [
+              527.0,
+              127.3
+            ],
+            [
+              526.22,
+              131.72
+            ],
+            [
+              525.53,
+              136.14
+            ],
+            [
+              524.93,
+              140.55
+            ],
+            [
+              524.41,
+              144.97
+            ],
+            [
+              523.99,
+              149.39
+            ],
+            [
+              523.65,
+              153.8
+            ],
+            [
+              523.41,
+              158.22
+            ],
+            [
+              523.25,
+              162.64
+            ],
+            [
+              523.18,
+              167.06
+            ],
+            [
+              523.2,
+              171.47
+            ],
+            [
+              523.31,
+              175.89
+            ],
+            [
+              523.5,
+              180.31
+            ],
+            [
+              523.79,
+              184.72
+            ],
+            [
+              524.16,
+              189.14
+            ],
+            [
+              524.62,
+              193.56
+            ],
+            [
+              525.18,
+              197.98
+            ],
+            [
+              525.82,
+              202.39
+            ],
+            [
+              526.55,
+              206.81
+            ],
+            [
+              527.36,
+              211.23
+            ],
+            [
+              528.27,
+              215.64
+            ],
+            [
+              529.27,
+              220.06
+            ],
+            [
+              530.35,
+              224.48
+            ],
+            [
+              531.52,
+              228.9
+            ],
+            [
+              532.78,
+              233.31
+            ],
+            [
+              534.13,
+              237.73
+            ]
+          ],
+          "supported_apex_x_crop_px": [
+            555,
+            559
+          ],
+          "contrast_score": 2.337,
+          "section_support": [
+            1.0,
+            1.0,
+            1.0,
+            0.714,
+            0.571
+          ]
+        }
+      }
+    }
+  },
+  "variants": {
+    "cuff_span_only": {
+      "pattern_candidate_mm": {
+        "flat_chest_mm": 523.0,
+        "back_length_mm": 693.613,
+        "garment_shoulder_width_mm": 374.706,
+        "armhole_depth_mm": 200.151,
+        "sleeve_length_mm": 207.675
+      },
+      "archive": {
+        "capture_kind": "physical",
+        "pattern_sha256": "6452820a33a854de89147b4cd5fb100d19984b94f340f84fc50424a230253d53",
+        "source_photos": 1,
+        "vision_estimates": 4,
+        "dxf_panels": 5,
+        "seams": 15,
+        "garment_openings": 4,
+        "glb": {
+          "meshes": 1,
+          "bounds_span_m": [
+            0.4711,
+            0.7243,
+            0.286
+          ]
+        }
+      },
+      "flat_glb_sha256": "6c1fa52f09442b5ecc0db83760b499df9644704c8bef39af24dd6d2c396a86b7",
+      "mesh_edge_strain_p95_percent": 6.86,
+      "flat_reference": {
+        "000037": {
+          "cloud_sha256": "6dcb4534b73f8668c74df6c2982e735d0795045154ac9351386f0f8cc045748c",
+          "point_count": 14179,
+          "plane_distance_p95_mm": 3.693,
+          "intersection_over_union": 0.8851,
+          "contour_distance_mm": {
+            "median": 17.55,
+            "p90": 31.4
+          },
+          "model_minus_reference_width_height_mm": [
+            7.92,
+            -1.35
+          ],
+          "reference_to_glb_surface_distance_mm": {
+            "median": 0.74,
+            "p90": 3.99
+          },
+          "reference_translation_mm": [
+            15.95,
+            -348.71,
+            2.98
+          ],
+          "shoulder_projection_minus_pattern_mm": 125.634
+        },
+        "000039": {
+          "cloud_sha256": "42d3cd9d86f29dbd90c8244064b2f546c5c4b6fcc20073f955100abb19e1eacc",
+          "point_count": 14235,
+          "plane_distance_p95_mm": 3.645,
+          "intersection_over_union": 0.9196,
+          "contour_distance_mm": {
+            "median": 6.0,
+            "p90": 30.53
+          },
+          "model_minus_reference_width_height_mm": [
+            -10.08,
+            2.65
+          ],
+          "reference_to_glb_surface_distance_mm": {
+            "median": 0.75,
+            "p90": 3.73
+          },
+          "reference_translation_mm": [
+            3.76,
+            -354.21,
+            2.92
+          ],
+          "shoulder_projection_minus_pattern_mm": 135.594
+        }
+      },
+      "depth_rays": {
+        "frame-000037": {
+          "depth_sha256": "22e02eaf4f57166ea18724a7c40e3373eedb781027f7b645b095c2069c9cfb68",
+          "image_size_px": [
+            256,
+            192
+          ],
+          "pose_source": "Actual support plane and bounded translation at the measured scale",
+          "measured_rays": 14179,
+          "declared_source_pcd_sha256": "5a00cee9b9e590ec7ba5e60f60da3d1f85576df0159f7f5fd3a9096e770dc2e1",
+          "hit_rays": 13030,
+          "ray_hit_fraction": 0.91896,
+          "depth_error": {
+            "signed_median_mm": 0.04,
+            "absolute_median_mm": 1.15,
+            "absolute_p90_mm": 3.3
+          }
+        },
+        "frame-000039": {
+          "depth_sha256": "4b7a8535c46d8b2ec9d33d171998366a013aa657911472e0cbede6a14046944e",
+          "image_size_px": [
+            256,
+            192
+          ],
+          "pose_source": "Actual support plane and bounded translation at the measured scale",
+          "measured_rays": 14235,
+          "declared_source_pcd_sha256": "5839c0b1c81f994137c87398fa20f33be91a4548ce7b6f175676b899fbccc230",
+          "hit_rays": 13296,
+          "ray_hit_fraction": 0.93404,
+          "depth_error": {
+            "signed_median_mm": 0.11,
+            "absolute_median_mm": 1.17,
+            "absolute_p90_mm": 3.44
+          }
+        }
+      }
+    },
+    "shoulder_width": {
+      "pattern_candidate_mm": {
+        "flat_chest_mm": 523.0,
+        "back_length_mm": 693.613,
+        "garment_shoulder_width_mm": 484.49,
+        "armhole_depth_mm": 200.151,
+        "sleeve_length_mm": 147.952
+      },
+      "archive": {
+        "capture_kind": "physical",
+        "pattern_sha256": "cadd211e129b6cf11917c25f39e2194ee085bfc6603ce2f027d2d3d7aca41e22",
+        "source_photos": 1,
+        "vision_estimates": 3,
+        "dxf_panels": 5,
+        "seams": 15,
+        "garment_openings": 4,
+        "glb": {
+          "meshes": 1,
+          "bounds_span_m": [
+            0.4882,
+            0.7233,
+            0.3012
+          ]
+        }
+      },
+      "flat_glb_sha256": "65aa3f1894bd331c4ecaa7ee6d77db9d1edc969f40201dc12e85def0a3533a8f",
+      "mesh_edge_strain_p95_percent": 4.42,
+      "flat_reference": {
+        "000037": {
+          "cloud_sha256": "6dcb4534b73f8668c74df6c2982e735d0795045154ac9351386f0f8cc045748c",
+          "point_count": 14179,
+          "plane_distance_p95_mm": 3.693,
+          "intersection_over_union": 0.8953,
+          "contour_distance_mm": {
+            "median": 16.0,
+            "p90": 26.0
+          },
+          "model_minus_reference_width_height_mm": [
+            4.99,
+            -1.79
+          ],
+          "reference_to_glb_surface_distance_mm": {
+            "median": 0.74,
+            "p90": 3.8
+          },
+          "reference_translation_mm": [
+            14.38,
+            -349.2,
+            2.98
+          ],
+          "shoulder_projection_minus_pattern_mm": 15.85
+        },
+        "000039": {
+          "cloud_sha256": "42d3cd9d86f29dbd90c8244064b2f546c5c4b6fcc20073f955100abb19e1eacc",
+          "point_count": 14235,
+          "plane_distance_p95_mm": 3.645,
+          "intersection_over_union": 0.9245,
+          "contour_distance_mm": {
+            "median": 6.0,
+            "p90": 28.43
+          },
+          "model_minus_reference_width_height_mm": [
+            -13.01,
+            2.21
+          ],
+          "reference_to_glb_surface_distance_mm": {
+            "median": 0.74,
+            "p90": 3.65
+          },
+          "reference_translation_mm": [
+            2.18,
+            -354.7,
+            2.92
+          ],
+          "shoulder_projection_minus_pattern_mm": 25.81
+        }
+      },
+      "depth_rays": {
+        "frame-000037": {
+          "depth_sha256": "22e02eaf4f57166ea18724a7c40e3373eedb781027f7b645b095c2069c9cfb68",
+          "image_size_px": [
+            256,
+            192
+          ],
+          "pose_source": "Actual support plane and bounded translation at the measured scale",
+          "measured_rays": 14179,
+          "declared_source_pcd_sha256": "5a00cee9b9e590ec7ba5e60f60da3d1f85576df0159f7f5fd3a9096e770dc2e1",
+          "hit_rays": 13163,
+          "ray_hit_fraction": 0.92834,
+          "depth_error": {
+            "signed_median_mm": 0.05,
+            "absolute_median_mm": 1.15,
+            "absolute_p90_mm": 3.33
+          }
+        },
+        "frame-000039": {
+          "depth_sha256": "4b7a8535c46d8b2ec9d33d171998366a013aa657911472e0cbede6a14046944e",
+          "image_size_px": [
+            256,
+            192
+          ],
+          "pose_source": "Actual support plane and bounded translation at the measured scale",
+          "measured_rays": 14235,
+          "declared_source_pcd_sha256": "5839c0b1c81f994137c87398fa20f33be91a4548ce7b6f175676b899fbccc230",
+          "hit_rays": 13416,
+          "ray_hit_fraction": 0.94247,
+          "depth_error": {
+            "signed_median_mm": 0.12,
+            "absolute_median_mm": 1.18,
+            "absolute_p90_mm": 3.46
+          }
+        }
+      }
+    },
+    "shoulder_width_and_armhole": {
+      "pattern_candidate_mm": {
+        "flat_chest_mm": 523.0,
+        "back_length_mm": 693.613,
+        "garment_shoulder_width_mm": 484.49,
+        "armhole_depth_mm": 268.604,
+        "sleeve_length_mm": 224.983
+      },
+      "archive": {
+        "capture_kind": "physical",
+        "pattern_sha256": "9bef7a355fa462cf09c4e3b03b20bac4374fc8d078a59d4d9899a07b36472052",
+        "source_photos": 1,
+        "vision_estimates": 3,
+        "dxf_panels": 5,
+        "seams": 15,
+        "garment_openings": 4,
+        "glb": {
+          "meshes": 1,
+          "bounds_span_m": [
+            0.5015,
+            0.7258,
+            0.3029
+          ]
+        }
+      },
+      "flat_glb_sha256": "0296e64ace990f6f9772575bb9f28a10be996ec45ad76c9d72c5d033aaaa8236",
+      "mesh_edge_strain_p95_percent": 7.28,
+      "flat_reference": {
+        "000037": {
+          "cloud_sha256": "6dcb4534b73f8668c74df6c2982e735d0795045154ac9351386f0f8cc045748c",
+          "point_count": 14179,
+          "plane_distance_p95_mm": 3.693,
+          "intersection_over_union": 0.9088,
+          "contour_distance_mm": {
+            "median": 14.0,
+            "p90": 24.0
+          },
+          "model_minus_reference_width_height_mm": [
+            4.71,
+            -6.26
+          ],
+          "reference_to_glb_surface_distance_mm": {
+            "median": 0.74,
+            "p90": 3.77
+          },
+          "reference_translation_mm": [
+            16.24,
+            -353.65,
+            2.98
+          ],
+          "shoulder_projection_minus_pattern_mm": 15.85
+        },
+        "000039": {
+          "cloud_sha256": "42d3cd9d86f29dbd90c8244064b2f546c5c4b6fcc20073f955100abb19e1eacc",
+          "point_count": 14235,
+          "plane_distance_p95_mm": 3.645,
+          "intersection_over_union": 0.9505,
+          "contour_distance_mm": {
+            "median": 4.0,
+            "p90": 17.09
+          },
+          "model_minus_reference_width_height_mm": [
+            -13.29,
+            -2.26
+          ],
+          "reference_to_glb_surface_distance_mm": {
+            "median": 0.74,
+            "p90": 3.46
+          },
+          "reference_translation_mm": [
+            4.05,
+            -359.15,
+            2.92
+          ],
+          "shoulder_projection_minus_pattern_mm": 25.81
+        }
+      },
+      "depth_rays": {
+        "frame-000037": {
+          "depth_sha256": "22e02eaf4f57166ea18724a7c40e3373eedb781027f7b645b095c2069c9cfb68",
+          "image_size_px": [
+            256,
+            192
+          ],
+          "pose_source": "Actual support plane and bounded translation at the measured scale",
+          "measured_rays": 14179,
+          "declared_source_pcd_sha256": "5a00cee9b9e590ec7ba5e60f60da3d1f85576df0159f7f5fd3a9096e770dc2e1",
+          "hit_rays": 13287,
+          "ray_hit_fraction": 0.93709,
+          "depth_error": {
+            "signed_median_mm": 0.07,
+            "absolute_median_mm": 1.17,
+            "absolute_p90_mm": 3.36
+          }
+        },
+        "frame-000039": {
+          "depth_sha256": "4b7a8535c46d8b2ec9d33d171998366a013aa657911472e0cbede6a14046944e",
+          "image_size_px": [
+            256,
+            192
+          ],
+          "pose_source": "Actual support plane and bounded translation at the measured scale",
+          "measured_rays": 14235,
+          "declared_source_pcd_sha256": "5839c0b1c81f994137c87398fa20f33be91a4548ce7b6f175676b899fbccc230",
+          "hit_rays": 13613,
+          "ray_hit_fraction": 0.9563,
+          "depth_error": {
+            "signed_median_mm": 0.13,
+            "absolute_median_mm": 1.2,
+            "absolute_p90_mm": 3.48
+          }
+        }
+      }
+    }
+  }
+}

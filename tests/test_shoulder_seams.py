@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 from superarchiveallclo import body_profile, shoulder_seams
+from superarchiveallclo.tee import TeeSpec, draft
 
 
 class ShoulderSeamsTest(TestCase):
@@ -37,3 +38,21 @@ class ShoulderSeamsTest(TestCase):
         self.assertEqual(result["pattern_minus_projection_mm"], 17.5)
         views["back"]["projected_shoulder_seams"]["projected_width_mm"] = 540
         self.assertEqual(shoulder_seams.paired_evidence(views, 530)["status"], "projections_disagree")
+
+    def test_calibrated_color_changes_only_the_inferred_shoulder_width(self):
+        spec = TeeSpec()
+        trace = {"projected_width_mm": 510.0, "near_tie_width_range_mm": [505, 513]}
+        detail = {"registered_color_seams": {"projected_shoulder_seams": trace}}
+        field = "garment_shoulder_width_mm"
+        capture = {"views": {"front": {"calibration": detail}},
+                   "measurements": {field: {"source": "vision_model", "value": spec.shoulder_width_mm}}}
+        original = draft(spec)
+        revised, pattern, report = shoulder_seams.refine_width(spec, original, capture)
+        self.assertEqual(report["status"], "applied")
+        self.assertEqual(revised.shoulder_width_mm, 510.0)
+        self.assertEqual(pattern["parameters"]["sleeve_length_mm"], spec.sleeve_length_mm)
+        self.assertEqual(capture["measurements"][field]["source"], "projected_shoulder_seams")
+        trace["near_tie_width_range_mm"] = [456, 554]
+        _, pattern, report = shoulder_seams.refine_width(spec, original, capture)
+        self.assertEqual(report["status"], "uncertain_trace")
+        self.assertIs(pattern, original)

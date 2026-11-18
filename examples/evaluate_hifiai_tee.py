@@ -15,9 +15,8 @@ from superarchiveallclo.capture import archive
 from superarchiveallclo.check_archive import check_archive
 from superarchiveallclo.compare_flat import compare_flat
 from superarchiveallclo.compare_rgbd import camera_from_flat_pose, compare as compare_rays
-from superarchiveallclo.rectify import rectify_camera_plane
 from superarchiveallclo.registered_ply import registered_depth
-from superarchiveallclo.rgbd import back_project, metric_projection, prepare
+from superarchiveallclo.rgbd import back_project, color_seam_evidence, metric_projection, prepare
 from superarchiveallclo.vision import picture_features
 
 ITEM = "hifiai-exp1-green-crew-tee"
@@ -25,18 +24,24 @@ SOURCE = "https://doi.org/10.3390/app12105286"
 MODEL = Path("models/tee-vision-front-compact.npz")
 INPUT = "000031"
 HOLDOUT = ("000034", "000040")
+RESERVED = ("000037", "000039")
 ASSETS = {
     "000031.jpg": ("1veWoE51cZd-ncLeWdHDz6vgsQgoDii6x", "305441ab13239bb60c4c2e51496264e3d5a483de9a9a29c104fa5ce2af0e484b"),
     "000031.ply": ("1iYqVg7goHPmkWwhBxLlMO4ZXeo6wwYWM", "910921a4c3d0d39fa715941ad8f48dcd9892717526c6889fc68e9ab644761f2e"),
     "000034.jpg": ("1EWN9FfiSFjNNFu4PdyaYOR5w4cdubuWY", "a8b8d84aae4575b0047066ab74871603394424beeaf679f7bd103ee706042723"),
     "000034.ply": ("1nT8Zmj3LOo_uqUCNlrwqIYIJ490B_teg", "f5af24f9dda8d986778bfa85911c9d31cb7232626fcee5278e8996c932dfd3e8"),
+    "000037.jpg": ("1N5mO4vSabTjiLxvvpOujR_vfU9hx4xp9", "c907687e73c4782250ef0de4d77b191726f614d51682f69c4d70d8b8b1e34c4c"),
+    "000037.ply": ("1ImI6AavgSlGskQBbodqH57wf6JuV_Sh0", "5a00cee9b9e590ec7ba5e60f60da3d1f85576df0159f7f5fd3a9096e770dc2e1"),
+    "000039.jpg": ("1FHlKJZj498Qaemcpyb2sDMWjBbn0YP6g", "72e4a8d36a1ea69e4d1d5a2c86618096b8393fb1fe707def585dee539f9b3c49"),
+    "000039.ply": ("1pCRrPuEHtIxHWgGn0pUiZpGKyMtl4Cz2", "5839c0b1c81f994137c87398fa20f33be91a4548ce7b6f175676b899fbccc230"),
     "000040.jpg": ("1tyWfpmmfY-Ob0aMLInovvGQmjzR0Vf_F", "650139408c6049d24475a8f411a87109b36eb41df45c35734a0e3b7fb58d825e"),
     "000040.ply": ("17sF22YGwF0okrNi41ut42Es6SX2pThZN", "4e3a404eced33c538ce65947174f9b4426f4e0c274905d8f60daa82b48dce281"),
 }
 
 
-def pinned_assets(directory, source):
-    for filename, (drive_id, digest) in ASSETS.items():
+def pinned_assets(directory, source, identifiers):
+    selected = {name: asset for name, asset in ASSETS.items() if Path(name).stem in identifiers}
+    for filename, (drive_id, digest) in selected.items():
         local = (source or directory) / filename
         if local.is_file():
             raw = local.read_bytes()
@@ -52,33 +57,7 @@ def pinned_assets(directory, source):
         target = directory / filename
         if not target.is_file():
             target.write_bytes(raw)
-
-
-def color_seam_evidence(rgb, mask, intrinsics, origin, basis, points):
-    # Map the high-resolution photograph onto the measured support plane so
-    # the texture is available even where the small depth grid blurs seams.
-    scale = rgb.width / mask.shape[1]
-    camera = {key: value * scale if key.startswith("f") else (value + .5) * scale - .5
-              for key, value in intrinsics.items()}
-    xy = points[:, :2] * 1000
-    padding = 20
-    field = np.r_[xy.min(axis=0) - padding, xy.max(axis=0) + padding]
-    plane = {
-        "image_size_px": list(rgb.size), "intrinsics": camera, "origin_camera_m": origin.tolist(),
-        "basis_camera": basis.tolist(), "field_mm": field.tolist(), "source": "Measured iPad LiDAR tabletop",
-    }
-    source_mask = np.asarray(Image.fromarray(mask).resize(rgb.size, Image.Resampling.NEAREST))
-    step = .75
-    rectified, mapping = rectify_camera_plane(rgb, plane, step, source_mask)
-    _, evidence = picture_features(rectified, {"mm_per_pixel": step, "calibration": {"source": plane["source"]}},
-                                   measure_body=True)
-    return {
-        "scope": "Visible image seam traces projected onto the tabletop",
-        "output_to_source_px": mapping["output_to_source_px"],
-        "processed_image_px": evidence["processed_image_px"], "garment_crop_px": evidence["garment_crop_px"],
-        "processed_mm_per_pixel": evidence["processed_mm_per_pixel"],
-        "projected_shoulder_seams": evidence.get("projected_shoulder_seams"),
-    }
+    return {name: asset[1] for name, asset in selected.items()}
 
 
 def prepare_frame(root, frame):
@@ -132,28 +111,31 @@ def write_cloud(path, points):
     return path
 
 
-def evaluate(output, source, blender, *, fit_sleeve_span=False):
+def evaluate(output, source, blender, *, fit_sleeve_span=False, fit_shoulder_seams=False, fit_armhole=False, holdout=HOLDOUT):
     data = output / "source"
     data.mkdir(parents=True)
-    pinned_assets(data, source)
-    frames = {number: prepare_frame(data, number) for number in (INPUT, *HOLDOUT)}
+    identifiers = (INPUT, *holdout)
+    hashes = pinned_assets(data, source, identifiers)
+    input_frame = prepare_frame(data, INPUT)
     capture = write_json(data / "registered.json", {
         "schema_version": 1, "item_id": ITEM, "source": f"HifiAI experiment 1, frame {INPUT}, metric optical depth in PLY; {SOURCE}",
-        "views": {"front": frames[INPUT]["capture"]},
+        "views": {"front": {**input_frame["capture"], "detail_rgb": f"{INPUT}.jpg"}},
     })
     prepared = output / "registered"
     prepare(capture, prepared, auto_upright=True)
     session = prepared / "session.json"
     target = output / "archive"
-    archive(session, target, blender, MODEL, blind=True, form="display_torso", fit_sleeve_span=fit_sleeve_span)
+    archive(session, target, blender, MODEL, blind=True, form="display_torso", fit_sleeve_span=fit_sleeve_span,
+            fit_shoulder_seams=fit_shoulder_seams, fit_armhole=fit_armhole)
+    frames = {INPUT: input_frame, **{number: prepare_frame(data, number) for number in holdout}}
     pattern = json.loads((target / "pattern/pattern.json").read_bytes())["parameters"]
-    fit = json.loads((target / "capture.json").read_bytes()).get("sleeve_span_fit")
-    clouds = [write_cloud(data / f"held-out-{number}.pcd", frames[number]["points"]) for number in HOLDOUT]
+    capture_state = json.loads((target / "capture.json").read_bytes())
+    clouds = [write_cloud(data / f"held-out-{number}.pcd", frames[number]["points"]) for number in holdout]
     flat_path = output / "flat-comparison"
     flat = compare_flat(target, clouds, flat_path, item_id=ITEM, blender=blender,
                         setup="Separate iPad captures of the same green tee, white support, tabletop aligned")
     rays = {}
-    for number, row in zip(HOLDOUT, flat["references"], strict=True):
+    for number, row in zip(holdout, flat["references"], strict=True):
         entry = frames[number]
         view = {key: value for key, value in entry["capture"].items() if key != "rgb"}
         calibration = entry["calibration"]
@@ -168,21 +150,22 @@ def evaluate(output, source, blender, *, fit_sleeve_span=False):
     independent = write_json(data / "reference.json", {"schema_version": 1, "item_id": ITEM, "views": rays})
     depth = compare_rays(target, independent, output / "depth-comparison", flat_comparison=flat_path, blender=blender)
     chest_checks = {}
-    for number in HOLDOUT:
+    for number in holdout:
         profile = frames[number]["measurements"]["recognized_underarm_and_hem"]
         if profile is not None:
             observed = profile["chest_width_mm"]
             chest_checks[number] = {"measured_scan_projection_mm": observed,
                                     "pattern_minus_scan_mm": round(pattern["flat_chest_mm"] - observed, 3)}
     return write_json(output / "study.json", {
-        "source": SOURCE, "item_id": ITEM, "input_frame": INPUT, "independent_frames": list(HOLDOUT),
+        "source": SOURCE, "item_id": ITEM, "input_frame": INPUT, "independent_frames": list(holdout),
         "input_model_sha256": sha256(MODEL.read_bytes()).hexdigest(),
         "pixel_and_metric_evidence": {key: value["measurements"] for key, value in frames.items()},
-        "source_sha256": {key: value[1] for key, value in ASSETS.items()},
+        "source_sha256": hashes,
         "pattern_candidate_mm": {field: pattern[field] for field in (
-            "flat_chest_mm", "back_length_mm", "garment_shoulder_width_mm", "sleeve_length_mm",
+            "flat_chest_mm", "back_length_mm", "garment_shoulder_width_mm", "armhole_depth_mm", "sleeve_length_mm",
         )},
-        **({"sleeve_span_fit": fit} if fit is not None else {}),
+        **{key: capture_state[key] for key in ("sleeve_span_fit", "shoulder_seam_fit", "armhole_silhouette_fit")
+           if key in capture_state},
         "held_out_flat_chest_projection": chest_checks,
         "archive": check_archive(target), "flat_mesh": flat, "depth_rays": depth,
     })
@@ -194,8 +177,13 @@ def main():
     parser.add_argument("--source", type=Path, help="Optional local HifiAI experiment 1 source folder")
     parser.add_argument("--blender", default="blender")
     parser.add_argument("--fit-sleeve-span", action="store_true", help="Fit both input cuff tips before comparing held-out scans")
+    parser.add_argument("--fit-shoulder-seams", action="store_true", help="Use the high-resolution calibrated seam evidence")
+    parser.add_argument("--fit-armhole", action="store_true", help="Compare sewable armholes with the input silhouette")
+    parser.add_argument("--reserved-frames", action="store_true", help="Evaluate frames 000037 and 000039")
     args = parser.parse_args()
-    print(evaluate(args.output, args.source, args.blender, fit_sleeve_span=args.fit_sleeve_span))
+    print(evaluate(args.output, args.source, args.blender, fit_sleeve_span=args.fit_sleeve_span,
+                   fit_shoulder_seams=args.fit_shoulder_seams, fit_armhole=args.fit_armhole,
+                   holdout=RESERVED if args.reserved_frames else HOLDOUT))
 
 
 if __name__ == "__main__":

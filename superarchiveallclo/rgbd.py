@@ -135,6 +135,36 @@ def read_depth(raw, extension):
         return np.asarray(image)
 
 
+def color_seam_evidence(rgb, mask, intrinsics, origin, basis, points):
+    """Project same-field detail RGB to the measured support for seam detection."""
+    from .rectify import rectify_camera_plane
+
+    if rgb.width * mask.shape[0] != rgb.height * mask.shape[1]:
+        raise ValueError("Detail RGB and depth must have the same field of view and aspect ratio")
+    scale = rgb.width / mask.shape[1]
+    camera = {key: (value * scale if key.startswith("f") else (value + .5) * scale - .5)
+              for key, value in zip(("fx", "fy", "cx", "cy"), camera_intrinsics(intrinsics), strict=True)}
+    xy = points[:, :2] * 1000
+    field = np.r_[xy.min(axis=0) - 20, xy.max(axis=0) + 20]
+    plane = {
+        "image_size_px": list(rgb.size), "intrinsics": camera, "origin_camera_m": origin.tolist(),
+        "basis_camera": basis.tolist(), "field_mm": field.tolist(), "source": "Measured RGB-D support plane",
+    }
+    source_mask = np.asarray(Image.fromarray(mask).resize(rgb.size, Image.Resampling.NEAREST))
+    step = .75
+    rectified, mapping = rectify_camera_plane(rgb, plane, step, source_mask)
+    _, evidence = picture_features(rectified, {"mm_per_pixel": step, "calibration": {"source": plane["source"]}},
+                                   measure_body=True)
+    return {
+        "scope": "Visible seam traces projected onto the measured support plane",
+        "output_to_source_px": mapping["output_to_source_px"], "orthographic_mm_per_pixel": step,
+        "orthographic_image_px": list(rectified.size), "processed_image_sha256": evidence["processed_image_sha256"],
+        "processed_image_px": evidence["processed_image_px"], "garment_crop_px": evidence["garment_crop_px"],
+        "processed_mm_per_pixel": evidence["processed_mm_per_pixel"],
+        "torso_profile": evidence.get("torso_profile"), "projected_shoulder_seams": evidence.get("projected_shoulder_seams"),
+    }
+
+
 def prepare_view(root, view, name, directory, provenance, mm_per_pixel, *, auto_upright=False):
     rgb_bytes = (root / view["rgb"]).read_bytes()
     with Image.open(BytesIO(rgb_bytes)) as encoded:
@@ -201,6 +231,22 @@ def prepare_view(root, view, name, directory, provenance, mm_per_pixel, *, auto_
     }
     if mask_label is not None:
         calibration["mask_label"] = mask_label
+    if "detail_rgb" in view:
+        if geometry != "depth":
+            raise ValueError(f"{name}: registered detail colour needs an optical depth raster and camera intrinsics")
+        detail_raw = (root / view["detail_rgb"]).read_bytes()
+        with Image.open(BytesIO(detail_raw)) as encoded:
+            suffix = {"JPEG": ".jpg", "PNG": ".png", "TIFF": ".tiff"}.get(encoded.format)
+            detail = ImageOps.exif_transpose(encoded).convert("RGB")
+        if suffix is None:
+            raise ValueError(f"{name}: detail RGB must be JPEG, PNG or TIFF")
+        origin, basis = (np.asarray(readings[key]) for key in ("support_origin_camera_m", "support_basis_camera"))
+        points = (back_project(depth, mask & np.isfinite(depth) & (depth > 0), view["intrinsics"]) - origin) @ basis
+        try:
+            calibration["registered_color_seams"] = color_seam_evidence(detail, mask, view["intrinsics"], origin, basis, points)
+        except ValueError as error:
+            calibration["registered_color_seams"] = {"status": "unavailable", "reason": str(error)}
+        assets["detail_rgb"] = (suffix, detail_raw)
     evidence = {}
     for key, (suffix, raw) in assets.items():
         filename = f"evidence/{name}-{key}{suffix}"

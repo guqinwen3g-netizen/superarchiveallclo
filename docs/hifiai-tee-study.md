@@ -50,3 +50,28 @@ python -m superarchiveallclo.compare_flat build/hifiai-tee/archive \
   --item-id hifiai-exp1-green-crew-tee --setup "Separate iPad flat-lay captures" \
   --asymmetric-cuffs -o build/hifiai-sleeves-angle-only
 ```
+
+## 用肩袖缝迹修正肩宽和袖窿
+
+把输入 `000031` 的 1920 × 1440 原照投到 LiDAR 测得的台面。在两侧可见的袖窿缝迹上定位肩点，得到肩宽投影 484.49 mm，近似并列缝迹支持 475.15–491.49 mm。程序据此修正原候选肩宽 374.706 mm，保留正面原照及投影变换。随后用输入的肩点与腋下估算限定袖窿深度范围，比较四个能配缝的候选。每次按同一输入的袖口跨度拟合袖长，按输入轮廓交并比选择方案，轮廓距离 P90 用于打破并列。
+
+选中的袖窿深度为 268.604 mm，袖长为 224.983 mm。胸宽仍为 523.00 mm。四个方案分别按袖窿深度从浅到深得到 90.28%、91.63%、92.58% 和 89.26% 的输入轮廓交并比。选择完成后用此前未参与比较的 `000037` 和 `000039` 评分。这两帧的高清肩宽投影分别为 500.34 mm 和 510.30 mm，候选肩宽误差从 125.63–135.59 mm 降到 **15.85–25.81 mm**。
+
+| 留出帧 | 纸样条件 | 轮廓交并比 | 轮廓距离 P90 | 观测点到网格 P90 |
+| --- | --- | ---: | ---: | ---: |
+| 000037 | 原肩宽与袖窿，已拟合袖长 | 88.51% | 31.40 mm | 3.99 mm |
+| 000037 | 修正肩宽，保留原袖窿 | 89.53% | 26.00 mm | 3.80 mm |
+| 000037 | 修正肩宽与袖窿 | 90.88% | 24.00 mm | 3.77 mm |
+| 000039 | 原肩宽与袖窿，已拟合袖长 | 91.96% | 30.53 mm | 3.73 mm |
+| 000039 | 修正肩宽，保留原袖窿 | 92.45% | 28.43 mm | 3.65 mm |
+| 000039 | 修正肩宽与袖窿 | 95.05% | 17.09 mm | 3.46 mm |
+
+联合修正后，两个留出扫描的有效深度射线覆盖率从 91.90% 和 93.40% 升至 93.71% 和 95.63%。命中射线的深度误差 P90 从 3.30、3.44 mm 变为 3.36、3.48 mm，平铺网格边长应变 P95 从 6.86% 升至 7.28%。修正归档通过 5 片毫米 DXF、15 条配缝、4 个成衣开口和源图哈希校验。肩宽参考来自平铺缝迹投影。袖窿净长、袖片原裁剪线、缝份和实物背面仍待核对。[输入选版、原图校验及两帧对照](hifiai-shoulder-fit.json)
+
+```sh
+python -m examples.evaluate_hifiai_tee --fit-sleeve-span --reserved-frames -o build/hifiai-baseline
+python -m examples.evaluate_hifiai_tee --fit-sleeve-span --fit-shoulder-seams \
+  --reserved-frames -o build/hifiai-shoulder
+python -m examples.evaluate_hifiai_tee --fit-shoulder-seams --fit-armhole \
+  --reserved-frames -o build/hifiai-shoulder-armhole
+```

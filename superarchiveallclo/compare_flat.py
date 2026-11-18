@@ -79,7 +79,8 @@ def compare_flat(archive, clouds, output, *, item_id, setup, transform=None, rig
         raise ValueError("Provide reference scans and record the flat-lay capture setup")
     integrity = check_archive(archive)
     capture = json.loads((archive / "capture.json").read_text())
-    if sleeve_angle is None and "cuff_angles_below_horizontal_deg" in capture.get("sleeve_span_fit", {}):
+    if sleeve_angle is None and any("cuff_angles_below_horizontal_deg" in capture.get(key, {})
+                                    for key in ("sleeve_span_fit", "armhole_silhouette_fit")):
         asymmetric_cuffs = True
     angle_source = "Provided sleeve angle"
     if asymmetric_cuffs:

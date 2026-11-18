@@ -45,13 +45,15 @@ class RegisteredDepthTest(TestCase):
             directory = Path(temp)
             rgb = np.where(mask, 50, 220).astype(np.uint8)
             Image.fromarray(rgb).save(directory / "rgb.png")
+            Image.fromarray(rgb).resize((1280, 960)).save(directory / "detail.png")
             Image.fromarray(np.rint(depth * 1000).astype(np.uint16)).save(directory / "depth.png")
             Image.fromarray(np.where(mask, 2, 1).astype(np.uint8)).save(directory / "mask.png")
             source = directory / "input.json"
             source.write_text(json.dumps({
                 "schema_version": 1, "kind": "synthetic_fixture", "item_id": "fixture", "source": "analytical camera fixture",
                 "views": {"front": {"rgb": "rgb.png", "depth": "depth.png", "mask": "mask.png",
-                                    "mask_label": 2, "depth_unit": "mm", "intrinsics": camera}},
+                                    "mask_label": 2, "depth_unit": "mm", "intrinsics": camera,
+                                    "detail_rgb": "detail.png"}},
             }))
             output = directory / "projection"
             prepare(source, output)
@@ -62,6 +64,9 @@ class RegisteredDepthTest(TestCase):
             self.assertEqual(state["input_mode"], "front_only")
             depth_asset = state["views"]["front"]["source_assets"]["depth"]["file"]
             self.assertEqual((archive / depth_asset).read_bytes(), (directory / "depth.png").read_bytes())
+            detail_asset = state["views"]["front"]["source_assets"]["detail_rgb"]["file"]
+            self.assertEqual((archive / detail_asset).read_bytes(), (directory / "detail.png").read_bytes())
+            self.assertIn("processed_image_sha256", state["views"]["front"]["calibration"]["registered_color_seams"])
             (output / depth_asset).write_bytes(b"changed")
             with self.assertRaisesRegex(ValueError, "depth source evidence changed"):
                 capture_observations(session, allow_partial=True)

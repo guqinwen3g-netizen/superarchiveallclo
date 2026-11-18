@@ -20,6 +20,7 @@ from .cloth_material import material_bending, material_mass
 from .export import write_exports
 from .landmark_vision import SCOPE as LANDMARK_SCOPE, TeeLandmarkVision
 from .reference_form import arm_angle
+from .shoulder_seams import refine_width
 from .tee import TeeSpec, draft
 from .vision import FIELDS, TeeVision
 
@@ -81,7 +82,10 @@ def source_evidence(source, view, name, photo_dir):
         raise ValueError(error)
     accepted = ({"rgb"}, {"rgb", "mask"}) if planar else ({"rgb", "depth"}, {"rgb", "pcd"},
                                            {"rgb", "depth", "mask"}, {"rgb", "pcd", "mask"})
-    if assets.keys() not in accepted:
+    keys = set(assets)
+    if "detail_rgb" in keys and view.get("calibration", {}).get("origin_type") == "registered_rgbd":
+        keys.remove("detail_rgb")
+    if keys not in accepted:
         raise ValueError(error)
     source_root = (source.parent / "evidence").resolve()
     for key, asset in assets.items():
@@ -101,7 +105,8 @@ def source_evidence(source, view, name, photo_dir):
 
 def capture_photo_hashes(views):
     hashes = {view["sha256"] for view in views.values()}
-    hashes.update(view["source_assets"]["rgb"]["sha256"] for view in views.values() if "source_assets" in view)
+    hashes.update(asset["sha256"] for view in views.values() for kind, asset in view.get("source_assets", {}).items()
+                  if kind in ("rgb", "detail_rgb"))
     return hashes
 
 
@@ -266,7 +271,8 @@ def load_capture(source, photo_dir=None, model_path=None, *, blind=False, landma
 
 
 def archive(source, output, blender, model_path=None, *, blind=False, form="torso_with_arms", drape_frames=None,
-            photo_appearance=False, arm_angle_deg=None, landmark_model_path=None, fit_sleeve_span=False):
+            photo_appearance=False, arm_angle_deg=None, landmark_model_path=None, fit_sleeve_span=False,
+            fit_shoulder_seams=False, fit_armhole=False):
     if output.exists():
         raise ValueError(f"Output already exists: {output}")
     if drape_frames is not None and (type(drape_frames) is not int or drape_frames < 2):
@@ -280,7 +286,16 @@ def archive(source, output, blender, model_path=None, *, blind=False, form="tors
         manifest, spec = load_capture(source, bundle / "photos", model_path, blind=blind,
                                       landmark_model_path=landmark_model_path)
         pattern = draft(spec)
-        if fit_sleeve_span:
+        if fit_shoulder_seams:
+            spec, pattern, manifest["shoulder_seam_fit"] = refine_width(spec, pattern, manifest)
+        if fit_armhole:
+            from .sleeve_span import refine_armhole
+
+            with Image.open(bundle / manifest["views"]["front"]["file"]) as front:
+                pattern, manifest["armhole_silhouette_fit"] = refine_armhole(
+                    spec, pattern, manifest, front, Path(temporary) / "armhole-fit", blender,
+                )
+        if fit_sleeve_span and "sleeve_span_fit" not in manifest:
             from .sleeve_span import refine as refine_sleeve_span
 
             pattern, manifest["sleeve_span_fit"] = refine_sleeve_span(
@@ -323,6 +338,8 @@ def main():
     parser.add_argument("--model", type=Path, help="Use trained weights to infer dimensions from the photos")
     parser.add_argument("--landmarks-model", type=Path, help="Archive learned image landmark candidates for review")
     parser.add_argument("--fit-sleeve-span", action="store_true", help="Fit inferred sleeve length to the input cuff span")
+    parser.add_argument("--fit-shoulder-seams", action="store_true", help="Use resolved shoulder seam projections in the draft")
+    parser.add_argument("--fit-armhole", action="store_true", help="Fit the armhole and sleeve to the calibrated front silhouette")
     parser.add_argument("--blind", action="store_true", help="Withhold all recorded measurements from reconstruction")
     parser.add_argument("--form", choices=("torso_with_arms", "torso_only", "display_torso"), default="torso_with_arms",
                         help="Collision support used for the draped GLB and Blender scene")
@@ -333,7 +350,8 @@ def main():
     try:
         archive(args.session, args.output, args.blender, args.model, blind=args.blind, form=args.form,
                 drape_frames=args.drape_frames, photo_appearance=args.photo_appearance, arm_angle_deg=args.arm_angle,
-                landmark_model_path=args.landmarks_model, fit_sleeve_span=args.fit_sleeve_span)
+                landmark_model_path=args.landmarks_model, fit_sleeve_span=args.fit_sleeve_span,
+                fit_shoulder_seams=args.fit_shoulder_seams, fit_armhole=args.fit_armhole)
     except (ValueError, TypeError, KeyError, OSError, UnidentifiedImageError, DXFError) as error:
         parser.error(str(error))
     print(f"Wrote {args.output}")
