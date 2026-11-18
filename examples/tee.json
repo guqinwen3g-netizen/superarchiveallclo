@@ -1,0 +1,17 @@
+{
+  "body_chest_mm": 960,
+  "body_shoulder_width_mm": 440,
+  "flat_chest_mm": 560,
+  "back_length_mm": 680,
+  "shoulder_extension_mm": 27.5,
+  "shoulder_slope_mm": 37,
+  "armhole_depth_mm": 230,
+  "sleeve_length_mm": 215,
+  "sleeve_bicep_flat_mm": 350,
+  "sleeve_opening_flat_mm": 310,
+  "neck_width_mm": 178,
+  "front_neck_depth_mm": 91,
+  "back_neck_depth_mm": 24,
+  "collar_finished_width_mm": 18,
+  "collar_length_ratio": 0.85
+}
