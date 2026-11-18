@@ -1,0 +1,138 @@
+{
+  "setups": {
+    "apr2023": {
+      "raster_px": [
+        1280,
+        720
+      ],
+      "vertical": {
+        "0": [
+          185,
+          136
+        ],
+        "1": [
+          253,
+          212
+        ],
+        "12": [
+          988,
+          1043
+        ],
+        "13": [
+          1055,
+          1118
+        ]
+      },
+      "horizontal": {
+        "0": [
+          57,
+          47
+        ],
+        "2": [
+          184,
+          172
+        ],
+        "6": [
+          462,
+          446
+        ],
+        "8": [
+          614,
+          597
+        ]
+      }
+    },
+    "apr2024": {
+      "raster_px": [
+        1280,
+        720
+      ],
+      "vertical": {
+        "0": [
+          210,
+          172
+        ],
+        "1": [
+          278,
+          246
+        ],
+        "11": [
+          971,
+          999
+        ],
+        "12": [
+          1042,
+          1078
+        ]
+      },
+      "horizontal": {
+        "0": [
+          72,
+          61
+        ],
+        "2": [
+          204,
+          197
+        ],
+        "6": [
+          486,
+          488
+        ],
+        "8": [
+          637,
+          644
+        ]
+      }
+    }
+  },
+  "cases": {
+    "blue": {
+      "item_id": "rise-2023_04_11_12_20_04",
+      "setup": "apr2023",
+      "assets": {
+        "front": {
+          "member": "station1/apr2023/front_2023_04_11_12_20_04.jpg",
+          "byte_offset": 3677961628,
+          "compressed_size": 242340,
+          "sha256": "d08d12e6f423ef213e5f22d8931633891a1ff5e89dfb8518232d0b5927aabb62"
+        },
+        "back": {
+          "member": "station1/apr2023/back_2023_04_11_12_20_04.jpg",
+          "byte_offset": 3216569032,
+          "compressed_size": 228294,
+          "sha256": "ffeb1cbba645cc1ea8aaba53bdef7a791c6deb935e8f4b69dd157c8155dbd57d"
+        },
+        "labels": {
+          "member": "station1/apr2023/labels_2023_04_11_12_20_04.json",
+          "byte_offset": 3418243412,
+          "compressed_size": 272,
+          "sha256": "f4265f6a45349b1d5f76b8aa185287f1583033c6701caebb398ccccd837bdd35"
+        }
+      }
+    },
+    "black": {
+      "item_id": "rise-2024_04_30_06_56_56",
+      "setup": "apr2024",
+      "assets": {
+        "front": {
+          "member": "station1/apr2024/front_2024_04_30_06_56_56.jpg",
+          "byte_offset": 16472969628,
+          "compressed_size": 211235,
+          "sha256": "6e235835a9cd44fcd9a27a00b4864a775a0c89aaca7121e6390f47da7961f30a"
+        },
+        "back": {
+          "member": "station1/apr2024/back_2024_04_30_06_56_56.jpg",
+          "byte_offset": 15977003791,
+          "compressed_size": 204650,
+          "sha256": "738c5f1b6a194556b2fad12a90bdf6ddc9b65f052af8d5dcb0146bb7a7f92cc2"
+        },
+        "labels": {
+          "member": "station1/apr2024/labels_2024_04_30_06_56_56.json",
+          "byte_offset": 16255707559,
+          "compressed_size": 363,
+          "sha256": "4574eaced42b7aac865665585bda5d9bbfb3a8168a98c6b4c5151a19af660b34"
+        }
+      }
+    }
+  }
+}

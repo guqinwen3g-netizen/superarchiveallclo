@@ -1,0 +1,966 @@
+{
+  "blue": {
+    "item_id": "rise-2023_04_11_12_20_04",
+    "asset_sha256": {
+      "front": "d08d12e6f423ef213e5f22d8931633891a1ff5e89dfb8518232d0b5927aabb62",
+      "back": "ffeb1cbba645cc1ea8aaba53bdef7a791c6deb935e8f4b69dd157c8155dbd57d",
+      "labels": "f4265f6a45349b1d5f76b8aa185287f1583033c6701caebb398ccccd837bdd35"
+    },
+    "source": "https://zenodo.org/records/13788681",
+    "license": "CC BY 4.0",
+    "paired_weights_sha256": "3fbd429ccf196fb2d5808e29635c2b4cbe9cf68c6ba2b4d3e1add80235e0bce5",
+    "publisher_metadata": {
+      "type": "T-shirt",
+      "cut": [
+        "Regular",
+        "C-collar"
+      ],
+      "category": "Men",
+      "material": "100% cotton"
+    },
+    "calibration": {
+      "front": {
+        "reference_nodes": 4,
+        "withheld_nodes": 12,
+        "withheld_intersection_median_mm": 0.902,
+        "withheld_intersection_p90_mm": 1.4,
+        "withheld_nodes_px": [
+          [
+            174.668,
+            183.774
+          ],
+          [
+            150.022,
+            461.651
+          ],
+          [
+            254.174,
+            56.001
+          ],
+          [
+            244.861,
+            182.938
+          ],
+          [
+            224.501,
+            460.45
+          ],
+          [
+            213.298,
+            613.142
+          ],
+          [
+            985.224,
+            48.832
+          ],
+          [
+            997.704,
+            173.97
+          ],
+          [
+            1024.987,
+            447.547
+          ],
+          [
+            1039.968,
+            597.765
+          ],
+          [
+            1066.364,
+            173.152
+          ],
+          [
+            1097.757,
+            446.374
+          ]
+        ],
+        "withheld_nodes_mm": [
+          [
+            200,
+            1300
+          ],
+          [
+            600,
+            1300
+          ],
+          [
+            0,
+            1200
+          ],
+          [
+            200,
+            1200
+          ],
+          [
+            600,
+            1200
+          ],
+          [
+            800,
+            1200
+          ],
+          [
+            0,
+            100
+          ],
+          [
+            200,
+            100
+          ],
+          [
+            600,
+            100
+          ],
+          [
+            800,
+            100
+          ],
+          [
+            200,
+            0
+          ],
+          [
+            600,
+            0
+          ]
+        ]
+      },
+      "back": {
+        "reference_nodes": 4,
+        "withheld_nodes": 12,
+        "withheld_intersection_median_mm": 0.908,
+        "withheld_intersection_p90_mm": 1.499,
+        "withheld_nodes_px": [
+          [
+            174.61,
+            183.641
+          ],
+          [
+            149.984,
+            461.615
+          ],
+          [
+            254.139,
+            55.88
+          ],
+          [
+            244.825,
+            182.814
+          ],
+          [
+            224.456,
+            460.42
+          ],
+          [
+            213.249,
+            613.158
+          ],
+          [
+            985.158,
+            48.67
+          ],
+          [
+            997.658,
+            173.94
+          ],
+          [
+            1024.964,
+            447.572
+          ],
+          [
+            1039.948,
+            597.733
+          ],
+          [
+            1066.392,
+            173.129
+          ],
+          [
+            1097.772,
+            446.403
+          ]
+        ],
+        "withheld_nodes_mm": [
+          [
+            200,
+            1300
+          ],
+          [
+            600,
+            1300
+          ],
+          [
+            0,
+            1200
+          ],
+          [
+            200,
+            1200
+          ],
+          [
+            600,
+            1200
+          ],
+          [
+            800,
+            1200
+          ],
+          [
+            0,
+            100
+          ],
+          [
+            200,
+            100
+          ],
+          [
+            600,
+            100
+          ],
+          [
+            800,
+            100
+          ],
+          [
+            200,
+            0
+          ],
+          [
+            600,
+            0
+          ]
+        ]
+      }
+    },
+    "view_measurements_mm": {
+      "front": {
+        "silhouette_width_mm": 774.94,
+        "silhouette_height_mm": 628.39,
+        "flat_chest_projection_mm": 457.47,
+        "hem_projection_mm": 495.68
+      },
+      "back": {
+        "silhouette_width_mm": 740.12,
+        "silhouette_height_mm": 634.39,
+        "flat_chest_projection_mm": null,
+        "hem_projection_mm": null
+      }
+    },
+    "front_back_projection_delta_mm": {
+      "silhouette_width_mm": 34.82,
+      "silhouette_height_mm": 6.0
+    },
+    "front_only_check": {
+      "weights_sha256": "a1a8e84125d3d55e0b1bdc1b51a5a56afceb33a3643bcc212e9a0da59e6d315e",
+      "inferred_chest_mm": 457.629,
+      "withheld_back_chest_projection_mm": null,
+      "candidate_minus_back_projection_mm": null
+    },
+    "pattern_candidate_mm": {
+      "flat_chest_mm": 448.707,
+      "flat_hem_mm": null,
+      "back_length_mm": 577.308,
+      "garment_shoulder_width_mm": 407.944,
+      "sleeve_length_mm": 189.214
+    },
+    "archive": {
+      "capture_kind": "physical",
+      "pattern_sha256": "a51000bfddf2fa1cb81cba09cd9048628e166467a253ab6a94fb8124750b7684",
+      "source_photos": 2,
+      "vision_estimates": 11,
+      "dxf_panels": 5,
+      "seams": 15,
+      "garment_openings": 4,
+      "glb": {
+        "meshes": 1,
+        "bounds_span_m": [
+          0.4803,
+          0.5987,
+          0.2731
+        ],
+        "embedded_photo_atlases": 1
+      }
+    },
+    "flat_comparison": {
+      "schema_version": 1,
+      "item_id": "rise-2023_04_11_12_20_04",
+      "reference_setup": "Separate front/back exposures on the RISE measured 100 mm square grid",
+      "reference_manifest_sha256": "3f040901e4a927c385b13b647f2147afd545fd89ad3d98de98deb239631e41f1",
+      "pattern_sha256": "a51000bfddf2fa1cb81cba09cd9048628e166467a253ab6a94fb8124750b7684",
+      "scope": "Outer contours of a sewn flat GLB compared with photographs; no depth reference",
+      "alignment": "Translate the top and horizontal center of silhouette bounds; no fitted scale or rotation",
+      "sleeve_angle_below_horizontal_deg": 23.0,
+      "sleeve_angle_source": "Standard flat-lay placement",
+      "views": {
+        "front": {
+          "photo_sha256": "2dff772bdfaf1deb4045ebaafd1c54555bbd2eea1cb4eeec3858398501880e89",
+          "role": "reconstruction_input",
+          "calibration": {
+            "calibration": {
+              "origin_type": "planar_reference",
+              "mm_per_pixel": 1.0,
+              "requested_field_mm": [
+                -11.0,
+                328.0,
+                833.0,
+                1028.0
+              ],
+              "field_mm": [
+                -11.0,
+                328.0,
+                833.0,
+                1028.0
+              ],
+              "source_upright_px": [
+                1280,
+                720
+              ],
+              "output_to_source_px": [
+                [
+                  -0.08064703048704969,
+                  -0.6694163293001529,
+                  835.3040746098565
+                ],
+                [
+                  0.6012041292448753,
+                  0.005947907538566287,
+                  43.60602016589045
+                ],
+                [
+                  -0.00014307618415941695,
+                  -1.0539228059802666e-05,
+                  1.0
+                ]
+              ],
+              "padded_outside_source": false,
+              "reference_plane": {
+                "width_mm": 800.0,
+                "height_mm": 1300.0,
+                "corners_px": [
+                  [
+                    1052.0045584269894,
+                    48.17763204733985
+                  ],
+                  [
+                    1114.9912872104853,
+                    596.3697167033558
+                  ],
+                  [
+                    136.45849099412712,
+                    614.5713367187645
+                  ],
+                  [
+                    185.94173865624978,
+                    56.67036020147206
+                  ]
+                ]
+              },
+              "extrapolated_beyond_reference": true,
+              "source": "RISE Second-Hand Fashion v3 station 1. Publisher documents the 100 mm square table grid."
+            },
+            "mm_per_pixel": 1.0
+          },
+          "processed_mm_per_pixel": 1.172376,
+          "intersection_over_union": 0.8727,
+          "contour_distance_mm": {
+            "median": 11.66,
+            "p90": 38.47
+          },
+          "overlay": "front-overlay.png",
+          "reference_width_height_mm": [
+            774.94,
+            628.39
+          ],
+          "model_width_height_mm": [
+            775.72,
+            599.83
+          ],
+          "model_minus_reference_width_height_mm": [
+            0.78,
+            -28.56
+          ]
+        },
+        "back": {
+          "photo_sha256": "d516ded36eed4a9a4c9ca960a33b3912cc0538968b06043c0ef201ef45d30964",
+          "role": "reconstruction_input",
+          "calibration": {
+            "calibration": {
+              "origin_type": "planar_reference",
+              "mm_per_pixel": 1.0,
+              "requested_field_mm": [
+                2.0,
+                324.0,
+                812.0,
+                1028.0
+              ],
+              "field_mm": [
+                2.0,
+                324.0,
+                812.0,
+                1028.0
+              ],
+              "source_upright_px": [
+                1280,
+                720
+              ],
+              "output_to_source_px": [
+                [
+                  -0.08071947245954737,
+                  -0.6707071099043742,
+                  838.4552882561958
+                ],
+                [
+                  0.6025237293444757,
+                  0.005998318671305011,
+                  51.33720236548385
+                ],
+                [
+                  -0.00014324271734390937,
+                  -1.0558714463482152e-05,
+                  1.0
+                ]
+              ],
+              "padded_outside_source": false,
+              "reference_plane": {
+                "width_mm": 800.0,
+                "height_mm": 1300.0,
+                "corners_px": [
+                  [
+                    1052.0254371170533,
+                    48.010699560375485
+                  ],
+                  [
+                    1114.9874979566105,
+                    596.3330682759395
+                  ],
+                  [
+                    136.4322398151145,
+                    614.5915961381081
+                  ],
+                  [
+                    185.86877369977077,
+                    56.55310934627741
+                  ]
+                ]
+              },
+              "extrapolated_beyond_reference": true,
+              "source": "RISE Second-Hand Fashion v3 station 1. Publisher documents the 100 mm square table grid."
+            },
+            "mm_per_pixel": 1.0
+          },
+          "processed_mm_per_pixel": 1.1248,
+          "intersection_over_union": 0.8867,
+          "contour_distance_mm": {
+            "median": 12.0,
+            "p90": 32.06
+          },
+          "overlay": "back-overlay.png",
+          "reference_width_height_mm": [
+            740.12,
+            634.39
+          ],
+          "model_width_height_mm": [
+            775.72,
+            599.83
+          ],
+          "model_minus_reference_width_height_mm": [
+            35.6,
+            -34.55
+          ]
+        }
+      },
+      "flat_glb": {
+        "meshes": 1,
+        "bounds_span_m": [
+          0.7757,
+          0.0026,
+          0.5998
+        ],
+        "sha256": "5da874a368caf564a0ff567837b96db239004d296ec7b2f4d40ff278004f2443"
+      }
+    }
+  },
+  "black": {
+    "item_id": "rise-2024_04_30_06_56_56",
+    "asset_sha256": {
+      "front": "6e235835a9cd44fcd9a27a00b4864a775a0c89aaca7121e6390f47da7961f30a",
+      "back": "738c5f1b6a194556b2fad12a90bdf6ddc9b65f052af8d5dcb0146bb7a7f92cc2",
+      "labels": "4574eaced42b7aac865665585bda5d9bbfb3a8168a98c6b4c5151a19af660b34"
+    },
+    "source": "https://zenodo.org/records/13788681",
+    "license": "CC BY 4.0",
+    "paired_weights_sha256": "3fbd429ccf196fb2d5808e29635c2b4cbe9cf68c6ba2b4d3e1add80235e0bce5",
+    "publisher_metadata": {
+      "type": "T-shirt",
+      "cut": [
+        "Regular",
+        "C-collar"
+      ],
+      "category": "Unisex",
+      "material": "61% Cotton 39% Polyester"
+    },
+    "calibration": {
+      "front": {
+        "reference_nodes": 4,
+        "withheld_nodes": 12,
+        "withheld_intersection_median_mm": 1.215,
+        "withheld_intersection_p90_mm": 1.514,
+        "withheld_nodes_px": [
+          [
+            200.986,
+            203.54
+          ],
+          [
+            181.035,
+            486.28
+          ],
+          [
+            278.873,
+            70.272
+          ],
+          [
+            270.924,
+            203.053
+          ],
+          [
+            253.96,
+            486.433
+          ],
+          [
+            244.891,
+            637.913
+          ],
+          [
+            969.948,
+            62.643
+          ],
+          [
+            976.909,
+            198.139
+          ],
+          [
+            991.8,
+            487.982
+          ],
+          [
+            999.783,
+            643.354
+          ],
+          [
+            1050.558,
+            197.626
+          ],
+          [
+            1068.766,
+            488.143
+          ]
+        ],
+        "withheld_nodes_mm": [
+          [
+            200,
+            1200
+          ],
+          [
+            600,
+            1200
+          ],
+          [
+            0,
+            1100
+          ],
+          [
+            200,
+            1100
+          ],
+          [
+            600,
+            1100
+          ],
+          [
+            800,
+            1100
+          ],
+          [
+            0,
+            100
+          ],
+          [
+            200,
+            100
+          ],
+          [
+            600,
+            100
+          ],
+          [
+            800,
+            100
+          ],
+          [
+            200,
+            0
+          ],
+          [
+            600,
+            0
+          ]
+        ]
+      },
+      "back": {
+        "reference_nodes": 4,
+        "withheld_nodes": 12,
+        "withheld_intersection_median_mm": 1.256,
+        "withheld_intersection_p90_mm": 1.608,
+        "withheld_nodes_px": [
+          [
+            201.018,
+            203.583
+          ],
+          [
+            181.047,
+            486.408
+          ],
+          [
+            278.94,
+            70.311
+          ],
+          [
+            270.998,
+            203.091
+          ],
+          [
+            254.043,
+            486.547
+          ],
+          [
+            244.982,
+            638.029
+          ],
+          [
+            969.939,
+            62.665
+          ],
+          [
+            976.929,
+            198.124
+          ],
+          [
+            991.884,
+            487.953
+          ],
+          [
+            999.903,
+            643.354
+          ],
+          [
+            1050.639,
+            197.605
+          ],
+          [
+            1068.83,
+            488.099
+          ]
+        ],
+        "withheld_nodes_mm": [
+          [
+            200,
+            1200
+          ],
+          [
+            600,
+            1200
+          ],
+          [
+            0,
+            1100
+          ],
+          [
+            200,
+            1100
+          ],
+          [
+            600,
+            1100
+          ],
+          [
+            800,
+            1100
+          ],
+          [
+            0,
+            100
+          ],
+          [
+            200,
+            100
+          ],
+          [
+            600,
+            100
+          ],
+          [
+            800,
+            100
+          ],
+          [
+            200,
+            0
+          ],
+          [
+            600,
+            0
+          ]
+        ]
+      }
+    },
+    "view_measurements_mm": {
+      "front": {
+        "silhouette_width_mm": 748.97,
+        "silhouette_height_mm": 703.37,
+        "flat_chest_projection_mm": 484.36,
+        "hem_projection_mm": 481.93
+      },
+      "back": {
+        "silhouette_width_mm": 771.57,
+        "silhouette_height_mm": 693.84,
+        "flat_chest_projection_mm": 455.29,
+        "hem_projection_mm": 520.59
+      }
+    },
+    "front_back_projection_delta_mm": {
+      "silhouette_width_mm": 22.6,
+      "silhouette_height_mm": 9.53,
+      "flat_chest_projection_mm": 29.07,
+      "hem_projection_mm": 38.66
+    },
+    "front_only_check": {
+      "weights_sha256": "a1a8e84125d3d55e0b1bdc1b51a5a56afceb33a3643bcc212e9a0da59e6d315e",
+      "inferred_chest_mm": 484.857,
+      "withheld_back_chest_projection_mm": 455.29,
+      "candidate_minus_back_projection_mm": 29.567
+    },
+    "pattern_candidate_mm": {
+      "flat_chest_mm": 485.795,
+      "flat_hem_mm": null,
+      "back_length_mm": 657.645,
+      "garment_shoulder_width_mm": 441.483,
+      "sleeve_length_mm": 208.531
+    },
+    "archive": {
+      "capture_kind": "physical",
+      "pattern_sha256": "f4a25c4b3a3d0f8eac84f05c84cf4b9b486be2cb3a1d0185383812c6d446f391",
+      "source_photos": 2,
+      "vision_estimates": 11,
+      "dxf_panels": 5,
+      "seams": 15,
+      "garment_openings": 4,
+      "glb": {
+        "meshes": 1,
+        "bounds_span_m": [
+          0.4633,
+          0.6814,
+          0.3079
+        ],
+        "embedded_photo_atlases": 1
+      }
+    },
+    "flat_comparison": {
+      "schema_version": 1,
+      "item_id": "rise-2024_04_30_06_56_56",
+      "reference_setup": "Separate front/back exposures on the RISE measured 100 mm square grid",
+      "reference_manifest_sha256": "3a054875b8930666fbd479d9d4da00c63a2882e282537ab4c13a51dcaff2450e",
+      "pattern_sha256": "f4a25c4b3a3d0f8eac84f05c84cf4b9b486be2cb3a1d0185383812c6d446f391",
+      "scope": "Outer contours of a sewn flat GLB compared with photographs; no depth reference",
+      "alignment": "Translate the top and horizontal center of silhouette bounds; no fitted scale or rotation",
+      "sleeve_angle_below_horizontal_deg": 23.0,
+      "sleeve_angle_source": "Standard flat-lay placement",
+      "views": {
+        "front": {
+          "photo_sha256": "92352f03b5f86d7ea495b449ae5ab828838a7d868d82c709aafe4b499c963e4c",
+          "role": "reconstruction_input",
+          "calibration": {
+            "calibration": {
+              "origin_type": "planar_reference",
+              "mm_per_pixel": 1.0,
+              "requested_field_mm": [
+                36.0,
+                117.0,
+                857.0,
+                892.0
+              ],
+              "field_mm": [
+                36.0,
+                117.0,
+                857.0,
+                892.0
+              ],
+              "source_upright_px": [
+                1280,
+                720
+              ],
+              "output_to_source_px": [
+                [
+                  -0.06955558545865285,
+                  -0.6892455530716002,
+                  960.184923357946
+                ],
+                [
+                  0.659701118223567,
+                  0.009248039108161521,
+                  86.75479179923622
+                ],
+                [
+                  -0.00010682514041519101,
+                  2.2346649833559507e-05,
+                  1.0
+                ]
+              ],
+              "padded_outside_source": false,
+              "reference_plane": {
+                "width_mm": 800.0,
+                "height_mm": 1200.0,
+                "corners_px": [
+                  [
+                    1042.0477401692215,
+                    61.84738774014847
+                  ],
+                  [
+                    1078.5296196978004,
+                    643.9212458216067
+                  ],
+                  [
+                    170.37315348275806,
+                    637.3757151742897
+                  ],
+                  [
+                    210.33665171148135,
+                    71.02901802066788
+                  ]
+                ]
+              },
+              "extrapolated_beyond_reference": true,
+              "source": "RISE Second-Hand Fashion v3 station 1. Publisher documents the 100 mm square table grid."
+            },
+            "mm_per_pixel": 1.0
+          },
+          "processed_mm_per_pixel": 1.139992,
+          "intersection_over_union": 0.8799,
+          "contour_distance_mm": {
+            "median": 16.0,
+            "p90": 34.93
+          },
+          "overlay": "front-overlay.png",
+          "reference_width_height_mm": [
+            748.97,
+            703.37
+          ],
+          "model_width_height_mm": [
+            818.06,
+            675.96
+          ],
+          "model_minus_reference_width_height_mm": [
+            69.08,
+            -27.42
+          ]
+        },
+        "back": {
+          "photo_sha256": "a362da5229d618aa14b833f782723e85e575bcfead48de3d1b773d0cc14f7631",
+          "role": "reconstruction_input",
+          "calibration": {
+            "calibration": {
+              "origin_type": "planar_reference",
+              "mm_per_pixel": 1.0,
+              "requested_field_mm": [
+                -93.0,
+                227.0,
+                730.0,
+                970.0
+              ],
+              "field_mm": [
+                -93.0,
+                227.0,
+                730.0,
+                970.0
+              ],
+              "source_upright_px": [
+                1280,
+                720
+              ],
+              "output_to_source_px": [
+                [
+                  -0.06847824208592393,
+                  -0.6783319225769339,
+                  879.1738247962531
+                ],
+                [
+                  0.6491566562741085,
+                  0.009107851036532477,
+                  2.6508995662645316
+                ],
+                [
+                  -0.00010510692445708766,
+                  2.183435158329869e-05,
+                  1.0
+                ]
+              ],
+              "padded_outside_source": false,
+              "reference_plane": {
+                "width_mm": 800.0,
+                "height_mm": 1200.0,
+                "corners_px": [
+                  [
+                    1042.138797519771,
+                    61.86636092213492
+                  ],
+                  [
+                    1078.586672256061,
+                    643.9094335264101
+                  ],
+                  [
+                    170.377897315363,
+                    637.5023890598877
+                  ],
+                  [
+                    210.37540691819095,
+                    71.06925185953713
+                  ]
+                ]
+              },
+              "extrapolated_beyond_reference": true,
+              "source": "RISE Second-Hand Fashion v3 station 1. Publisher documents the 100 mm square table grid."
+            },
+            "mm_per_pixel": 1.0
+          },
+          "processed_mm_per_pixel": 1.143066,
+          "intersection_over_union": 0.9248,
+          "contour_distance_mm": {
+            "median": 8.49,
+            "p90": 20.47
+          },
+          "overlay": "back-overlay.png",
+          "reference_width_height_mm": [
+            771.57,
+            693.84
+          ],
+          "model_width_height_mm": [
+            818.06,
+            675.96
+          ],
+          "model_minus_reference_width_height_mm": [
+            46.49,
+            -17.88
+          ]
+        }
+      },
+      "flat_glb": {
+        "meshes": 1,
+        "bounds_span_m": [
+          0.8181,
+          0.0025,
+          0.676
+        ],
+        "sha256": "fd12def9b7e75e60341be7e4c55a5d664a360381cc32b8e77da091c9c7df8d40"
+      }
+    }
+  }
+}

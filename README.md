@@ -30,6 +30,8 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 斜拍的普通照片可用 `superarchiveallclo.rectify` 和四个共面的实测矩形标记恢复毫米俯视图，再运行同一套照片制板和 3D 流程。[采集及运行](docs/capture.md#斜拍与四点平面标定) · [馆藏正背照倾斜实验](docs/planar-rectification-study.md)
 
+瑞典二手循环纺织项目提供了带 100 mm 方格的真实正背照片。归档从方格独立恢复尺度，并用未用于标定的交点和同件背照复核。[二手 T 恤的方格标定和归档评测](docs/secondhand-grid-study.md)
+
 固定机位可复用已测的相机与台面。新衣物只拍彩照也能恢复毫米俯视图，已用同帧留出 XYZ 和另一帧实测深度复核。[固定机位实拍与复现](docs/registered-depth-review.md#固定机位只拍彩照)
 
 深度入口也能读入与彩照逐像素对应的 XYZ 点云并恢复毫米纸样。已用另一帧实物 Kinect 点云核对同版平铺 3D。[IRI UPC-CSIC 实物复扫](docs/iri-pcd-study.md)
