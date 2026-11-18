@@ -13,6 +13,7 @@ from tempfile import TemporaryDirectory
 from ezdxf import DXFError
 from PIL import Image, ImageOps, UnidentifiedImageError
 
+from .appearance import build_appearance
 from .cad import export_dxf
 from .check_archive import check_archive
 from .export import write_exports
@@ -220,7 +221,8 @@ def load_capture(source, photo_dir=None, model_path=None, *, blind=False):
     return manifest, spec
 
 
-def archive(source, output, blender, model_path=None, *, blind=False, form="torso_with_arms", drape_frames=None):
+def archive(source, output, blender, model_path=None, *, blind=False, form="torso_with_arms", drape_frames=None,
+            photo_appearance=False):
     if output.exists():
         raise ValueError(f"Output already exists: {output}")
     if drape_frames is not None and (type(drape_frames) is not int or drape_frames < 2):
@@ -237,11 +239,14 @@ def archive(source, output, blender, model_path=None, *, blind=False, form="tors
         export_dxf(pattern, bundle / "pattern" / "pattern.dxf")
         model = bundle / "model"
         model.mkdir()
+        if photo_appearance:
+            build_appearance(bundle, manifest, pattern)
         with (model / "blender.log").open("w", encoding="utf8") as log:
             frame_options = [] if drape_frames is None else ["--frames", str(drape_frames)]
+            photo_options = ["--photo-appearance"] if photo_appearance else []
             result = run([
                 blender, "-b", "--factory-startup", "--python-exit-code", "1", "--python", str(script),
-                "--", str(bundle / "pattern" / "pattern.json"), str(model), form, *frame_options,
+                "--", str(bundle / "pattern" / "pattern.json"), str(model), form, *frame_options, *photo_options,
             ], stdout=log, stderr=log, check=False)
         if result.returncode or not all((model / name).is_file() for name in (
             "garment.glb", "garment.blend", "simulation.json", "front.png", "back.png", "three-quarter.png",
@@ -262,10 +267,11 @@ def main():
     parser.add_argument("--form", choices=("torso_with_arms", "torso_only", "display_torso"), default="torso_with_arms",
                         help="Collision support used for the draped GLB and Blender scene")
     parser.add_argument("--drape-frames", type=int, help="End frame for Blender Cloth; default 38")
+    parser.add_argument("--photo-appearance", action="store_true", help="Transfer visible fabric from paired photographs")
     args = parser.parse_args()
     try:
         archive(args.session, args.output, args.blender, args.model, blind=args.blind, form=args.form,
-                drape_frames=args.drape_frames)
+                drape_frames=args.drape_frames, photo_appearance=args.photo_appearance)
     except (ValueError, TypeError, KeyError, OSError, UnidentifiedImageError, DXFError) as error:
         parser.error(str(error))
     print(f"Wrote {args.output}")

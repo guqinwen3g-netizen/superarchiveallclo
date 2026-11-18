@@ -81,4 +81,6 @@ python -m superarchiveallclo.rgbd rgbd.json \
 
 `--form display_torso` 使用无臂人台的接触支撑，并让袖子从侧下方起算。可以用 `--drape-frames` 调整计算时长。归档报告末段顶点位移，帮助复核导出时的垂坠状态。[接触支撑、时长及实物误差](drape-support-study.md)
 
+给 `superarchiveallclo.capture` 加 `--photo-appearance`，可从两张不同的平铺正背照提取衣身颜色、文字和图案。程序将图像映射到纸样坐标，再随缝合和垂坠后的模型导出。袖片和领条使用取样颜色。原图照明和部分折痕也会留在贴图上。归档中的 `model/appearance.json` 记录两张照片哈希、衣身取点和贴图区，`check_archive` 会回读 GLB 并校验嵌入图像。[实物示例与复现](photo-appearance-study.md)
+
 真实闭环通过的依据是同一件衣服的正背和侧面，纸样按原件测量复核，3D 在同样视角和尺度下对照挂拍或试穿，再记录版型误差、结构差异和材质差异。合成样例用于验证文件、尺度、配缝与运行通道。摆放角度、未见的构造与布料物性仍需实物对照。

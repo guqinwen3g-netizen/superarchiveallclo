@@ -25,6 +25,8 @@
 
 同校另一个立体服装数据库在论文中列出了每个姿态的相机 XML、视差、掩码以及平铺和悬挂拍摄。已从网页存档找回原发布页的七个数据链接，逐一访问均返回访问限制。论文标明数据用于科学研究。[原始论文](https://arxiv.org/abs/1311.7295) · [历史数据附件页](https://web.archive.org/web/20201010190742id_/https://sites.google.com/site/ugstereodatabase/attachments)
 
+Flat’n’Fold 的目录确认 CC BY 4.0，公开的相机文件和样本说明列出同步正视、侧视和顶视 RGB-D。实际访问代码库所列的共享目录，页面提示链接已过期。校方档案页仍有数据申请入口。ETH Zurich 的 4D-DRESS 具有同步原图、相机参数与实穿扫描，其数据许可限于非商业学术用途，且以所属机构邮箱申请。[Flat’n’Fold 校方档案](https://researchdata.gla.ac.uk/1881/) · [采集文件说明](https://github.com/lipeng-zhuang521/flat-n-fold#dataset) · [4D-DRESS 内容](https://eth-ait.github.io/4d-dress/) · [4D-DRESS 数据许可](https://4d-dress.ait.ethz.ch/)
+
 ## 复现
 
 ```sh

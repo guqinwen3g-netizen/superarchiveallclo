@@ -2,6 +2,7 @@
 
 from argparse import ArgumentParser
 from hashlib import sha256
+from io import BytesIO
 import json
 from math import dist, isfinite
 from pathlib import Path
@@ -9,6 +10,7 @@ from struct import unpack
 
 import ezdxf
 from ezdxf import units
+from PIL import Image
 
 
 def dxf_inventory(path, pattern):
@@ -35,7 +37,37 @@ def dxf_inventory(path, pattern):
     return len(blocks)
 
 
-def glb_inventory(path):
+def audit_embedded_texture(source, document, binary_size, atlas):
+    binary_start = source.tell()
+    with Image.open(atlas) as expected:
+        size = expected.size
+        pixels = sha256(expected.convert("RGB").tobytes()).digest()
+    images = set()
+    for mesh in document["meshes"]:
+        for primitive in mesh["primitives"]:
+            material = document["materials"][primitive["material"]]
+            color = material["pbrMetallicRoughness"]["baseColorTexture"]
+            texture_set = color.get("texCoord", 0)
+            if (texture_set == 0 or "TEXCOORD_0" not in primitive["attributes"]
+                    or f"TEXCOORD_{texture_set}" not in primitive["attributes"]):
+                raise ValueError("GLB must retain both paper UVs and photographic UVs")
+            images.add(document["textures"][color["index"]]["source"])
+    if not images:
+        raise ValueError("GLB does not use the photographed atlas")
+    for index in images:
+        image = document["images"][index]
+        view = document["bufferViews"][image["bufferView"]]
+        offset, size_bytes = view.get("byteOffset", 0), view["byteLength"]
+        if "uri" in image or view["buffer"] != 0 or not (0 <= offset < offset + size_bytes <= binary_size):
+            raise ValueError("GLB photographic atlas must be embedded in the geometry buffer")
+        source.seek(binary_start + offset)
+        with Image.open(BytesIO(source.read(size_bytes))) as embedded:
+            if embedded.size != size or sha256(embedded.convert("RGB").tobytes()).digest() != pixels:
+                raise ValueError("GLB photographic atlas pixels differ from the archived atlas")
+    return len(images)
+
+
+def glb_inventory(path, *, atlas=None):
     with path.open("rb") as source:
         header = source.read(20)
         if len(header) != 20:
@@ -53,6 +85,7 @@ def glb_inventory(path):
         binary_size, binary_kind = unpack("<I4s", chunk)
         if binary_kind != b"BIN\x00" or remaining != binary_size + 8 or binary_size == 0:
             raise ValueError("Invalid GLB geometry buffer")
+        appearance = {"embedded_photo_atlases": audit_embedded_texture(source, document, binary_size, atlas)} if atlas else {}
     positions = [
         document["accessors"][primitive["attributes"]["POSITION"]]
         for mesh in document["meshes"] for primitive in mesh["primitives"]
@@ -64,7 +97,7 @@ def glb_inventory(path):
     span = [b - a for a, b in zip(lower, upper, strict=True)]
     if any(not isfinite(value) or value <= 0 for value in span):
         raise ValueError("GLB garment bounds are invalid")
-    return {"meshes": len(document["meshes"]), "bounds_span_m": [round(value, 4) for value in span]}
+    return {"meshes": len(document["meshes"]), "bounds_span_m": [round(value, 4) for value in span], **appearance}
 
 
 def check_archive(root: Path):
@@ -89,6 +122,20 @@ def check_archive(root: Path):
         raise ValueError("Pattern must declare millimetres")
     if not (root / "model/garment.blend").stat().st_size:
         raise ValueError("Native Blender scene is empty")
+    model = root / "model"
+    record = model / "appearance.json"
+    atlas_path = model / "appearance.png"
+    atlas = None
+    if "appearance_atlas_sha256" in simulation or record.exists() or atlas_path.exists():
+        appearance = json.loads(record.read_bytes())
+        atlas = atlas_path
+        atlas_sha256 = sha256(atlas.read_bytes()).hexdigest()
+        if (appearance["atlas"] != atlas.name or appearance["atlas_sha256"] != atlas_sha256
+                or simulation.get("appearance_atlas_sha256") != atlas_sha256):
+            raise ValueError("Photographic appearance assets do not match their recorded hashes")
+        for name in ("front", "back"):
+            if appearance["photograph_evidence"][name]["sha256"] != capture["views"][name]["sha256"]:
+                raise ValueError(f"{name}: atlas refers to a different source photograph")
     return {
         "capture_kind": capture["kind"],
         "pattern_sha256": checksum,
@@ -97,7 +144,7 @@ def check_archive(root: Path):
         "dxf_panels": dxf_inventory(root / "pattern/pattern.dxf", pattern),
         "seams": len(pattern["seams"]),
         "garment_openings": simulation["welded_opening_count"],
-        "glb": glb_inventory(root / "model/garment.glb"),
+        "glb": glb_inventory(root / "model/garment.glb", atlas=atlas),
     }
 
 

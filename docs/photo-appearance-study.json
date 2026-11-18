@@ -1,0 +1,221 @@
+{
+  "schema_version": 1,
+  "source": {
+    "attribution": "Auckland War Memorial Museum Tāmaki Paenga Hira",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "catalogue_and_capture": "../examples/auckland-tees.json"
+  },
+  "execution": {
+    "weights_sha256": "c11748bd32e5d9134b1e5f25af16d893a8e16a6e80d68167e5ab9a0ac20b59d0",
+    "blender": "4.3.2",
+    "reference_form": "display_torso",
+    "drape_frames": 38
+  },
+  "samples": {
+    "netball": {
+      "item_id": "auckland-2017.66.22",
+      "photos": {
+        "front": {
+          "sha256": "bd7ecb97196fe1c95ab4acec7c13bb6f2ae3cecd501f7a2ef4c55c9031c03047",
+          "processed_crop_px": [
+            96,
+            31,
+            666,
+            453
+          ],
+          "fabric_srgb": [
+            241,
+            240,
+            244
+          ],
+          "mapping": "shoulder_underarm_hem",
+          "shoulder_row_crop_px": 11.0,
+          "underarm_crop_px": [
+            [
+              135.64,
+              151.0
+            ],
+            [
+              451.59,
+              167.93
+            ]
+          ],
+          "hem_crop_px": [
+            [
+              120.62,
+              420.0
+            ],
+            [
+              478.37,
+              420.0
+            ]
+          ]
+        },
+        "back": {
+          "sha256": "82d20186e3eb1e0d3f9c55e0f1fba158672069d63ab4d107ac9f5779dc31d7f3",
+          "processed_crop_px": [
+            35,
+            14,
+            698,
+            523
+          ],
+          "fabric_srgb": [
+            235,
+            235,
+            239
+          ],
+          "mapping": "shoulder_underarm_hem",
+          "shoulder_row_crop_px": 31.0,
+          "underarm_crop_px": [
+            [
+              161.02,
+              193.64
+            ],
+            [
+              529.21,
+              214.96
+            ]
+          ],
+          "hem_crop_px": [
+            [
+              136.59,
+              508.0
+            ],
+            [
+              554.06,
+              508.0
+            ]
+          ]
+        }
+      },
+      "atlas_px": [
+        2048,
+        1024
+      ],
+      "atlas_sha256": "cf36122d6e34c6bc43e069bb61ea2a2d6c1afa837957001a82fc46344a3ec7cd",
+      "garment_glb_sha256": "acb04a55714091df9e2f609a64ea3f37305e3607bfa547e438640051aa02e621",
+      "garment_blend_sha256": "20fce6f63a7ab30bed7e715331f98034f0029a32c6387d949cc0574b4c066b5c",
+      "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+      "dxf_panels": 5,
+      "seams": 15,
+      "garment_openings": 4,
+      "glb_embedded_photo_atlases": 1,
+      "native_blender_uv_layers": [
+        "Flat panels",
+        "Photographic appearance"
+      ]
+    },
+    "peace": {
+      "item_id": "auckland-2002.94.1.1",
+      "photos": {
+        "front": {
+          "sha256": "2d5c0ef6a5bff9918a3892f35349876772a45c1206959fba421a5cae2de1eba4",
+          "processed_crop_px": [
+            23,
+            75,
+            665,
+            641
+          ],
+          "fabric_srgb": [
+            225,
+            164,
+            61
+          ],
+          "mapping": "shoulder_underarm_hem",
+          "shoulder_row_crop_px": 8.0,
+          "underarm_crop_px": [
+            [
+              137.3,
+              236.79
+            ],
+            [
+              499.43,
+              224.46
+            ]
+          ],
+          "hem_crop_px": [
+            [
+              76.88,
+              554.0
+            ],
+            [
+              512.38,
+              554.0
+            ]
+          ]
+        },
+        "back": {
+          "sha256": "b69af9c4d08252fa28413c2574278b8fa2930d312e49b3e730cfe25805a4f203",
+          "processed_crop_px": [
+            32,
+            64,
+            685,
+            632
+          ],
+          "fabric_srgb": [
+            208,
+            157,
+            55
+          ],
+          "mapping": "shoulder_underarm_hem",
+          "shoulder_row_crop_px": 8.0,
+          "underarm_crop_px": [
+            [
+              129.25,
+              201.86
+            ],
+            [
+              483.05,
+              194.57
+            ]
+          ],
+          "hem_crop_px": [
+            [
+              99.98,
+              556.0
+            ],
+            [
+              527.66,
+              556.0
+            ]
+          ]
+        }
+      },
+      "atlas_px": [
+        2048,
+        1024
+      ],
+      "atlas_sha256": "f68ac211abeb18f49913dab4d2463d58b2995840d5261f97ee8a7cb8c50c810e",
+      "garment_glb_sha256": "3f90d51b6096fe4b2aa7e02217bca50ba23f164e5dd27b3f0a4735b651ac2202",
+      "garment_blend_sha256": "0c2ebb2b07e3744e88bc9f0741b28bdbb805e0210933e0e453afcdf0ccdc0a65",
+      "pattern_sha256": "0ca19f36f0aff94aaa9ebecf9f855abf7645a035f6169fa872e23e0456f47df3",
+      "dxf_panels": 5,
+      "seams": 15,
+      "garment_openings": 4,
+      "glb_embedded_photo_atlases": 1,
+      "native_blender_uv_layers": [
+        "Flat panels",
+        "Photographic appearance"
+      ]
+    }
+  },
+  "same_paper_geometry": {
+    "item_id": "auckland-2017.66.22",
+    "baseline_glb_sha256": "296ec2ecc1ab8be84e78b67865427cfe1b307b9fe30c89b618ac6ec7ded2f772",
+    "textured_glb_sha256": "acb04a55714091df9e2f609a64ea3f37305e3607bfa547e438640051aa02e621",
+    "reference_manifest_sha256": "20c55f4132e890eca4e3a05b4665516d2598d478b802acc26b43e3c15c15b9f6",
+    "reference_kind": "calibrated multi-view optical silhouette hull and held-out real photograph",
+    "triangle_count_each": 149592,
+    "maximum_nearest_vertex_position_distance_both_directions_mm": 0.0,
+    "candidate_surface_vs_hull_both": {
+      "triangle_area_outside_by_more_than_one_voxel_fraction": 0.4224,
+      "one_sided_triangle_center_distance_p90_mm": 38.65
+    },
+    "held_out_photo": "photo-01",
+    "held_out_photo_metrics_both": {
+      "iou": 0.8011,
+      "contour_p90_mm": 54.23
+    }
+  }
+}

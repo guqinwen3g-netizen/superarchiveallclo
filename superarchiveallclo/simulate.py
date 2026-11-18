@@ -454,7 +454,26 @@ def stabilize_contact(surfaces, vertices, clearance):
     return result, round(depth * 1000, 2)
 
 
-def sewn_mesh(vertices, welded_faces, faces, uv, panels):
+def texture_coordinates(uv, panels, appearance):
+    atlas_width, atlas_height = appearance["atlas_px"]
+    coordinates = np.empty((len(uv), 2))
+    for name, group in panels.items():
+        start, count = group["vertex_start"], group["vertex_count"]
+        tile = appearance["panels"][name]
+        x, y, w, h = tile["rect_px"]
+        if "bounds_mm" in tile:
+            x0, y0, x1, y1 = tile["bounds_mm"]
+            paper = 1000 * np.asarray(uv[start:start + count])
+            unit = np.clip((paper - [x0, y0]) / [x1 - x0, y1 - y0], 0, 1)
+        else:
+            unit = np.full((count, 2), 0.5)
+        pixels = [x + 0.5, y + 0.5] + unit * [w - 1, h - 1]
+        coordinates[start:start + count] = pixels / [atlas_width, atlas_height]
+    coordinates[:, 1] = 1 - coordinates[:, 1]
+    return coordinates
+
+
+def sewn_mesh(vertices, welded_faces, faces, uv, panels, *, photo_uv=None):
     boundary = Counter()
     for face in welded_faces:
         if len(set(face)) != 3:
@@ -485,6 +504,7 @@ def sewn_mesh(vertices, welded_faces, faces, uv, panels):
     mesh.from_pydata(vertices, [], welded_faces)
     mesh.update()
     layer = mesh.uv_layers.new(name="Flat panels")
+    atlas_layer = mesh.uv_layers.new(name="Photographic appearance") if photo_uv is not None else None
     mesh.materials.append(None)
     mesh.materials.append(None)
     collar_start = panels["collar"]["vertex_start"]
@@ -493,6 +513,8 @@ def sewn_mesh(vertices, welded_faces, faces, uv, panels):
         poly.material_index = int(face[0] >= collar_start)
         for loop, index in zip(poly.loop_indices, face):
             layer.data[loop].uv = uv[index]
+            if atlas_layer is not None:
+                atlas_layer.data[loop].uv = photo_uv[index]
     bm = bmesh.new()
     bm.from_mesh(mesh)
     bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
@@ -519,7 +541,7 @@ def freeze_drape(source, positions):
     return displayed
 
 
-def textile(name, color, rib=False):
+def textile(name, color, rib=False, atlas=None):
     material = bpy.data.materials.new(name)
     material.diffuse_color = (*color, 1)
     material.use_nodes = True
@@ -530,6 +552,14 @@ def textile(name, color, rib=False):
     shader.inputs["Roughness"].default_value = 0.87
     shader.inputs["Specular IOR Level"].default_value = 0.23
     shader.inputs["Sheen Weight"].default_value = 0.32
+    if atlas is not None:
+        texture_uv = nodes.new("ShaderNodeUVMap")
+        texture_uv.uv_map = "Photographic appearance"
+        photo = nodes.new("ShaderNodeTexImage")
+        photo.image = atlas
+        photo.extension = "EXTEND"
+        connect(texture_uv.outputs["UV"], photo.inputs["Vector"])
+        connect(photo.outputs["Color"], shader.inputs["Base Color"])
 
     coordinates = nodes.new("ShaderNodeTexCoord")
     texture = nodes.new("ShaderNodeTexWave" if rib else "ShaderNodeTexNoise")
@@ -546,7 +576,7 @@ def textile(name, color, rib=False):
     return material
 
 
-def render(model, output, pattern):
+def render(model, output, pattern, atlas=None):
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
     scene.cycles.samples = 40
@@ -568,8 +598,8 @@ def render(model, output, pattern):
     world.links.new(background.outputs[0], mix.inputs[1])
     world.links.new(camera_background.outputs[0], mix.inputs[2])
     world.links.new(mix.outputs[0], nodes.get("World Output").inputs["Surface"])
-    model.data.materials[0] = textile("Reference cotton jersey", (0.082, 0.092, 0.094))
-    model.data.materials[1] = textile("Reference neck rib", (0.065, 0.074, 0.077), rib=True)
+    model.data.materials[0] = textile("Reference cotton jersey", (0.082, 0.092, 0.094), atlas=atlas)
+    model.data.materials[1] = textile("Reference neck rib", (0.065, 0.074, 0.077), rib=True, atlas=atlas)
     target = Vector((0, 0, NECK_Z - pattern["measurements"]["back_center_length_mm"] / 2000))
     for location, energy, size in (
         ((-2, -3, 3), 350, 3), ((2, 2, 3), 250, 3), ((1, 1, -0.4), 35, 2),
@@ -600,6 +630,7 @@ def main():
     parser.add_argument("form", nargs="?", default="torso_with_arms",
                         choices=("torso_with_arms", "torso_only", "display_torso"))
     parser.add_argument("--frames", type=int, default=FRAME)
+    parser.add_argument("--photo-appearance", action="store_true")
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
     source, output, form = args.source, args.output, args.form
     if args.frames < 2:
@@ -616,7 +647,9 @@ def main():
     sleeve_angle = 20 if contact_only else 45
     placement = partial(place, sleeve_angle_from_vertical=sleeve_angle)
     points, welded_faces, faces, uv, pins, edges, rest, panels = build_assembly(pattern, place_vertex=placement)
-    garment, openings = sewn_mesh(points, welded_faces, faces, uv, panels)
+    appearance = json.loads((output / "appearance.json").read_bytes()) if args.photo_appearance else None
+    photo_uv = texture_coordinates(uv, panels, appearance) if appearance is not None else None
+    garment, openings = sewn_mesh(points, welded_faces, faces, uv, panels, photo_uv=photo_uv)
     configure_cloth(garment, [] if contact_only else pins, frame_end=args.frames)
     earlier_frame = max(1, args.frames - 5)
     for frame in range(1, args.frames + 1):
@@ -663,13 +696,25 @@ def main():
         "review": "Reference form and estimated knit settings, subject to physical comparison",
         "panel_vertex_ranges_before_welding": panels,
     }
+    atlas = None
+    if appearance is not None:
+        atlas_path = output / appearance["atlas"]
+        if sha256(atlas_path.read_bytes()).hexdigest() != appearance["atlas_sha256"]:
+            raise ValueError("Photographic appearance atlas checksum does not match")
+        atlas = bpy.data.images.load(str(atlas_path))
+        atlas.pack()
+        atlas.filepath = "//appearance.png"
+        report["appearance_atlas_sha256"] = appearance["atlas_sha256"]
     (output / "simulation.json").write_text(json.dumps(report, indent=2) + "\n")
     for form in forms:
         form.hide_set(True)
     bpy.ops.object.select_all(action="DESELECT")
     model.select_set(True)
     bpy.context.view_layer.objects.active = model
-    render(model, output, pattern)
+    render(model, output, pattern, atlas)
+    if atlas is not None:
+        for index, material in enumerate(model.data.materials):
+            garment.data.materials[index] = material
     bpy.ops.export_scene.gltf(filepath=str(output / "garment.glb"), use_selection=True, export_apply=True)
     scene.render.filepath = "//"
     bpy.ops.wm.save_as_mainfile(filepath=str(output / "garment.blend"))

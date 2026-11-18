@@ -30,6 +30,8 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 真实正背照已用于候选纸样归档、留出的馆方尺寸评分及同版平铺 GLB 的投影对照。[两件奥克兰博物馆藏品实验](docs/paired-photo-study.md)
 
+归档时可以把实拍衣身的颜色、文字和图案映射到由纸样生成的 3D，并随 GLB 和 Blender 工程保存。[两件实物的正背印花和渲染对照](docs/photo-appearance-study.md)
+
 同一件馆藏圆领 T 恤另用标定挂拍构造三维外包络，在留出照片及三维体素上评估同版 GLB，并量化人台手臂支撑的影响。[人台三维对照与复现](docs/mannequin-study.md)
 
 双面采集可分别恢复腋下胸宽与下摆宽，把侧缝收窄或放宽的幅度写入毫米纸样及同版仿真。[两件实物的衣身宽度对照](docs/body-profile-study.md)
