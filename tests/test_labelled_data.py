@@ -9,6 +9,7 @@ from PIL import Image
 
 from superarchiveallclo.capture import load_capture
 from superarchiveallclo.dataset import arrays, evaluate, load_dataset
+from superarchiveallclo.landmark_vision import NAMES
 from superarchiveallclo.review import verify_prediction
 from superarchiveallclo.train_vision import synthetic_view
 from superarchiveallclo.tee import TeeSpec
@@ -129,6 +130,22 @@ class LabelledDatasetTest(TestCase):
         self.assertEqual(sum(d["source"] == "vision_model" for d in capture["measurements"].values()), 11)
         for data in capture["views"].values():
             self.assertEqual(sha256((self.root / data["file"]).read_bytes()).hexdigest(), data["sha256"])
+
+    def test_learned_pixel_landmarks_are_linked_to_photos_without_changing_the_pattern_spec(self):
+        session = ROOT / "examples/vision-demo/session.json"
+        size_model = ROOT / "models/tee-vision.npz"
+        landmark_model = ROOT / "models/tee-landmarks-artf.npz"
+        _, standard = load_capture(session, model_path=size_model, blind=True)
+        capture, with_landmarks = load_capture(session, model_path=size_model, blind=True,
+                                               landmark_model_path=landmark_model)
+        self.assertEqual(standard, with_landmarks)
+        self.assertEqual(capture["photo_landmarks"]["model_sha256"], sha256(landmark_model.read_bytes()).hexdigest())
+        for name, result in capture["photo_landmarks"]["views"].items():
+            self.assertEqual(result["status"], "candidate")
+            self.assertEqual(result["photo_sha256"], capture["views"][name]["sha256"])
+            self.assertEqual(result["source_upright_px"], capture["views"][name]["upright_px"])
+            self.assertEqual(tuple(result["keypoints_px"]), NAMES)
+            self.assertGreater(result["photo_projected_chords_mm"]["shoulder_span"], 0)
 
     def test_blind_mode_does_not_feed_reference_labels_into_reconstruction(self):
         entry = self.entry("blind", "style-d", "test")

@@ -1,0 +1,298 @@
+{
+  "source": "https://zenodo.org/records/14501499",
+  "license": "CC BY 4.0",
+  "annotation_sha256": {
+    "train": "ee3e61b55bd93a9c6b5913bcf15cf417eff3cac66c6647dd30d756cd62c9c5b0",
+    "val": "f5c99a1e647a745e5bb886cbda97ecea918c11845b67ec08dc9f770230dac6ca",
+    "test": "2feeb9124f95ee5fac4e37d43fd08cb27590f7e3d315cef5b1ab22cdc3c54589"
+  },
+  "scope": "Tee image coordinates with publisher silhouette masks; every valid mask receives a prediction. No metric scale or side labels.",
+  "weights_sha256": "eecae10736ee1bada38e366c4055938d9392a0a2bb11ec32ef95aedb5b3676ca",
+  "ridge": 0.16,
+  "alignment_neighbors": 12,
+  "validation_median_orientation_error_by_neighbors_deg": {
+    "1": 6.664,
+    "5": 3.55,
+    "12": 2.682
+  },
+  "cases": {
+    "train": {
+      "evaluated": 167,
+      "unusable_annotations": [
+        "train/location_4/tshirts/2023-04-25_10-29-20_rgb_smartphone.png"
+      ]
+    },
+    "val": {
+      "evaluated": 42,
+      "unusable_annotations": []
+    },
+    "test": {
+      "evaluated": 400,
+      "unusable_annotations": []
+    }
+  },
+  "validation": {
+    "0.04": {
+      "pck_5pct_bbox_diagonal": 0.8998,
+      "median_px": 4.105
+    },
+    "0.16": {
+      "pck_5pct_bbox_diagonal": 0.90184,
+      "median_px": 4.274
+    },
+    "0.64": {
+      "pck_5pct_bbox_diagonal": 0.89162,
+      "median_px": 4.528
+    }
+  },
+  "test_mean_shape_baseline": {
+    "visible_points": 4684,
+    "median_px": 15.034,
+    "p90_px": 36.437,
+    "pck_5pct_bbox_diagonal": 0.39859,
+    "orientation_error_median_deg": 4.059,
+    "orientation_error_p90_deg": 10.122,
+    "orientations_within_22_5deg": 0.9425,
+    "by_keypoint": {
+      "shoulder_left": {
+        "visible_points": 400,
+        "median_px": 13.168,
+        "p90_px": 33.747,
+        "pck_5pct_bbox_diagonal": 0.4975
+      },
+      "neck_left": {
+        "visible_points": 387,
+        "median_px": 12.257,
+        "p90_px": 35.562,
+        "pck_5pct_bbox_diagonal": 0.48837
+      },
+      "neck_right": {
+        "visible_points": 391,
+        "median_px": 13.34,
+        "p90_px": 32.845,
+        "pck_5pct_bbox_diagonal": 0.49361
+      },
+      "shoulder_right": {
+        "visible_points": 393,
+        "median_px": 13.692,
+        "p90_px": 35.102,
+        "pck_5pct_bbox_diagonal": 0.44529
+      },
+      "sleeve_right_top": {
+        "visible_points": 385,
+        "median_px": 18.985,
+        "p90_px": 48.371,
+        "pck_5pct_bbox_diagonal": 0.23636
+      },
+      "sleeve_right_bottom": {
+        "visible_points": 369,
+        "median_px": 16.63,
+        "p90_px": 35.992,
+        "pck_5pct_bbox_diagonal": 0.34959
+      },
+      "armpit_right": {
+        "visible_points": 394,
+        "median_px": 12.427,
+        "p90_px": 31.682,
+        "pck_5pct_bbox_diagonal": 0.49239
+      },
+      "waist_right": {
+        "visible_points": 398,
+        "median_px": 16.247,
+        "p90_px": 37.505,
+        "pck_5pct_bbox_diagonal": 0.35678
+      },
+      "waist_left": {
+        "visible_points": 395,
+        "median_px": 14.597,
+        "p90_px": 36.08,
+        "pck_5pct_bbox_diagonal": 0.42532
+      },
+      "armpit_left": {
+        "visible_points": 393,
+        "median_px": 13.356,
+        "p90_px": 28.198,
+        "pck_5pct_bbox_diagonal": 0.45293
+      },
+      "sleeve_left_bottom": {
+        "visible_points": 387,
+        "median_px": 16.836,
+        "p90_px": 33.909,
+        "pck_5pct_bbox_diagonal": 0.323
+      },
+      "sleeve_left_top": {
+        "visible_points": 392,
+        "median_px": 18.947,
+        "p90_px": 42.798,
+        "pck_5pct_bbox_diagonal": 0.21429
+      }
+    }
+  },
+  "test": {
+    "visible_points": 4684,
+    "median_px": 7.036,
+    "p90_px": 22.323,
+    "pck_5pct_bbox_diagonal": 0.78096,
+    "orientation_error_median_deg": 4.059,
+    "orientation_error_p90_deg": 10.122,
+    "orientations_within_22_5deg": 0.9425,
+    "by_keypoint": {
+      "shoulder_left": {
+        "visible_points": 400,
+        "median_px": 6.585,
+        "p90_px": 16.666,
+        "pck_5pct_bbox_diagonal": 0.825
+      },
+      "neck_left": {
+        "visible_points": 387,
+        "median_px": 7.105,
+        "p90_px": 21.638,
+        "pck_5pct_bbox_diagonal": 0.78295
+      },
+      "neck_right": {
+        "visible_points": 391,
+        "median_px": 7.797,
+        "p90_px": 23.516,
+        "pck_5pct_bbox_diagonal": 0.75703
+      },
+      "shoulder_right": {
+        "visible_points": 393,
+        "median_px": 7.883,
+        "p90_px": 22.434,
+        "pck_5pct_bbox_diagonal": 0.72519
+      },
+      "sleeve_right_top": {
+        "visible_points": 385,
+        "median_px": 8.644,
+        "p90_px": 32.801,
+        "pck_5pct_bbox_diagonal": 0.69351
+      },
+      "sleeve_right_bottom": {
+        "visible_points": 369,
+        "median_px": 7.996,
+        "p90_px": 23.611,
+        "pck_5pct_bbox_diagonal": 0.73984
+      },
+      "armpit_right": {
+        "visible_points": 394,
+        "median_px": 6.52,
+        "p90_px": 17.255,
+        "pck_5pct_bbox_diagonal": 0.8401
+      },
+      "waist_right": {
+        "visible_points": 398,
+        "median_px": 5.361,
+        "p90_px": 17.231,
+        "pck_5pct_bbox_diagonal": 0.86683
+      },
+      "waist_left": {
+        "visible_points": 395,
+        "median_px": 5.926,
+        "p90_px": 17.574,
+        "pck_5pct_bbox_diagonal": 0.87089
+      },
+      "armpit_left": {
+        "visible_points": 393,
+        "median_px": 5.574,
+        "p90_px": 16.789,
+        "pck_5pct_bbox_diagonal": 0.84733
+      },
+      "sleeve_left_bottom": {
+        "visible_points": 387,
+        "median_px": 7.804,
+        "p90_px": 21.851,
+        "pck_5pct_bbox_diagonal": 0.75194
+      },
+      "sleeve_left_top": {
+        "visible_points": 392,
+        "median_px": 9.404,
+        "p90_px": 26.504,
+        "pck_5pct_bbox_diagonal": 0.66327
+      }
+    }
+  },
+  "test_unseen_locations": {
+    "images": 200,
+    "visible_points": 2357,
+    "median_px": 6.007,
+    "p90_px": 17.905,
+    "pck_5pct_bbox_diagonal": 0.83454,
+    "orientation_error_median_deg": 4.255,
+    "orientation_error_p90_deg": 9.556,
+    "orientations_within_22_5deg": 0.95,
+    "by_keypoint": {
+      "shoulder_left": {
+        "visible_points": 200,
+        "median_px": 5.392,
+        "p90_px": 16.266,
+        "pck_5pct_bbox_diagonal": 0.875
+      },
+      "neck_left": {
+        "visible_points": 197,
+        "median_px": 6.311,
+        "p90_px": 18.084,
+        "pck_5pct_bbox_diagonal": 0.82741
+      },
+      "neck_right": {
+        "visible_points": 200,
+        "median_px": 7.436,
+        "p90_px": 18.321,
+        "pck_5pct_bbox_diagonal": 0.81
+      },
+      "shoulder_right": {
+        "visible_points": 199,
+        "median_px": 6.39,
+        "p90_px": 18.701,
+        "pck_5pct_bbox_diagonal": 0.80402
+      },
+      "sleeve_right_top": {
+        "visible_points": 197,
+        "median_px": 7.725,
+        "p90_px": 25.802,
+        "pck_5pct_bbox_diagonal": 0.76142
+      },
+      "sleeve_right_bottom": {
+        "visible_points": 180,
+        "median_px": 6.688,
+        "p90_px": 18.755,
+        "pck_5pct_bbox_diagonal": 0.8
+      },
+      "armpit_right": {
+        "visible_points": 198,
+        "median_px": 5.633,
+        "p90_px": 13.975,
+        "pck_5pct_bbox_diagonal": 0.88384
+      },
+      "waist_right": {
+        "visible_points": 200,
+        "median_px": 4.968,
+        "p90_px": 11.507,
+        "pck_5pct_bbox_diagonal": 0.925
+      },
+      "waist_left": {
+        "visible_points": 198,
+        "median_px": 4.524,
+        "p90_px": 9.116,
+        "pck_5pct_bbox_diagonal": 0.92929
+      },
+      "armpit_left": {
+        "visible_points": 197,
+        "median_px": 4.68,
+        "p90_px": 12.468,
+        "pck_5pct_bbox_diagonal": 0.87817
+      },
+      "sleeve_left_bottom": {
+        "visible_points": 193,
+        "median_px": 7.22,
+        "p90_px": 18.169,
+        "pck_5pct_bbox_diagonal": 0.79275
+      },
+      "sleeve_left_top": {
+        "visible_points": 198,
+        "median_px": 8.031,
+        "p90_px": 23.985,
+        "pck_5pct_bbox_diagonal": 0.72222
+      }
+    }
+  }
+}

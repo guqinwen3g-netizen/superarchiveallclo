@@ -52,6 +52,8 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 窄身和较短袖口横跨的采集可选新训练的双面权重。EPFL 正背实拍已生成毫米纸样和同版 3D，并用两帧实测深度复核。[窄身模型和留出评测](docs/varied-tee-model.md)
 
+可以用实拍训练的模型辅助审核肩点、腋点、袖口和下摆。归档可保留原图坐标以及经标定的投影跨度。[实拍关键点模型与实物转移评测](docs/artf-landmark-study.md)
+
 展台仿真可以使用无臂人台的接触支撑。对照报告记录模型随高度变化的前后深度，以及导出时布料的位移。[同版垂坠对照](docs/drape-support-study.md)
 
 成衣仿真归档可读取领口、两只袖口和下摆的三维周长。带部件标注的实物扫描也可以执行同样的开口检查。[两件短袖实物扫描的构造核对](docs/garmentlab-opening-study.md)

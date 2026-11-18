@@ -18,6 +18,7 @@ from .cad import export_dxf
 from .check_archive import check_archive
 from .cloth_material import material_bending, material_mass
 from .export import write_exports
+from .landmark_vision import SCOPE as LANDMARK_SCOPE, TeeLandmarkVision
 from .reference_form import arm_angle
 from .tee import TeeSpec, draft
 from .vision import FIELDS, TeeVision
@@ -104,7 +105,8 @@ def capture_photo_hashes(views):
     return hashes
 
 
-def capture_observations(source, photo_dir=None, model_path=None, *, allow_partial=False, blind=False):
+def capture_observations(source, photo_dir=None, model_path=None, *, allow_partial=False, blind=False,
+                         landmark_model_path=None):
     if blind and model_path is None:
         raise ValueError("Blind reconstruction requires trained --model weights")
     capture = json.loads(source.read_text(encoding="utf8"))
@@ -232,6 +234,20 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
     if inference is not None:
         inference["reference_measurements_withheld"] = blind
         manifest["inference"] = inference
+    if landmark_model_path is not None:
+        landmark_model = TeeLandmarkVision(landmark_model_path)
+        landmark_views = {}
+        for name in ("front", "back"):
+            if name not in archived:
+                continue
+            with Image.open(paths[name]) as photo:
+                try:
+                    landmark_views[name] = landmark_model.photo_evidence(photo, archived[name])
+                except ValueError as error:
+                    landmark_views[name] = {"status": "unavailable", "reason": str(error)}
+        manifest["photo_landmarks"] = {
+            "model_sha256": landmark_model.checksum, "scope": LANDMARK_SCOPE, "views": landmark_views,
+        }
     if measure_body:
         manifest["body_profile"] = capture["body_profile"]
     if measure_sleeve:
@@ -242,14 +258,15 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
     return manifest, values
 
 
-def load_capture(source, photo_dir=None, model_path=None, *, blind=False):
-    manifest, values = capture_observations(source, photo_dir, model_path, blind=blind)
+def load_capture(source, photo_dir=None, model_path=None, *, blind=False, landmark_model_path=None):
+    manifest, values = capture_observations(source, photo_dir, model_path, blind=blind,
+                                            landmark_model_path=landmark_model_path)
     spec = TeeSpec(body_chest_mm=None, body_shoulder_width_mm=None, shoulder_extension_mm=None, **values)
     return manifest, spec
 
 
 def archive(source, output, blender, model_path=None, *, blind=False, form="torso_with_arms", drape_frames=None,
-            photo_appearance=False, arm_angle_deg=None):
+            photo_appearance=False, arm_angle_deg=None, landmark_model_path=None):
     if output.exists():
         raise ValueError(f"Output already exists: {output}")
     if drape_frames is not None and (type(drape_frames) is not int or drape_frames < 2):
@@ -260,7 +277,8 @@ def archive(source, output, blender, model_path=None, *, blind=False, form="tors
     with TemporaryDirectory(dir=output.parent) as temporary:
         bundle = Path(temporary) / "bundle"
         bundle.mkdir()
-        manifest, spec = load_capture(source, bundle / "photos", model_path, blind=blind)
+        manifest, spec = load_capture(source, bundle / "photos", model_path, blind=blind,
+                                      landmark_model_path=landmark_model_path)
         (bundle / "capture.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf8")
         pattern = draft(spec)
         write_exports(pattern, bundle / "pattern")
@@ -297,6 +315,7 @@ def main():
     parser.add_argument("-o", "--output", type=Path, required=True)
     parser.add_argument("--blender", default="blender", help="Blender executable")
     parser.add_argument("--model", type=Path, help="Use trained weights to infer dimensions from the photos")
+    parser.add_argument("--landmarks-model", type=Path, help="Archive learned image landmark candidates for review")
     parser.add_argument("--blind", action="store_true", help="Withhold all recorded measurements from reconstruction")
     parser.add_argument("--form", choices=("torso_with_arms", "torso_only", "display_torso"), default="torso_with_arms",
                         help="Collision support used for the draped GLB and Blender scene")
@@ -306,7 +325,8 @@ def main():
     args = parser.parse_args()
     try:
         archive(args.session, args.output, args.blender, args.model, blind=args.blind, form=args.form,
-                drape_frames=args.drape_frames, photo_appearance=args.photo_appearance, arm_angle_deg=args.arm_angle)
+                drape_frames=args.drape_frames, photo_appearance=args.photo_appearance, arm_angle_deg=args.arm_angle,
+                landmark_model_path=args.landmarks_model)
     except (ValueError, TypeError, KeyError, OSError, UnidentifiedImageError, DXFError) as error:
         parser.error(str(error))
     print(f"Wrote {args.output}")
