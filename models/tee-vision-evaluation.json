@@ -1,0 +1,75 @@
+{
+  "training_domain": "synthetic flat-lay silhouettes with varied framing, lighting, sleeve pose and JPEG compression",
+  "seeds_train_validation_test": [
+    481516,
+    481517,
+    481518
+  ],
+  "sample_counts_train_validation_test": [
+    960,
+    160,
+    200
+  ],
+  "ridge_penalty": 12.0,
+  "test_valid_pattern_subset": {
+    "passed": 23,
+    "checked": 24
+  },
+  "test_metrics_mm": {
+    "flat_chest_mm": {
+      "median_absolute_error": 2.69,
+      "p90_absolute_error": 6.72,
+      "typical_size_baseline_p90": 63.46
+    },
+    "back_length_mm": {
+      "median_absolute_error": 3.21,
+      "p90_absolute_error": 7.8,
+      "typical_size_baseline_p90": 60.57
+    },
+    "garment_shoulder_width_mm": {
+      "median_absolute_error": 3.11,
+      "p90_absolute_error": 7.45,
+      "typical_size_baseline_p90": 70.86
+    },
+    "shoulder_slope_mm": {
+      "median_absolute_error": 0.62,
+      "p90_absolute_error": 1.49,
+      "typical_size_baseline_p90": 13.22
+    },
+    "armhole_depth_mm": {
+      "median_absolute_error": 4.18,
+      "p90_absolute_error": 10.53,
+      "typical_size_baseline_p90": 23.74
+    },
+    "sleeve_length_mm": {
+      "median_absolute_error": 1.24,
+      "p90_absolute_error": 3.72,
+      "typical_size_baseline_p90": 34.82
+    },
+    "sleeve_bicep_flat_mm": {
+      "median_absolute_error": 4.53,
+      "p90_absolute_error": 12.9,
+      "typical_size_baseline_p90": 30.44
+    },
+    "sleeve_opening_flat_mm": {
+      "median_absolute_error": 3.14,
+      "p90_absolute_error": 7.32,
+      "typical_size_baseline_p90": 42.29
+    },
+    "neck_width_mm": {
+      "median_absolute_error": 1.21,
+      "p90_absolute_error": 3.14,
+      "typical_size_baseline_p90": 18.04
+    },
+    "front_neck_depth_mm": {
+      "median_absolute_error": 0.65,
+      "p90_absolute_error": 1.63,
+      "typical_size_baseline_p90": 13.69
+    },
+    "back_neck_depth_mm": {
+      "median_absolute_error": 0.47,
+      "p90_absolute_error": 1.22,
+      "typical_size_baseline_p90": 6.22
+    }
+  }
+}

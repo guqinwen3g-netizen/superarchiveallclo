@@ -1,0 +1,229 @@
+"""Train and evaluate a reproducible photo-to-measurement tee model."""
+
+from argparse import ArgumentParser
+from io import BytesIO
+import json
+from math import cos, radians, sin
+from pathlib import Path
+
+import numpy as np
+from PIL import Image, ImageDraw
+from reportlab.lib.units import mm
+from reportlab.pdfgen.canvas import Canvas
+
+from .tee import TeeSpec, body_panel, draft
+from .vision import CARD_MM, FIELDS, MODEL_VERSION, TeeVision, paired_features
+
+SEED = 481516
+
+
+def sample_spec(rng):
+    chest = rng.uniform(485, 635)
+    shoulder = chest - rng.uniform(45, 92)
+    slope = rng.uniform(22, 51)
+    armhole = rng.uniform(211, 265)
+    bicep = min(rng.uniform(310, 380), 2 * (armhole - slope) - 12)
+    return TeeSpec(
+        body_chest_mm=None, body_shoulder_width_mm=None, shoulder_extension_mm=None,
+        flat_chest_mm=chest, back_length_mm=rng.uniform(605, 750),
+        garment_shoulder_width_mm=shoulder, shoulder_slope_mm=slope, armhole_depth_mm=armhole,
+        sleeve_length_mm=rng.uniform(174, 249), sleeve_bicep_flat_mm=bicep,
+        sleeve_opening_flat_mm=bicep - rng.uniform(22, 66),
+        neck_width_mm=rng.uniform(160, 200), front_neck_depth_mm=rng.uniform(73, 105),
+        back_neck_depth_mm=rng.uniform(18, 32),
+    )
+
+
+def synthetic_view(spec, front, rng):
+    """Project a stylized flat lay from template geometry with capture variation."""
+    width, height = 412, 352
+    pixels_per_mm = rng.uniform(0.29, 0.35)
+    angle = radians(rng.uniform(-3, 3))
+    origin = (width / 2 + rng.uniform(-7, 7), rng.uniform(32, 43))
+
+    def pixel(point):
+        x, y = point
+        return (
+            origin[0] + pixels_per_mm * (x * cos(angle) - y * sin(angle)),
+            origin[1] + pixels_per_mm * (x * sin(angle) + y * cos(angle)),
+        )
+
+    light_background = bool(rng.integers(0, 2))
+    bg = rng.uniform(196, 243) if light_background else rng.uniform(36, 78)
+    fg = rng.uniform(34, 110) if light_background else rng.uniform(166, 224)
+    backdrop = tuple(int(c) for c in bg + rng.uniform(-13, 13, 3))
+    fabric = tuple(int(c) for c in fg + rng.uniform(-12, 12, 3))
+    image = Image.new("RGB", (width, height), backdrop)
+    paint = ImageDraw.Draw(image)
+    body = body_panel(spec, front)
+    paint.polygon([pixel(p) for p in body.outline()], fill=fabric)
+    size = spec.sleeve_length_mm
+    upper = spec.sleeve_bicep_flat_mm / 2
+    opening = spec.sleeve_opening_flat_mm / 2
+    shoulder = spec.shoulder_width_mm / 2
+    underarm = spec.flat_chest_mm / 2
+    for side in (-1, 1):
+        pose = radians(rng.uniform(19, 27))
+        c, s = cos(pose), sin(pose)
+        sill_x, sill_y = shoulder + size * c, spec.shoulder_slope_mm + size * s
+        sleeve = (
+            (shoulder - 11, spec.shoulder_slope_mm - 3),
+            (sill_x, sill_y),
+            (sill_x - opening * s, sill_y + opening * c),
+            (shoulder + 0.37 * size * c - upper * s, spec.shoulder_slope_mm + 0.37 * size * s + upper * c),
+            (underarm - 12, spec.armhole_depth_mm),
+        )
+        paint.polygon([pixel((side * x, y)) for x, y in sleeve], fill=fabric)
+    card_px = round(pixels_per_mm * CARD_MM)
+    card_x, card_y = int(rng.integers(15, 29)), int(rng.integers(215, 260))
+    paint.rectangle((card_x, card_y, card_x + card_px - 1, card_y + card_px - 1), fill=(215, 39, 157))
+    gradients = np.linspace(-5, 5, width, dtype=np.float32)[None, :, None]
+    noise = rng.normal(0, 2.1, (height, width, 1)).astype(np.float32)
+    rgb = np.clip(np.asarray(image) + gradients + noise, 0, 255).astype(np.uint8)
+    return Image.fromarray(rgb)
+
+
+def sample_set(size, seed):
+    rng = np.random.default_rng(seed)
+    features, targets, boxes = [], [], []
+    for _ in range(size):
+        spec = sample_spec(rng)
+        front, back = synthetic_view(spec, True, rng), synthetic_view(spec, False, rng)
+        if rng.random() < 0.75:
+            front = jpeg_view(front, int(rng.integers(83, 97)))
+            back = jpeg_view(back, int(rng.integers(83, 97)))
+        vector, evidence = paired_features(front, back)
+        features.append(vector)
+        targets.append([getattr(spec, field) for field in FIELDS])
+        boxes.append([evidence[name]["garment_box_mm"] for name in ("front", "back")])
+    return np.array(features), np.array(targets), np.array(boxes)
+
+
+def jpeg_view(image, quality):
+    stream = BytesIO()
+    image.save(stream, format="JPEG", quality=quality)
+    with Image.open(stream) as encoded:
+        return encoded.copy()
+
+
+def fit_ridge(train, validate):
+    x, y, boxes = train
+    center, scale = x.mean(axis=0), np.maximum(x.std(axis=0), 0.08)
+    labels = y.mean(axis=0)
+    normalized = (x - center) / scale
+    cov = normalized.T @ normalized
+    rhs = normalized.T @ (y - labels)
+    x_val, y_val, _ = validate
+    scores = []
+    for penalty in (12.0, 40.0, 140.0):
+        coefficients = np.linalg.solve(cov + penalty * np.eye(cov.shape[0]), rhs)
+        error = np.abs(((x_val - center) / scale) @ coefficients + labels - y_val)
+        scores.append(((error / y.std(axis=0)).mean(), penalty, coefficients))
+    _, penalty, coefficients = min(scores, key=lambda candidate: candidate[0])
+    return dict(
+        version=np.array(MODEL_VERSION), fields=np.array(FIELDS),
+        center=center, scale=scale, intercept=labels, coefficients=coefficients,
+        target_min=y.min(axis=0), target_max=y.max(axis=0),
+        box_min=boxes.min(axis=0), box_max=boxes.max(axis=0),
+    ), penalty
+
+
+def save_card(path):
+    canvas = Canvas(str(path), invariant=True)
+    canvas.setFillColorRGB(215 / 255, 39 / 255, 157 / 255)
+    canvas.rect(22 * mm, 147 * mm, CARD_MM * mm, CARD_MM * mm, fill=1, stroke=0)
+    canvas.setFillColorRGB(0, 0, 0)
+    canvas.drawString(22 * mm, 135 * mm, "100 mm square - print at Actual size, then verify with a ruler.")
+    canvas.drawString(22 * mm, 128 * mm, "Cut around the colored square. Place it flat beside the garment.")
+    canvas.save()
+
+
+def write_demo(path, model):
+    rng = np.random.default_rng(SEED + 8)
+    # This seed is separate from training, validation and test.
+    spec = sample_spec(rng)
+    path.mkdir(parents=True)
+    views = {}
+    images = []
+    for name, front in (("front", True), ("back", False)):
+        image = synthetic_view(spec, front, rng)
+        image.save(path / f"{name}.jpg", quality=91)
+        views[name] = {"file": f"{name}.jpg"}
+        images.append(Image.open(path / f"{name}.jpg"))
+    try:
+        measured, _ = model.estimate(*images)
+    finally:
+        for image in images:
+            image.close()
+    truth = {f: round(float(getattr(spec, f)), 3) for f in FIELDS}
+    (path / "session.json").write_text(json.dumps({
+        "schema_version": 1, "kind": "synthetic_fixture", "garment": "crew_neck_tee",
+        "item_id": "model-demo", "views": views,
+    }, indent=2) + "\n")
+    (path / "reference.json").write_text(json.dumps({
+        "kind": "synthetic_reference", "truth_mm": truth, "inferred_mm": measured,
+    }, indent=2) + "\n")
+
+
+def main():
+    parser = ArgumentParser(description=__doc__)
+    parser.add_argument("--weights", type=Path, required=True)
+    parser.add_argument("--report", type=Path, required=True)
+    parser.add_argument("--demo", type=Path)
+    parser.add_argument("--card", type=Path)
+    args = parser.parse_args()
+    if args.weights.suffix != ".npz":
+        parser.error("--weights must have an .npz extension")
+
+    sizes = (960, 160, 200)
+    train, validation, test = (
+        sample_set(size, SEED + split) for split, size in enumerate(sizes)
+    )
+    weights, penalty = fit_ridge(train, validation)
+    args.weights.parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(args.weights, **weights)
+    x, y, _ = test
+    prediction = np.clip(
+        (x - weights["center"]) / weights["scale"] @ weights["coefficients"] + weights["intercept"],
+        weights["target_min"], weights["target_max"],
+    )
+    errors = np.abs(prediction - y)
+    naive = np.abs(np.median(train[1], axis=0) - y)
+    geometry_checks = []
+    for row in prediction[np.linspace(0, len(y) - 1, 24).round().astype(int)]:
+        try:
+            draft(TeeSpec(
+                body_chest_mm=None, body_shoulder_width_mm=None, shoulder_extension_mm=None,
+                **dict(zip(FIELDS, map(float, row), strict=True)),
+            ))
+            geometry_checks.append(True)
+        except ValueError:
+            geometry_checks.append(False)
+    report = {
+        "training_domain": "synthetic flat-lay silhouettes with varied framing, lighting, sleeve pose and JPEG compression",
+        "seeds_train_validation_test": [SEED, SEED + 1, SEED + 2],
+        "sample_counts_train_validation_test": sizes,
+        "ridge_penalty": penalty,
+        "test_valid_pattern_subset": {
+            "passed": sum(geometry_checks), "checked": len(geometry_checks),
+        },
+        "test_metrics_mm": {
+            name: {
+                "median_absolute_error": round(float(np.median(errors[:, i])), 2),
+                "p90_absolute_error": round(float(np.quantile(errors[:, i], 0.9)), 2),
+                "typical_size_baseline_p90": round(float(np.quantile(naive[:, i], 0.9)), 2),
+            }
+            for i, name in enumerate(FIELDS)
+        },
+    }
+    args.report.parent.mkdir(parents=True, exist_ok=True)
+    args.report.write_text(json.dumps(report, indent=2) + "\n")
+    if args.demo:
+        write_demo(args.demo, TeeVision(args.weights))
+    if args.card:
+        save_card(args.card)
+    print(json.dumps(report, indent=2))
+
+
+if __name__ == "__main__":
+    main()

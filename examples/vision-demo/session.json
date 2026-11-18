@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "synthetic_fixture",
+  "garment": "crew_neck_tee",
+  "item_id": "model-demo",
+  "views": {
+    "front": {
+      "file": "front.jpg"
+    },
+    "back": {
+      "file": "back.jpg"
+    }
+  }
+}

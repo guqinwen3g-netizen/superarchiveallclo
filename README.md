@@ -2,21 +2,21 @@
 
 **Super Archive All Clone** 为真实服装建立数字档案。从实物拍摄、测量或扫描开始，为每件衣服保存原始证据、可编辑的二维纸样，以及由同一套裁片缝合并模拟出来的 3D 模型。长期目标是覆盖各类服装，并交付经实物打样和目标 CAD 验证的制板文件。
 
-**当前开发范围为单层圆领 T 恤的归档闭环。** 先让带尺寸证据的采集档案生成纸样和同版 3D 模型，再用真实样衣核对尺寸、结构和视觉。首个风格方向为 **Clean Fit / Minimalism 极简男装穿搭**。
+**当前模型覆盖按标准拍摄的单层圆领 T 恤。** 从带比例尺的正背照片预测制板尺寸，并生成同版纸样和 3D。首个风格方向为 **Clean Fit / Minimalism 极简男装穿搭**。
 
 首款提议用一件微落肩圆领 T 恤，把真实照片、纸样、仿真和试穿走通。随后加入直筒长裤组成第一套穿搭，再用外搭衬衫验证叠穿。开发从可自己生成、自己测量的样本开始。
 
 ## 跑通一份归档
 
-安装 Python 依赖，确保 Blender 4.3+ 可通过 `blender` 调用。以下命令会生成带标签的合成采集素材，并使用和实物采集相同的入口执行制板和布料求解。
+安装 Python 依赖，确保 Blender 4.3+ 可通过 `blender` 调用。内置样例只提供合成正背照片。预测尺寸、制板和仿真由程序自动完成。
 
 ```sh
 python -m pip install -r requirements.txt
-python -m examples.make_capture_fixture build/capture-fixture
-python -m superarchiveallclo.capture build/capture-fixture/session.json -o build/archive
+python -m superarchiveallclo.capture examples/vision-demo/session.json \
+  --model models/tee-vision.npz -o build/archive
 ```
 
-归档包括带来源的原图和尺寸、DXF / SVG / A4 纸样、配缝表、GLB、可编辑 Blender 场景与三张视角图。用实物采集目录替换合成样例即可生成候选档案。[拍摄步骤、量法与验收方式](docs/capture.md) · [合成样例的实际仿真图](examples/archive-preview.jpg)
+归档包括原图、比例尺识别记录、预测尺寸及来源、DXF / SVG / A4 纸样、GLB 和 Blender 场景。替换照片可处理新的标准采集档案。训练和评估采用不同的合成样本。实物误差需要独立样衣测量。[图像模型与可复现训练](docs/vision-model.md) · [实物采集与验收](docs/capture.md)
 
 ## 生成首款 T 恤纸样
 

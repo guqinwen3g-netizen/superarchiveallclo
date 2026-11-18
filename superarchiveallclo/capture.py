@@ -15,12 +15,8 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 from .cad import export_dxf
 from .export import write_exports
 from .tee import TeeSpec, draft
+from .vision import FIELDS, TeeVision
 
-MEASUREMENTS = (
-    "flat_chest_mm", "back_length_mm", "garment_shoulder_width_mm", "shoulder_slope_mm",
-    "armhole_depth_mm", "sleeve_length_mm", "sleeve_bicep_flat_mm", "sleeve_opening_flat_mm",
-    "neck_width_mm", "front_neck_depth_mm", "back_neck_depth_mm",
-)
 ASSUMPTIONS = {
     "collar_finished_width_mm": 18,
     "collar_length_ratio": 0.85,
@@ -51,7 +47,7 @@ def segment_length(segment, size, axis=None):
     return dist(a, b)
 
 
-def load_capture(source, photo_dir):
+def load_capture(source, photo_dir, model_path=None):
     capture = json.loads(source.read_text(encoding="utf8"))
     if not isinstance(capture, dict) or capture.get("schema_version") != 1:
         raise ValueError("Expected capture schema_version 1")
@@ -88,15 +84,26 @@ def load_capture(source, photo_dir):
             info["mm_per_pixel"] = number(scale["mm"], name) / number(span, f"{name} scale pixels")
         archived[name] = info
 
-    values = {}
-    provenance = {}
-    supplied = capture["measurements"]
+    predicted, inference = {}, None
+    if model_path is not None:
+        with Image.open(photo_dir.parent / archived["front"]["file"]) as front, Image.open(
+            photo_dir.parent / archived["back"]["file"],
+        ) as back:
+            predicted, inference = TeeVision(model_path).estimate(front, back)
+
+    values, provenance = {}, {}
+    supplied = capture.get("measurements", {})
     if not isinstance(supplied, dict):
         raise ValueError("Measurements must be an object")
-    for name in MEASUREMENTS + tuple(ASSUMPTIONS):
-        if name not in supplied and name in ASSUMPTIONS:
-            values[name] = ASSUMPTIONS[name]
-            provenance[name] = {"source": "assumed", "value": values[name]}
+    for name in FIELDS + tuple(ASSUMPTIONS):
+        if name not in supplied:
+            if name in ASSUMPTIONS:
+                values[name], method = ASSUMPTIONS[name], "assumed"
+            elif name in predicted:
+                values[name], method = predicted[name], "vision_model"
+            else:
+                raise ValueError(f"{name}: provide a measurement or a trained --model")
+            provenance[name] = {"source": method, "value": values[name]}
             continue
         observation = supplied[name]
         if not isinstance(observation, dict):
@@ -121,14 +128,16 @@ def load_capture(source, photo_dir):
         "schema_version": 1, "kind": capture["kind"], "garment": capture["garment"],
         "item_id": capture.get("item_id"), "views": archived, "measurements": provenance,
         "material": capture.get("material"),
-        "geometry_method": "Measured dimensions applied to a symmetric tee pattern with paired seam curves",
+        "geometry_method": "Candidate symmetric tee with paired seam curves from captured or inferred dimensions",
         "review": "Unverified against a physical original",
     }
+    if inference is not None:
+        manifest["inference"] = inference
     spec = TeeSpec(body_chest_mm=None, body_shoulder_width_mm=None, shoulder_extension_mm=None, **values)
     return manifest, spec
 
 
-def archive(source, output, blender):
+def archive(source, output, blender, model_path=None):
     if output.exists():
         raise ValueError(f"Output already exists: {output}")
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -136,7 +145,7 @@ def archive(source, output, blender):
     with TemporaryDirectory(dir=output.parent) as temporary:
         bundle = Path(temporary) / "bundle"
         bundle.mkdir()
-        manifest, spec = load_capture(source, bundle / "photos")
+        manifest, spec = load_capture(source, bundle / "photos", model_path)
         (bundle / "capture.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf8")
         pattern = draft(spec)
         write_exports(pattern, bundle / "pattern")
@@ -161,9 +170,10 @@ def main():
     parser.add_argument("session", type=Path)
     parser.add_argument("-o", "--output", type=Path, required=True)
     parser.add_argument("--blender", default="blender", help="Blender executable")
+    parser.add_argument("--model", type=Path, help="Use trained weights to infer dimensions from the photos")
     args = parser.parse_args()
     try:
-        archive(args.session, args.output, args.blender)
+        archive(args.session, args.output, args.blender, args.model)
     except (ValueError, TypeError, KeyError, OSError, UnidentifiedImageError) as error:
         parser.error(str(error))
     print(f"Wrote {args.output}")
