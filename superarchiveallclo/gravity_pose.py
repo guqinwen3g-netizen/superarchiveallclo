@@ -5,17 +5,32 @@ from pathlib import Path
 import sys
 
 import bpy
+from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from superarchiveallclo.flat_pose import flat_assembly
-from superarchiveallclo.hang_supports import place_for_gravity
+from superarchiveallclo.hang_supports import place_for_gravity, rotate_about_support
 from superarchiveallclo.read_garment_glb import mesh_geometry
 from superarchiveallclo.simulate import configure_cloth, displacement_summary, evaluated_positions, sewn_mesh
 
 FRAME = 55
 MOTION_INTERVAL_FRAMES = 8
+
+
+def ray_depth_errors(surface, cloud, camera):
+    """Signed distance to the first mesh hit along each observed camera ray."""
+    errors = np.full(len(cloud), np.nan)
+    origin = Vector(camera)
+    directions = cloud - camera
+    ranges = np.linalg.norm(directions, axis=1)
+    for i in np.flatnonzero(ranges > 1e-9):
+        direction = Vector(directions[i] / ranges[i])
+        _, _, _, distance = surface.ray_cast(origin, direction)
+        if distance is not None:
+            errors[i] = (distance - ranges[i]) * 1000
+    return errors
 
 
 def save_pose(source, positions, filename):
@@ -47,6 +62,8 @@ def main():
         posed, patches, history = place_for_gravity(flat, job["flat"], job["rest_contacts"], job["supports"])
         scans = {key: job[key] for key in job.files if key.startswith("scan-")}
         supports = job["supports"]
+        camera = job["camera_world_m"] if "camera_world_m" in job else None
+        forecast = job["forecast_rotation_radians"] if "forecast_rotation_radians" in job else None
     garment, openings = sewn_mesh(posed, triangles, faces, uv, panels)
     save_pose(garment, posed, directory / "before-gravity.glb")
     configure_cloth(garment, np.concatenate(patches).tolist(), frame_end=FRAME)
@@ -81,8 +98,16 @@ def main():
         metrics[f"{variant}_vertices"] = vertices
         metrics[f"{variant}_triangles"] = triangles
         surface = BVHTree.FromPolygons(vertices.tolist(), triangles.tolist(), all_triangles=True)
-        for key, cloud in scans.items():
+        for number, (key, cloud) in enumerate(scans.items()):
             metrics[f"{variant}_{key}"] = 1000 * np.array([surface.find_nearest(point.tolist())[3] for point in cloud])
+            if camera is not None:
+                metrics[f"{variant}_{key}_ray_depth_mm"] = ray_depth_errors(surface, cloud, camera)
+            if variant == "after" and forecast is not None:
+                # Invert the rigid swing on the rays instead of rebuilding the BVH for every frame.
+                angle = -forecast[number]
+                metrics[f"forecast_{key}_ray_depth_mm"] = ray_depth_errors(
+                    surface, rotate_about_support(cloud, supports, angle), rotate_about_support(camera, supports, angle),
+                )
     np.savez_compressed(directory / "hang-metrics.npz", **metrics)
 
 

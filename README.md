@@ -24,6 +24,8 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 同一套纸样也已用于双点悬挂的重力仿真。六帧实物扫描用于核查正视轮廓及三维距离。[悬挂对照与复现](docs/suspension-study.md)
 
+悬挂对照也支持从已标定的相机逐射线量出预测的布面深度，并用早期扫描预测短时摆动。[实物点云的深度和摆动评测](docs/measured-depth-study.md)
+
 已注册的彩照与深度图可用 `superarchiveallclo.rgbd` 校正俯拍透视并生成归档。原始 RGB、深度和可选分割图随归档保存。[输入与标定说明](docs/capture.md#已注册的深度照片) · [真实 RGB-D 样本实验](docs/rgbd-study.md)
 
 真实正背照已用于候选纸样归档、留出的馆方尺寸评分及同版平铺 GLB 的投影对照。[两件奥克兰博物馆藏品实验](docs/paired-photo-study.md)

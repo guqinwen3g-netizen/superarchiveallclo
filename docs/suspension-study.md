@@ -1,5 +1,7 @@
 # 实物圆领 T 恤的双点悬挂对照
 
+后续实验在同件的六帧实测点云上新增逐射线深度评分，并用较早扫描预测衣身摆动。[直接深度和短时摆动验证](measured-depth-study.md)
+
 程序从 RGBench 的一帧标定平铺点云生成毫米纸样，再把同版裁片缝合为可悬挂的网格。归档回读通过五片 DXF 裁片、十五条接缝和四处成衣开口的核查。悬挂实验另用机器人抓取序列，记录原件被提起后与 GLB 在同一世界坐标下的误差。[RGBench 数据及 CC BY 4.0 许可](https://huggingface.co/datasets/RGBench/RGBench-Cloth-Sim2Real-v1) · [纸样净线的单独对照](sleeve-join-study.md)
 
 ![两帧实物扫描与同版纸样在施加重力前后的悬挂轮廓](../examples/rgbench-suspension-overlay.png)

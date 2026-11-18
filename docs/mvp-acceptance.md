@@ -108,7 +108,7 @@ python -m superarchiveallclo.compare_shape build/tee-01 \
 
 有标定平铺点云时，可用 `superarchiveallclo.compare_flat` 从同版纸样生成对应姿态的 GLB，对独立复拍计算可见点到表面和轮廓边缘距离。配套数字网格带有展开 UV 时，`superarchiveallclo.compare_pattern` 可量出净线裁片误差并核对跨片连接。[真实 T 恤的对照结果](real-reference-comparison.md)
 
-有标定抓取点和独立悬挂点云时，`superarchiveallclo.compare_hang` 可评估同版网格在两个绝对支撑点约束下的重力仿真。[实物悬挂对照](suspension-study.md)
+有标定抓取点和独立悬挂点云时，`superarchiveallclo.compare_hang` 可评估同版网格在两个绝对支撑点约束下的重力仿真。配套相机外参可逐射线检查可见布面深度。还可用提前拍摄的点云预测短时摆动。[实物悬挂对照](suspension-study.md) · [逐射线深度与短时摆动](measured-depth-study.md)
 
 有同一姿态的近正交多视角挂拍时，`superarchiveallclo.visual_hull` 可以结合每帧独立尺度和同一人体基准生成毫米三维外包络。报告包含留出照片的轮廓误差、GLB 超出外包络的面积与距离，以及各高度区间的前后深度。可见布面深度由带标定的三维设备独立核对。[馆藏实物三维外包络](mannequin-study.md) · [同版垂坠和分段深度](drape-support-study.md)
 

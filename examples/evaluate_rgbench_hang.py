@@ -15,6 +15,7 @@ from superarchiveallclo.scan import in_world, read_pcd
 RUN = "green_tshirt/green_tshirt_grasp_2025-07-19-19-14-03"
 REST = "1752923646.955944"
 SUPPORT = "1752923650.819356"
+HISTORY = ("1752923650.578554", "1752923650.698956")
 HOLD = (
     "1752923650.939758", "1752923651.060162", "1752923651.180568",
     "1752923651.300973", "1752923651.421379", "1752923651.541785",
@@ -60,7 +61,7 @@ def grip_calibration(rest, raised, poses):
     }
 
 
-def prepare(directory):
+def prepare(directory, *, forecast_swing=False):
     calibration = download(directory, "world-to-camera.json", f"{RUN}/calibration/world_to_camera_transform.json")
     def frame(name, time):
         return download(directory, name, f"{RUN}/segment_pcds/pointcloud_{time}_segmented.pcd")
@@ -77,7 +78,7 @@ def prepare(directory):
         supports.append(held.tolist())
         calibrated[side] = {**evidence, "trajectory_sha256": sha256(joints.read_bytes()).hexdigest()}
     manifest = directory / "suspension.json"
-    manifest.write_text(json.dumps({
+    record = {
         "schema_version": 1, "item_id": "rgbench-green-tshirt",
         "source": f"{DATASET} at {REVISION}; {RUN}; CC BY 4.0",
         "world_to_camera": calibration.name, "rest_scan": rest_file.name, "support_calibration_scan": support_file.name,
@@ -86,7 +87,13 @@ def prepare(directory):
         "rest_timestamp": REST, "support_timestamp": SUPPORT,
         "supports_source": "Visible cloth near each wrist at the top of one designated calibration scan",
         "grip_calibration": calibrated,
-    }, indent=2) + "\n")
+    }
+    if forecast_swing:
+        record["swing_history"] = [
+            {"file": frame(f"swing-{i:02d}.pcd", time).name, "timestamp": time}
+            for i, time in enumerate(HISTORY, 1)
+        ]
+    manifest.write_text(json.dumps(record, indent=2) + "\n")
     return manifest
 
 
@@ -95,12 +102,13 @@ def main():
     parser.add_argument("archive", type=Path, help="Archive reconstructed from the RGBench flat scan")
     parser.add_argument("-o", "--output", required=True, type=Path)
     parser.add_argument("--blender", default="blender")
+    parser.add_argument("--forecast-swing", action="store_true", help="Forecast short motion from earlier scans")
     args = parser.parse_args()
     if (args.output / "suspension").exists():
         parser.error("Choose a fresh output directory for a new simulation")
     data = args.output / "data"
     data.mkdir(parents=True, exist_ok=True)
-    source = prepare(data)
+    source = prepare(data, forecast_swing=args.forecast_swing)
     report = compare_hang(args.archive, source, args.output / "suspension", args.blender)
     print(json.dumps({"support_metrics": report["support_metrics"], "reference_scans": report["reference_scans"]}, indent=2))
 
