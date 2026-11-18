@@ -1,0 +1,711 @@
+{
+  "source": "https://doi.org/10.3390/app12105286",
+  "item_id": "hifiai-exp1-green-crew-tee",
+  "input_frame": "000031",
+  "independent_frames": [
+    "000034",
+    "000040"
+  ],
+  "input_model_sha256": "a1a8e84125d3d55e0b1bdc1b51a5a56afceb33a3643bcc212e9a0da59e6d315e",
+  "pixel_and_metric_evidence": {
+    "000031": {
+      "outline_mm": [
+        784.0,
+        724.0
+      ],
+      "recognized_underarm_and_hem": {
+        "chest_width_mm": 520.59,
+        "hem_width_mm": 526.91,
+        "chest_points_crop_px": [
+          [
+            58.24,
+            139.86
+          ],
+          [
+            317.54,
+            163.0
+          ]
+        ],
+        "hem_points_crop_px": [
+          [
+            50.63,
+            358.0
+          ],
+          [
+            313.09,
+            358.0
+          ]
+        ],
+        "side_fit_p90_mm": [
+          2.57,
+          3.17
+        ]
+      },
+      "surface_height_relative_to_support_p05_p50_p95_mm": [
+        -3.616,
+        -0.848,
+        3.441
+      ],
+      "support_plane_residual_p90_mm": 3.528,
+      "foreground_points": 14155,
+      "foreground_mask_sha256": "8631bbda6741dff2145ce50a013b860ab3fdaf5b17c6f13e172d6c431efb306f",
+      "geometry": {
+        "depth_size_px": [
+          256,
+          192
+        ],
+        "rgb_size_px": [
+          1920,
+          1440
+        ],
+        "serialized_intrinsics_raster": "rgb",
+        "serialized_focal_px": [
+          1586.138714338847,
+          1586.138579353713
+        ],
+        "serialized_principal_px": [
+          943.7866993120476,
+          716.2562145969736
+        ],
+        "serialized_fit_held_out_vertices": 9831,
+        "serialized_fit_held_out_p90_mm": 0.00011,
+        "has_registered_depth_fraction": 1.0
+      }
+    },
+    "000034": {
+      "outline_mm": [
+        794.0,
+        724.0
+      ],
+      "recognized_underarm_and_hem": {
+        "chest_width_mm": 515.11,
+        "hem_width_mm": 530.75,
+        "chest_points_crop_px": [
+          [
+            68.18,
+            154.0
+          ],
+          [
+            324.74,
+            164.71
+          ]
+        ],
+        "hem_points_crop_px": [
+          [
+            60.33,
+            360.0
+          ],
+          [
+            324.71,
+            360.0
+          ]
+        ],
+        "side_fit_p90_mm": [
+          3.53,
+          3.45
+        ]
+      },
+      "surface_height_relative_to_support_p05_p50_p95_mm": [
+        -3.569,
+        -0.327,
+        2.772
+      ],
+      "support_plane_residual_p90_mm": 2.834,
+      "foreground_points": 14188,
+      "foreground_mask_sha256": "b5c766b2a8a3085ae79976a365e5ff95086069d5afb19dfd34aa7b493c7e0df6",
+      "geometry": {
+        "depth_size_px": [
+          256,
+          192
+        ],
+        "rgb_size_px": [
+          1920,
+          1440
+        ],
+        "serialized_intrinsics_raster": "rgb",
+        "serialized_focal_px": [
+          1585.2347451696257,
+          1585.2351528798245
+        ],
+        "serialized_principal_px": [
+          943.7899977290947,
+          716.2571435200663
+        ],
+        "serialized_fit_held_out_vertices": 9831,
+        "serialized_fit_held_out_p90_mm": 0.000108,
+        "has_registered_depth_fraction": 1.0
+      }
+    },
+    "000040": {
+      "outline_mm": [
+        788.0,
+        728.0
+      ],
+      "recognized_underarm_and_hem": {
+        "chest_width_mm": 520.51,
+        "hem_width_mm": 525.08,
+        "chest_points_crop_px": [
+          [
+            67.67,
+            155.89
+          ],
+          [
+            326.92,
+            154.36
+          ]
+        ],
+        "hem_points_crop_px": [
+          [
+            76.91,
+            358.0
+          ],
+          [
+            338.46,
+            358.0
+          ]
+        ],
+        "side_fit_p90_mm": [
+          2.43,
+          2.31
+        ]
+      },
+      "surface_height_relative_to_support_p05_p50_p95_mm": [
+        -4.225,
+        -1.045,
+        2.177
+      ],
+      "support_plane_residual_p90_mm": 3.248,
+      "foreground_points": 14204,
+      "foreground_mask_sha256": "3072fa8c3fedfe53d215d17003cf39c91bc0c5564e744457601a4f050556cdd7",
+      "geometry": {
+        "depth_size_px": [
+          256,
+          192
+        ],
+        "rgb_size_px": [
+          1920,
+          1440
+        ],
+        "serialized_intrinsics_raster": "rgb",
+        "serialized_focal_px": [
+          1587.0425017951823,
+          1587.0415996999104
+        ],
+        "serialized_principal_px": [
+          943.7919741931261,
+          716.2551024586681
+        ],
+        "serialized_fit_held_out_vertices": 9831,
+        "serialized_fit_held_out_p90_mm": 0.00011,
+        "has_registered_depth_fraction": 1.0
+      }
+    }
+  },
+  "source_sha256": {
+    "000031.jpg": "305441ab13239bb60c4c2e51496264e3d5a483de9a9a29c104fa5ce2af0e484b",
+    "000031.ply": "910921a4c3d0d39fa715941ad8f48dcd9892717526c6889fc68e9ab644761f2e",
+    "000034.jpg": "a8b8d84aae4575b0047066ab74871603394424beeaf679f7bd103ee706042723",
+    "000034.ply": "f5af24f9dda8d986778bfa85911c9d31cb7232626fcee5278e8996c932dfd3e8",
+    "000040.jpg": "650139408c6049d24475a8f411a87109b36eb41df45c35734a0e3b7fb58d825e",
+    "000040.ply": "4e3a404eced33c538ce65947174f9b4426f4e0c274905d8f60daa82b48dce281"
+  },
+  "pattern_candidate_mm": {
+    "flat_chest_mm": 523.0,
+    "back_length_mm": 693.613,
+    "garment_shoulder_width_mm": 374.706,
+    "sleeve_length_mm": 181.993
+  },
+  "held_out_flat_chest_projection": {
+    "000034": {
+      "measured_scan_projection_mm": 515.11,
+      "pattern_minus_scan_mm": 7.89
+    },
+    "000040": {
+      "measured_scan_projection_mm": 520.51,
+      "pattern_minus_scan_mm": 2.49
+    }
+  },
+  "archive": {
+    "capture_kind": "physical",
+    "pattern_sha256": "4e689c228eb90328d8653a2ac63b1ee737da967120c4bf70e087d8dfc28f78b0",
+    "source_photos": 1,
+    "vision_estimates": 5,
+    "dxf_panels": 5,
+    "seams": 15,
+    "garment_openings": 4,
+    "glb": {
+      "meshes": 1,
+      "bounds_span_m": [
+        0.4653,
+        0.7248,
+        0.2928
+      ]
+    }
+  },
+  "flat_mesh": {
+    "schema_version": 1,
+    "item_id": "hifiai-exp1-green-crew-tee",
+    "reference_setup": "Separate iPad captures of the same green tee, white support, tabletop aligned",
+    "pattern_sha256": "4e689c228eb90328d8653a2ac63b1ee737da967120c4bf70e087d8dfc28f78b0",
+    "capture_clouds_sha256": [],
+    "model_pose": "Sewn panels with meshed sleeve folds and planar edge-length relaxation above a flat support",
+    "solver": "projected_edges_global_relaxation",
+    "sleeve_angle_below_horizontal_deg": 31.504901217402477,
+    "sleeve_angle_source": "Mean of cuff directions from the reconstruction input",
+    "alignment": "Translation of the top and horizontal midpoint, with median scan height at the upper layer",
+    "scope": "Overhead silhouette and one-way observed-point-to-mesh distances in flat pose",
+    "reference_axes": {
+      "right": "x",
+      "down": "y"
+    },
+    "references": [
+      {
+        "id": "scan-01",
+        "file": "held-out-000034.pcd",
+        "cloud_sha256": "9117d3cb54a730e75e0e95f96d2c00885c3d6752b10e2351ff151cfec84b1124",
+        "point_count": 14188,
+        "plane_distance_p95_mm": 3.796,
+        "intersection_over_union": 0.902,
+        "contour_distance_mm": {
+          "median": 8.0,
+          "p90": 42.52
+        },
+        "model_minus_reference_width_height_mm": [
+          -65.1,
+          0.82
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 0.78,
+          "p90": 4.19
+        },
+        "reference_translation_mm": [
+          -3.94,
+          -357.33,
+          2.33
+        ],
+        "overlay": "scan-01-overlay.png"
+      },
+      {
+        "id": "scan-02",
+        "file": "held-out-000040.pcd",
+        "cloud_sha256": "b94599ca7448b0f05d0b014aef459b25d2bdbc1ef98eda39743cc138718aaaf4",
+        "point_count": 14204,
+        "plane_distance_p95_mm": 3.719,
+        "intersection_over_union": 0.8845,
+        "contour_distance_mm": {
+          "median": 14.0,
+          "p90": 39.6
+        },
+        "model_minus_reference_width_height_mm": [
+          -59.1,
+          -3.18
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 0.77,
+          "p90": 4.41
+        },
+        "reference_translation_mm": [
+          6.19,
+          -351.77,
+          3.04
+        ],
+        "overlay": "scan-02-overlay.png"
+      }
+    ],
+    "flat_glb": {
+      "meshes": 1,
+      "bounds_span_m": [
+        0.7289,
+        0.0025,
+        0.7248
+      ],
+      "sha256": "7511b9fd5c025f913d18b78de88db598afe4fddf362fba176d18b7867563db1e",
+      "welded_openings": 4,
+      "mesh_edge_strain_p95_percent": 6.57,
+      "mesh_edge_strain_percent": {
+        "median": 0.25,
+        "p95": 6.57,
+        "p99": 16.61
+      },
+      "panel_strain_percent": {
+        "front": {
+          "median": 0.18,
+          "p95": 3.81,
+          "p99": 10.39
+        },
+        "back": {
+          "median": 0.18,
+          "p95": 3.58,
+          "p99": 9.63
+        },
+        "sleeve_right": {
+          "median": 3.34,
+          "p95": 17.73,
+          "p99": 27.2
+        },
+        "sleeve_left": {
+          "median": 3.34,
+          "p95": 17.73,
+          "p99": 27.19
+        },
+        "collar": {
+          "median": 4.52,
+          "p95": 18.21,
+          "p99": 27.5
+        }
+      },
+      "edges_crossing_sleeve_fold": {
+        "left": 0,
+        "right": 0
+      },
+      "seam_strain": {
+        "attach_back_neck_right": {
+          "a": {
+            "pattern_edge": [
+              "back",
+              "neck_right"
+            ],
+            "rest_mm": 80.33,
+            "posed_mm": 79.21,
+            "edge_strain_p95_percent": 3.59
+          },
+          "b": {
+            "pattern_edge": [
+              "collar",
+              "attach_back_neck_right"
+            ],
+            "rest_mm": 68.43,
+            "posed_mm": 79.21,
+            "edge_strain_p95_percent": 18.1
+          }
+        },
+        "attach_front_neck_right": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "neck_right"
+            ],
+            "rest_mm": 103.73,
+            "posed_mm": 101.97,
+            "edge_strain_p95_percent": 7.37
+          },
+          "b": {
+            "pattern_edge": [
+              "collar",
+              "attach_front_neck_right"
+            ],
+            "rest_mm": 88.29,
+            "posed_mm": 101.97,
+            "edge_strain_p95_percent": 18.07
+          }
+        },
+        "attach_front_neck_left": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "neck_left"
+            ],
+            "rest_mm": 103.73,
+            "posed_mm": 102.35,
+            "edge_strain_p95_percent": 5.07
+          },
+          "b": {
+            "pattern_edge": [
+              "collar",
+              "attach_front_neck_left"
+            ],
+            "rest_mm": 88.29,
+            "posed_mm": 102.35,
+            "edge_strain_p95_percent": 18.25
+          }
+        },
+        "attach_back_neck_left": {
+          "a": {
+            "pattern_edge": [
+              "back",
+              "neck_left"
+            ],
+            "rest_mm": 80.33,
+            "posed_mm": 79.43,
+            "edge_strain_p95_percent": 3.58
+          },
+          "b": {
+            "pattern_edge": [
+              "collar",
+              "attach_back_neck_left"
+            ],
+            "rest_mm": 68.43,
+            "posed_mm": 79.43,
+            "edge_strain_p95_percent": 18.56
+          }
+        },
+        "collar_join": {
+          "a": {
+            "pattern_edge": [
+              "collar",
+              "join_right"
+            ],
+            "rest_mm": 18.0,
+            "posed_mm": 17.85,
+            "edge_strain_p95_percent": 2.51
+          },
+          "b": {
+            "pattern_edge": [
+              "collar",
+              "join_left"
+            ],
+            "rest_mm": 18.0,
+            "posed_mm": 17.85,
+            "edge_strain_p95_percent": 2.51
+          }
+        },
+        "shoulder_right": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "shoulder_right"
+            ],
+            "rest_mm": 125.14,
+            "posed_mm": 126.03,
+            "edge_strain_p95_percent": 3.04
+          },
+          "b": {
+            "pattern_edge": [
+              "back",
+              "shoulder_right"
+            ],
+            "rest_mm": 125.14,
+            "posed_mm": 126.03,
+            "edge_strain_p95_percent": 3.04
+          }
+        },
+        "side_right": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "side_right"
+            ],
+            "rest_mm": 517.85,
+            "posed_mm": 509.48,
+            "edge_strain_p95_percent": 9.66
+          },
+          "b": {
+            "pattern_edge": [
+              "back",
+              "side_right"
+            ],
+            "rest_mm": 517.85,
+            "posed_mm": 509.48,
+            "edge_strain_p95_percent": 9.66
+          }
+        },
+        "front_armhole_right": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "armhole_right"
+            ],
+            "rest_mm": 196.6,
+            "posed_mm": 187.52,
+            "edge_strain_p95_percent": 23.13
+          },
+          "b": {
+            "pattern_edge": [
+              "sleeve_right",
+              "cap_front"
+            ],
+            "rest_mm": 196.54,
+            "posed_mm": 187.52,
+            "edge_strain_p95_percent": 22.92
+          }
+        },
+        "back_armhole_right": {
+          "a": {
+            "pattern_edge": [
+              "back",
+              "armhole_right"
+            ],
+            "rest_mm": 189.3,
+            "posed_mm": 184.64,
+            "edge_strain_p95_percent": 17.77
+          },
+          "b": {
+            "pattern_edge": [
+              "sleeve_right",
+              "cap_back"
+            ],
+            "rest_mm": 189.19,
+            "posed_mm": 184.64,
+            "edge_strain_p95_percent": 17.51
+          }
+        },
+        "sleeve_underarm_right": {
+          "a": {
+            "pattern_edge": [
+              "sleeve_right",
+              "underarm_front"
+            ],
+            "rest_mm": 67.42,
+            "posed_mm": 64.31,
+            "edge_strain_p95_percent": 9.15
+          },
+          "b": {
+            "pattern_edge": [
+              "sleeve_right",
+              "underarm_back"
+            ],
+            "rest_mm": 67.42,
+            "posed_mm": 64.31,
+            "edge_strain_p95_percent": 9.15
+          }
+        },
+        "shoulder_left": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "shoulder_left"
+            ],
+            "rest_mm": 125.14,
+            "posed_mm": 126.0,
+            "edge_strain_p95_percent": 3.05
+          },
+          "b": {
+            "pattern_edge": [
+              "back",
+              "shoulder_left"
+            ],
+            "rest_mm": 125.14,
+            "posed_mm": 126.0,
+            "edge_strain_p95_percent": 3.05
+          }
+        },
+        "side_left": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "side_left"
+            ],
+            "rest_mm": 517.85,
+            "posed_mm": 509.48,
+            "edge_strain_p95_percent": 9.66
+          },
+          "b": {
+            "pattern_edge": [
+              "back",
+              "side_left"
+            ],
+            "rest_mm": 517.85,
+            "posed_mm": 509.48,
+            "edge_strain_p95_percent": 9.66
+          }
+        },
+        "front_armhole_left": {
+          "a": {
+            "pattern_edge": [
+              "front",
+              "armhole_left"
+            ],
+            "rest_mm": 196.6,
+            "posed_mm": 187.52,
+            "edge_strain_p95_percent": 23.14
+          },
+          "b": {
+            "pattern_edge": [
+              "sleeve_left",
+              "cap_front"
+            ],
+            "rest_mm": 196.54,
+            "posed_mm": 187.52,
+            "edge_strain_p95_percent": 22.93
+          }
+        },
+        "back_armhole_left": {
+          "a": {
+            "pattern_edge": [
+              "back",
+              "armhole_left"
+            ],
+            "rest_mm": 189.3,
+            "posed_mm": 184.65,
+            "edge_strain_p95_percent": 17.77
+          },
+          "b": {
+            "pattern_edge": [
+              "sleeve_left",
+              "cap_back"
+            ],
+            "rest_mm": 189.19,
+            "posed_mm": 184.65,
+            "edge_strain_p95_percent": 17.51
+          }
+        },
+        "sleeve_underarm_left": {
+          "a": {
+            "pattern_edge": [
+              "sleeve_left",
+              "underarm_front"
+            ],
+            "rest_mm": 67.42,
+            "posed_mm": 64.3,
+            "edge_strain_p95_percent": 9.16
+          },
+          "b": {
+            "pattern_edge": [
+              "sleeve_left",
+              "underarm_back"
+            ],
+            "rest_mm": 67.42,
+            "posed_mm": 64.3,
+            "edge_strain_p95_percent": 9.16
+          }
+        }
+      },
+      "sleeve_underarm_solver_weight": 2.0
+    }
+  },
+  "depth_rays": {
+    "schema_version": 1,
+    "item_id": "hifiai-exp1-green-crew-tee",
+    "pattern_sha256": "4e689c228eb90328d8653a2ac63b1ee737da967120c4bf70e087d8dfc28f78b0",
+    "garment_glb_sha256": "7511b9fd5c025f913d18b78de88db598afe4fddf362fba176d18b7867563db1e",
+    "reference_sha256": "7e2ae2f5707339057442745d5a13fae3ab3897873824c66213528dfe8e5fa532",
+    "scope": "Signed distance to the first GLB hit on each observed metric depth ray. Positive is farther.",
+    "pose": "provided rigid transformations, scale preserved",
+    "views": {
+      "frame-000034": {
+        "depth_sha256": "290fbd32837ab1e4a8fa799e27b3b3f090b78bf0783621bd589ef90a4d5b9fad",
+        "image_size_px": [
+          256,
+          192
+        ],
+        "pose_source": "Actual support plane and bounded translation at the measured scale",
+        "measured_rays": 14188,
+        "declared_source_pcd_sha256": "f5af24f9dda8d986778bfa85911c9d31cb7232626fcee5278e8996c932dfd3e8",
+        "hit_rays": 12987,
+        "ray_hit_fraction": 0.91535,
+        "depth_error": {
+          "signed_median_mm": 0.02,
+          "absolute_median_mm": 1.1,
+          "absolute_p90_mm": 3.38
+        }
+      },
+      "frame-000040": {
+        "depth_sha256": "4f51704b85e4e27bdc65afb403aa35dabbdecd40fa38ebdb90e79dcde11317bf",
+        "image_size_px": [
+          256,
+          192
+        ],
+        "pose_source": "Actual support plane and bounded translation at the measured scale",
+        "measured_rays": 14204,
+        "declared_source_pcd_sha256": "4e3a404eced33c538ce65947174f9b4426f4e0c274905d8f60daa82b48dce281",
+        "hit_rays": 12904,
+        "ray_hit_fraction": 0.90848,
+        "depth_error": {
+          "signed_median_mm": 0.05,
+          "absolute_median_mm": 1.07,
+          "absolute_p90_mm": 3.34
+        }
+      }
+    }
+  }
+}
