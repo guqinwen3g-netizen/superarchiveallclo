@@ -1,10 +1,22 @@
 # superarchiveallclo
 
-从一张服装照片、一幅手绘稿、一张技术图或一份服装扫描开始，生成可编辑的二维纸样，用这些裁片缝合出三维服装，再让同一件衣服穿到指定体型上。长期目标是交付能在服装 CAD 中继续编辑、经实物打样验证的生产制板文件。
+**Super Archive All Clone** 为真实服装建立数字档案。从实物拍摄、测量或扫描开始，为每件衣服保存原始证据、可编辑的二维纸样，以及由同一套裁片缝合并模拟出来的 3D 模型。长期目标是覆盖各类服装，并交付经实物打样和目标 CAD 验证的制板文件。
 
-**当前交付为首款参数化纸样原型。** 起点是零自有数据、零行业合作资源。首个风格方向为 **Clean Fit / Minimalism 极简男装穿搭**。
+**当前开发范围为单层圆领 T 恤的归档闭环。** 先让带尺寸证据的采集档案生成纸样和同版 3D 模型，再用真实样衣核对尺寸、结构和视觉。首个风格方向为 **Clean Fit / Minimalism 极简男装穿搭**。
 
 首款提议用一件微落肩圆领 T 恤，把真实照片、纸样、仿真和试穿走通。随后加入直筒长裤组成第一套穿搭，再用外搭衬衫验证叠穿。开发从可自己生成、自己测量的样本开始。
+
+## 跑通一份归档
+
+安装 Python 依赖，确保 Blender 4.3+ 可通过 `blender` 调用。以下命令会生成带标签的合成采集素材，并使用和实物采集相同的入口执行制板和布料求解。
+
+```sh
+python -m pip install -r requirements.txt
+python -m examples.make_capture_fixture build/capture-fixture
+python -m superarchiveallclo.capture build/capture-fixture/session.json -o build/archive
+```
+
+归档包括带来源的原图和尺寸、DXF / SVG / A4 纸样、配缝表、GLB、可编辑 Blender 场景与三张视角图。用实物采集目录替换合成样例即可生成候选档案。[拍摄步骤、量法与验收方式](docs/capture.md) · [合成样例的实际仿真图](examples/archive-preview.jpg)
 
 ## 生成首款 T 恤纸样
 

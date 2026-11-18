@@ -8,11 +8,11 @@ from .pattern import Edge, Panel, Seam, validate_pattern
 
 @dataclass(frozen=True)
 class TeeSpec:
-    body_chest_mm: float = 960
-    body_shoulder_width_mm: float = 440
+    body_chest_mm: float | None = 960
+    body_shoulder_width_mm: float | None = 440
     flat_chest_mm: float = 560
     back_length_mm: float = 680
-    shoulder_extension_mm: float = 27.5
+    shoulder_extension_mm: float | None = 27.5
     shoulder_slope_mm: float = 37
     armhole_depth_mm: float = 230
     sleeve_length_mm: float = 215
@@ -23,10 +23,16 @@ class TeeSpec:
     back_neck_depth_mm: float = 24
     collar_finished_width_mm: float = 18
     collar_length_ratio: float = 0.85
+    garment_shoulder_width_mm: float | None = None
 
     def check(self) -> None:
         for field in fields(self):
             value = getattr(self, field.name)
+            if value is None and field.name in {
+                "body_chest_mm", "body_shoulder_width_mm", "shoulder_extension_mm",
+                "garment_shoulder_width_mm",
+            }:
+                continue
             if type(value) not in (int, float) or not isfinite(value) or not 0 < value <= 3000:
                 raise ValueError(f"{field.name} must be a finite, positive number no greater than 3000")
         if not 0.65 <= self.collar_length_ratio <= 1:
@@ -44,6 +50,10 @@ class TeeSpec:
 
     @property
     def shoulder_width_mm(self) -> float:
+        if self.garment_shoulder_width_mm is not None:
+            return self.garment_shoulder_width_mm
+        if self.body_shoulder_width_mm is None or self.shoulder_extension_mm is None:
+            raise ValueError("Provide garment shoulder width or both body shoulder measurements")
         return self.body_shoulder_width_mm + 2 * self.shoulder_extension_mm
 
 
@@ -191,7 +201,9 @@ def draft(spec: TeeSpec) -> dict:
         "measurements": {
             "flat_chest_mm": spec.flat_chest_mm,
             "garment_chest_mm": 2 * spec.flat_chest_mm,
-            "chest_ease_mm": 2 * spec.flat_chest_mm - spec.body_chest_mm,
+            "chest_ease_mm": (
+                2 * spec.flat_chest_mm - spec.body_chest_mm if spec.body_chest_mm is not None else None
+            ),
             "across_shoulders_mm": spec.shoulder_width_mm,
             "back_center_length_mm": spec.back_length_mm,
             "sleeve_length_apex_to_hem_mm": spec.sleeve_length_mm,

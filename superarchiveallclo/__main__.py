@@ -29,11 +29,15 @@ def main() -> None:
             bundle = Path(temporary) / "bundle"
             if args.variants:
                 bundle.mkdir()
+                if spec.garment_shoulder_width_mm is not None:
+                    dropped = replace(spec, garment_shoulder_width_mm=spec.shoulder_width_mm + 20)
+                else:
+                    dropped = replace(spec, shoulder_extension_mm=spec.shoulder_extension_mm + 10)
                 variants = {
                     "base": spec,
                     "shorter-body": replace(spec, back_length_mm=spec.back_length_mm - 20),
                     "wider-chest": replace(spec, flat_chest_mm=spec.flat_chest_mm + 20),
-                    "more-drop-shoulder": replace(spec, shoulder_extension_mm=spec.shoulder_extension_mm + 10),
+                    "more-drop-shoulder": dropped,
                 }
                 for name, variant in variants.items():
                     write_exports(draft(variant), bundle / name)
