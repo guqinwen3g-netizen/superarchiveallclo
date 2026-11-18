@@ -75,6 +75,8 @@ def load_dataset(path: Path):
         if groups.setdefault(group, split) != split:
             raise ValueError(f"Garment group {group!r} crosses dataset splits")
         hashes = {name: photo["sha256"] for name, photo in capture["views"].items()}
+        if capture.get("input_mode") == "front_only":
+            raise ValueError(f"{item_id}: paired evaluation requires a front and back capture")
         if hashes["front"] == hashes["back"]:
             raise ValueError(f"{item_id}: front and back must be different captures")
         for digest in hashes.values():
@@ -92,7 +94,7 @@ def load_dataset(path: Path):
             photographs.append(photo)
         try:
             with Image.open(BytesIO(photographs[0])) as front, Image.open(BytesIO(photographs[1])) as back:
-                features, evidence = paired_features(front, back)
+                features, evidence = paired_features(front, back, capture["views"])
         except (ValueError, OSError) as reason:
             features, evidence, error = None, None, str(reason)
         else:

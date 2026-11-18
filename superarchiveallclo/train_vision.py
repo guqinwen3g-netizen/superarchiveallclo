@@ -85,7 +85,7 @@ def synthetic_view(spec, front, rng):
     return Image.fromarray(rgb)
 
 
-def sample_set(size, seed):
+def sample_set(size, seed, front_only=False):
     rng = np.random.default_rng(seed)
     features, targets, boxes = [], [], []
     for _ in range(size):
@@ -95,9 +95,9 @@ def sample_set(size, seed):
             front = jpeg_view(front, int(rng.integers(83, 97)))
             back = jpeg_view(back, int(rng.integers(83, 97)))
         vector, evidence = paired_features(front, back)
-        features.append(vector)
+        features.append(vector[:len(vector) // 2] if front_only else vector)
         targets.append([getattr(spec, field) for field in FIELDS])
-        boxes.append([evidence[name]["garment_box_mm"] for name in ("front", "back")])
+        boxes.append([evidence[name]["garment_box_mm"] for name in (("front",) if front_only else ("front", "back"))])
     return np.array(features), np.array(targets), np.array(boxes)
 
 
@@ -108,13 +108,15 @@ def jpeg_view(image, quality):
         return encoded.copy()
 
 
-def fit_ridge(train, validate):
+def fit_ridge(train, validate, front_only=False):
     x, y, boxes = train
     center, scale = x.mean(axis=0), np.maximum(x.std(axis=0), 0.08)
     labels = y.mean(axis=0)
     normalized = (x - center) / scale
     cov = normalized.T @ normalized
     rhs = normalized.T @ (y - labels)
+    if front_only:
+        rhs[:, FIELDS.index("back_neck_depth_mm")] = 0
     x_val, y_val, _ = validate
     scores = []
     for penalty in (12.0, 40.0, 140.0):
@@ -175,11 +177,14 @@ def main():
     parser.add_argument("--card", type=Path)
     parser.add_argument("--dataset", type=Path, help="Optional manifest of independently labelled photo pairs")
     parser.add_argument("--compare-model", type=Path, help="Score incumbent weights on the same labelled test rows")
+    parser.add_argument("--front-only", action="store_true", help="Train on front views with a prior for back neck depth")
     args = parser.parse_args()
     if args.weights.suffix != ".npz":
         parser.error("--weights must have an .npz extension")
     if args.compare_model is not None and args.dataset is None:
         parser.error("--compare-model requires --dataset")
+    if args.front_only and (args.dataset or args.demo):
+        parser.error("--dataset and --demo currently support paired weights")
     try:
         labelled, dataset_checksum = load_dataset(args.dataset) if args.dataset else ([], None)
         incumbent = TeeVision(args.compare_model) if args.compare_model else None
@@ -188,7 +193,7 @@ def main():
 
     sizes = (960, 160, 200)
     train, validation, test = (
-        sample_set(size, SEED + split) for split, size in enumerate(sizes)
+        sample_set(size, SEED + split, args.front_only) for split, size in enumerate(sizes)
     )
     extra_train = arrays(labelled, "train")
     extra_validation = arrays(labelled, "validation")
@@ -196,7 +201,9 @@ def main():
         train = tuple(np.concatenate((a, b)) for a, b in zip(train, extra_train, strict=True))
     if extra_validation is not None:
         validation = extra_validation
-    weights, penalty = fit_ridge(train, validation)
+    weights, penalty = fit_ridge(train, validation, args.front_only)
+    if args.front_only:
+        weights["view_mode"] = np.array("front")
     used_labels = usable_labels(labelled, "train") + usable_labels(labelled, "validation")
     weights["labelled_training_groups"] = np.array(sorted({item.group for item in used_labels}), dtype=str)
     weights["labelled_training_photos"] = np.array(sorted({
@@ -240,7 +247,10 @@ def main():
             for i, name in enumerate(FIELDS)
         },
     }
-    model = TeeVision(args.weights)
+    if args.front_only:
+        report["model_input"] = "front"
+        report["prior_fields"] = ["back_neck_depth_mm"]
+    model = TeeVision(args.weights, "front" if args.front_only else "paired")
     if args.dataset:
         report["labelled_dataset"] = {
             "manifest_sha256": dataset_checksum,

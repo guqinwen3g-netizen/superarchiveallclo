@@ -30,6 +30,16 @@ def photo(*, turn=0, card_height=40, body_width=140, circle=False, shirt_color=4
 
 
 class CaptureQualityTest(TestCase):
+    def test_known_scale_preserves_dimensions_after_resizing(self):
+        small = photo()
+        large = small.resize((1360, 1340))
+        view = {"mm_per_pixel": 2.5, "scale": {"points": [[10, 10], [50, 10]], "mm": 100}}
+        _, first = picture_features(small, view)
+        _, second = picture_features(large, {**view, "mm_per_pixel": 2.5 / 4})
+        self.assertEqual(first["method"], "reference_segment")
+        for a, b in zip(first["garment_box_mm"], second["garment_box_mm"], strict=True):
+            self.assertAlmostEqual(a, b, delta=3)
+
     def test_square_turned_on_table_preserves_scale(self):
         _, standard = picture_features(photo())
         _, turned = picture_features(photo(turn=27))

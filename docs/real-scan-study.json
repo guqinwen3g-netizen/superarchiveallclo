@@ -1,0 +1,164 @@
+{
+  "dataset": "https://huggingface.co/datasets/RGBench/RGBench-Cloth-Sim2Real-v1",
+  "dataset_revision": "136c00dc5f96b6b3d20427e93875a1c00d7a7cc9",
+  "license": "CC BY 4.0",
+  "weights_sha256": "0f0a3544d675c4a7acf12c51c5c082fd36a63942c68847088d14a291879cc702",
+  "input_frame": "18-21-20-start",
+  "scope": "One physical garment, three capture sequences. Differences compare visible dimensions against other scans; they are not tape or pattern accuracy.",
+  "comparison_mm": {
+    "regression_only": {
+      "lower_torso_width_mm": {
+        "reference_range_mm": [
+          595.0,
+          606.0
+        ],
+        "candidate_mm": 553.357,
+        "median_absolute_difference_mm": 49.64
+      },
+      "shoulder_level_to_hem_mm": {
+        "reference_range_mm": [
+          728.0,
+          738.0
+        ],
+        "candidate_mm": 656.818,
+        "median_absolute_difference_mm": 77.18
+      }
+    },
+    "scan_constrained": {
+      "lower_torso_width_mm": {
+        "reference_range_mm": [
+          595.0,
+          606.0
+        ],
+        "candidate_mm": 603.0,
+        "median_absolute_difference_mm": 2.5
+      },
+      "shoulder_level_to_hem_mm": {
+        "reference_range_mm": [
+          728.0,
+          738.0
+        ],
+        "candidate_mm": 746.0,
+        "median_absolute_difference_mm": 12.0
+      }
+    }
+  },
+  "frames": [
+    {
+      "frame": "18-21-20-start",
+      "data_path": "green_tshirt/green_tshirt_fold_2025-07-28-18-21-20/segment_pcds/pointcloud_1753698080.867096_segmented.pcd",
+      "cloud_sha256": "fc09af2cb4af4536794c4960b62811ec9cf13f72bae095b811d799b743a47769",
+      "world_to_camera_sha256": "726c3ebb132b79b8f4f28e999c608c3947ed3bddccb14b45de3e0de420f3e3d5",
+      "plane_distance_p95_mm": 9.236,
+      "observed_mm": {
+        "lower_torso_width_mm": 603.0,
+        "shoulder_level_to_hem_mm": 746.0
+      }
+    },
+    {
+      "frame": "18-21-20-start-2",
+      "data_path": "green_tshirt/green_tshirt_fold_2025-07-28-18-21-20/segment_pcds/pointcloud_1753698081.589540_segmented.pcd",
+      "cloud_sha256": "7e83920079ee7b1f8f22c34fee3d766f2c93ecd8631ba95615956774a42ff0d6",
+      "world_to_camera_sha256": "726c3ebb132b79b8f4f28e999c608c3947ed3bddccb14b45de3e0de420f3e3d5",
+      "plane_distance_p95_mm": 9.145,
+      "observed_mm": {
+        "lower_torso_width_mm": 605.0,
+        "shoulder_level_to_hem_mm": 730.0
+      }
+    },
+    {
+      "frame": "18-21-20-middle",
+      "data_path": "green_tshirt/green_tshirt_fold_2025-07-28-18-21-20/segment_pcds/pointcloud_1753698086.646549_segmented.pcd",
+      "cloud_sha256": "0e8d52dfeac8a36be9dbc75c385f35b592828c00b1b6e1bf3d34c9d0bd30d062",
+      "world_to_camera_sha256": "726c3ebb132b79b8f4f28e999c608c3947ed3bddccb14b45de3e0de420f3e3d5",
+      "plane_distance_p95_mm": 10.236,
+      "observed_mm": {
+        "lower_torso_width_mm": 605.0,
+        "shoulder_level_to_hem_mm": 736.0
+      }
+    },
+    {
+      "frame": "18-22-41-start",
+      "data_path": "green_tshirt/green_tshirt_fold_2025-07-28-18-22-41/segment_pcds/pointcloud_1753698161.836080_segmented.pcd",
+      "cloud_sha256": "abdca3fbfd8ab72f4b04adba3acbb97e265a54b7cc1059add3a393f002fd3efb",
+      "world_to_camera_sha256": "726c3ebb132b79b8f4f28e999c608c3947ed3bddccb14b45de3e0de420f3e3d5",
+      "plane_distance_p95_mm": 10.393,
+      "observed_mm": {
+        "lower_torso_width_mm": 599.0,
+        "shoulder_level_to_hem_mm": 734.0
+      }
+    },
+    {
+      "frame": "18-22-41-start-2",
+      "data_path": "green_tshirt/green_tshirt_fold_2025-07-28-18-22-41/segment_pcds/pointcloud_1753698162.557688_segmented.pcd",
+      "cloud_sha256": "1a91087c9ff3873919d3a7136467ff0b334184f51c9473e57dac2053f766a5aa",
+      "world_to_camera_sha256": "726c3ebb132b79b8f4f28e999c608c3947ed3bddccb14b45de3e0de420f3e3d5",
+      "plane_distance_p95_mm": 10.367,
+      "observed_mm": {
+        "lower_torso_width_mm": 595.0,
+        "shoulder_level_to_hem_mm": 738.0
+      }
+    },
+    {
+      "frame": "18-22-41-middle",
+      "data_path": "green_tshirt/green_tshirt_fold_2025-07-28-18-22-41/segment_pcds/pointcloud_1753698168.089555_segmented.pcd",
+      "cloud_sha256": "90d90081fe7b01c8ab9daa9630237f4e78109f92d1e0661f3c40d4dcc0c85066",
+      "world_to_camera_sha256": "726c3ebb132b79b8f4f28e999c608c3947ed3bddccb14b45de3e0de420f3e3d5",
+      "plane_distance_p95_mm": 10.748,
+      "observed_mm": {
+        "lower_torso_width_mm": 598.0,
+        "shoulder_level_to_hem_mm": 734.0
+      }
+    },
+    {
+      "frame": "18-29-24-start",
+      "data_path": "green_tshirt/green_tshirt_fold_2025-07-28-18-29-24/segment_pcds/pointcloud_1753698564.743875_segmented.pcd",
+      "cloud_sha256": "6b7a1f68143e5f19b660ff3670582bcfa7c96c9268177cdab2f7225b7fb16f47",
+      "world_to_camera_sha256": "726c3ebb132b79b8f4f28e999c608c3947ed3bddccb14b45de3e0de420f3e3d5",
+      "plane_distance_p95_mm": 9.157,
+      "observed_mm": {
+        "lower_torso_width_mm": 604.0,
+        "shoulder_level_to_hem_mm": 738.0
+      }
+    },
+    {
+      "frame": "18-29-24-start-2",
+      "data_path": "green_tshirt/green_tshirt_fold_2025-07-28-18-29-24/segment_pcds/pointcloud_1753698565.465436_segmented.pcd",
+      "cloud_sha256": "001bd74aaf44ed86c2995bf9e69c5850a90c04eda1d6780d04794cb1acabab36",
+      "world_to_camera_sha256": "726c3ebb132b79b8f4f28e999c608c3947ed3bddccb14b45de3e0de420f3e3d5",
+      "plane_distance_p95_mm": 9.61,
+      "observed_mm": {
+        "lower_torso_width_mm": 602.0,
+        "shoulder_level_to_hem_mm": 734.0
+      }
+    },
+    {
+      "frame": "18-29-24-middle",
+      "data_path": "green_tshirt/green_tshirt_fold_2025-07-28-18-29-24/segment_pcds/pointcloud_1753698571.260411_segmented.pcd",
+      "cloud_sha256": "24209e0702bb4e5359946a33d893af7aa5c1f9b34febfc572bff1efc7ef166e3",
+      "world_to_camera_sha256": "726c3ebb132b79b8f4f28e999c608c3947ed3bddccb14b45de3e0de420f3e3d5",
+      "plane_distance_p95_mm": 9.572,
+      "observed_mm": {
+        "lower_torso_width_mm": 606.0,
+        "shoulder_level_to_hem_mm": 728.0
+      }
+    }
+  ],
+  "archive": {
+    "capture_kind": "physical",
+    "pattern_sha256": "4bd2b0005410b8dfddcb4d0fc61df02bf17ff9290e34a978abeabc85ab2f0966",
+    "source_photos": 1,
+    "vision_estimates": 8,
+    "dxf_panels": 5,
+    "seams": 15,
+    "garment_openings": 4,
+    "glb": {
+      "meshes": 1,
+      "bounds_span_m": [
+        0.731,
+        0.7562,
+        0.3382
+      ]
+    }
+  }
+}

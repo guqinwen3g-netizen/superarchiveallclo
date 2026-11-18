@@ -49,6 +49,21 @@ def segment_length(segment, size, axis=None):
     return dist(a, b)
 
 
+def view_calibration(view, size, name):
+    if "scale" in view and "calibration" in view:
+        raise ValueError(f"{name}: choose either a scale segment or metric calibration")
+    if "scale" in view:
+        scale = view["scale"]
+        span = segment_length(scale["points"], size)
+        return {"scale": scale, "mm_per_pixel": number(scale["mm"], name) / number(span, f"{name} scale pixels")}
+    if "calibration" in view:
+        metric = view["calibration"]
+        if not isinstance(metric, dict) or not isinstance(metric.get("source"), str) or not metric["source"].strip():
+            raise ValueError(f"{name}: identify the source of metric calibration")
+        return {"calibration": metric, "mm_per_pixel": number(metric.get("mm_per_pixel"), f"{name} mm_per_pixel")}
+    return {}
+
+
 def capture_observations(source, photo_dir=None, model_path=None, *, allow_partial=False, blind=False):
     if blind and model_path is None:
         raise ValueError("Blind reconstruction requires trained --model weights")
@@ -59,9 +74,15 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
         raise ValueError("Capture kind must be physical or synthetic_fixture")
     if capture.get("garment") != "crew_neck_tee":
         raise ValueError("This reconstruction supports crew_neck_tee")
+    mode = capture.get("input_mode", "paired")
+    if mode not in ("paired", "front_only"):
+        raise ValueError("Unknown capture input mode")
+    required = {"front"} if mode == "front_only" else {"front", "back"}
     views = capture["views"]
-    if not isinstance(views, dict) or not {"front", "back"}.issubset(views):
-        raise ValueError("Include front and back views")
+    if not isinstance(views, dict) or not required.issubset(views):
+        raise ValueError("Include a front view" if mode == "front_only" else "Include front and back views")
+    if mode == "front_only" and "back" in views:
+        raise ValueError("Use paired capture for an available back view")
     archived, paths = {}, {}
     if photo_dir is not None:
         photo_dir.mkdir()
@@ -86,18 +107,18 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
         info = {
             "file": output_name, "upright_px": list(size),
             "sha256": sha256(target.read_bytes()).hexdigest(),
+            **view_calibration(view, size, name),
         }
-        if "scale" in view:
-            scale = view["scale"]
-            span = segment_length(scale["points"], size)
-            info["scale"] = scale
-            info["mm_per_pixel"] = number(scale["mm"], name) / number(span, f"{name} scale pixels")
         archived[name] = info
 
     predicted, inference = {}, None
     if model_path is not None:
-        with Image.open(paths["front"]) as front, Image.open(paths["back"]) as back:
-            predicted, inference = TeeVision(model_path).estimate(front, back)
+        with Image.open(paths["front"]) as front:
+            if mode == "front_only":
+                predicted, inference = TeeVision(model_path, "front").estimate(front, views=archived)
+            else:
+                with Image.open(paths["back"]) as back:
+                    predicted, inference = TeeVision(model_path).estimate(front, back, archived)
 
     values, provenance = {}, {}
     supplied = {} if blind else capture.get("measurements", {})
@@ -108,7 +129,13 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
             if name in ASSUMPTIONS:
                 values[name], method = ASSUMPTIONS[name], "assumed"
             elif name in predicted:
-                values[name], method = predicted[name], "vision_model"
+                values[name] = predicted[name]
+                if name in inference.get("regression_before_scan_constraints_mm", {}):
+                    method = "scan_with_prior" if name == "back_length_mm" else "scan_silhouette"
+                elif mode == "front_only" and name == "back_neck_depth_mm":
+                    method = "learned_prior"
+                else:
+                    method = "vision_model"
             elif allow_partial:
                 continue
             else:
@@ -144,6 +171,9 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
     if inference is not None:
         inference["reference_measurements_withheld"] = blind
         manifest["inference"] = inference
+    if mode == "front_only":
+        manifest["input_mode"] = mode
+        manifest["review"] = "Single-sided candidate. Back geometry and hidden construction await independent evidence."
     return manifest, values
 
 

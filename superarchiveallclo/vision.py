@@ -87,13 +87,22 @@ def calibration(rgb):
     }
 
 
-def picture_features(image):
+def picture_features(image, view=None):
     """Return metric dimensions and crop-relative silhouette descriptors."""
     image = ImageOps.exif_transpose(image).convert("RGB")
+    original_width, original_height = image.size
     image.thumbnail((720, 720), Image.Resampling.BOX)
     rgb = np.asarray(image, dtype=np.int16)
     height, width = rgb.shape[:2]
-    mm_per_px, exclusion, scale = calibration(rgb)
+    if view and "mm_per_pixel" in view:
+        mm_per_px = view["mm_per_pixel"] * np.sqrt(original_width / width * original_height / height)
+        exclusion = np.zeros((height, width), dtype=bool)
+        scale = {
+            "method": "metric_calibration" if "calibration" in view else "reference_segment",
+            "source": view["calibration"]["source"] if "calibration" in view else "known length in image plane",
+        }
+    else:
+        mm_per_px, exclusion, scale = calibration(rgb)
     border = np.concatenate((rgb[:4].reshape(-1, 3), rgb[-4:].reshape(-1, 3),
                              rgb[:, :4].reshape(-1, 3), rgb[:, -4:].reshape(-1, 3)))
     backdrop = np.median(border, axis=0)
@@ -115,7 +124,7 @@ def picture_features(image):
         raise ValueError("Keep the entire garment, including the sleeves, away from image edges")
     crop = mask[top:bottom + 1, left:right + 1]
     h, w = crop.shape
-    actual_width, actual_height = w * mm_per_px, h * mm_per_px
+    actual_width, actual_height = float(w * mm_per_px), float(h * mm_per_px)
     bands = np.linspace(0, h - 1, 48).round().astype(int)
     row_widths = crop.sum(axis=1)[bands] * mm_per_px
     columns = np.linspace(0, w - 1, 48).round().astype(int)
@@ -127,7 +136,7 @@ def picture_features(image):
         row_widths, top_edges, bottom_edges, np.asarray(small).ravel() / 255.0,
     ))
     torso = float(np.median(row_widths[30:42]))
-    return descriptor, {
+    evidence = {
         **scale,
         "processed_mm_per_pixel": round(mm_per_px, 5),
         "processed_image_px": [width, height],
@@ -136,11 +145,21 @@ def picture_features(image):
         "garment_box_mm": [round(actual_width, 2), round(actual_height, 2)],
         "lower_torso_width_mm": round(torso, 2),
     }
+    if view and view.get("calibration", {}).get("type") == "metric_orthographic_point_cloud":
+        center = crop[:, w // 3:2 * w // 3]
+        center = center[:, center.any(axis=0)]
+        if center.shape[1] < w // 4:
+            raise ValueError("Scan has insufficient points across the garment center")
+        upper = np.quantile(center.argmax(axis=0), 0.10)
+        lower = h - np.median(center[::-1].argmax(axis=0))
+        evidence["shoulder_level_to_hem_mm"] = round(float((lower - upper) * mm_per_px), 2)
+    return descriptor, evidence
 
 
-def paired_features(front, back):
-    front_features, front_scale = picture_features(front)
-    back_features, back_scale = picture_features(back)
+def paired_features(front, back, views=None):
+    views = views or {}
+    front_features, front_scale = picture_features(front, views.get("front"))
+    back_features, back_scale = picture_features(back, views.get("back"))
     if front_scale["processed_image_sha256"] == back_scale["processed_image_sha256"]:
         raise ValueError("Provide two distinct photographs, one front and one back")
     if not have_consistent_dimensions(front_scale, back_scale):
@@ -161,12 +180,15 @@ def have_consistent_dimensions(front, back):
 class TeeVision:
     """A multi-target ridge model with portable, non-executable weights."""
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, view_mode="paired"):
         encoded = path.read_bytes()
         self.checksum = sha256(encoded).hexdigest()
         with np.load(BytesIO(encoded), allow_pickle=False) as data:
             if int(data["version"]) != MODEL_VERSION or tuple(data["fields"]) != FIELDS:
                 raise ValueError("Unsupported tee model format")
+            if (str(data["view_mode"]) if "view_mode" in data else "paired") != view_mode:
+                raise ValueError(f"This capture requires {view_mode} model weights")
+            self.view_mode = view_mode
             self.center = data["center"]
             self.scale = data["scale"]
             self.intercept = data["intercept"]
@@ -185,21 +207,42 @@ class TeeVision:
                 frozenset(data["labelled_training_photos"]) if "labelled_training_photos" in data else None
             )
 
-    def estimate(self, front, back):
-        features, scale = paired_features(front, back)
+    def estimate(self, front, back=None, views=None):
+        if self.view_mode == "front":
+            if back is not None:
+                raise ValueError("Use paired model weights for a front/back capture")
+            features, evidence = picture_features(front, (views or {}).get("front"))
+            scale = {"front": evidence}
+            method = "learned_front_silhouette_ridge"
+        else:
+            features, scale = paired_features(front, back, views)
+            method = "learned_paired_silhouette_ridge"
         measures, bounded = self.estimate_features(features, scale)
-        return measures, {
-            "method": "learned_paired_silhouette_ridge",
+        inference = {
+            "method": method,
             "weights_sha256": self.checksum,
             "scale_evidence": scale,
             "bounded_fields": bounded,
             "validation_domain": self.validation_domain,
         }
+        if self.view_mode == "front" and "shoulder_level_to_hem_mm" in scale["front"]:
+            # The current symmetric template shares the lower torso and chest width.
+            # Its total panel height equals back length plus back neck depth.
+            front = scale["front"]
+            constrained = {
+                "flat_chest_mm": front["lower_torso_width_mm"],
+                "back_length_mm": front["shoulder_level_to_hem_mm"] - measures["back_neck_depth_mm"],
+            }
+            inference["regression_before_scan_constraints_mm"] = {key: measures[key] for key in constrained}
+            inference["bounded_fields"] = [key for key in bounded if key not in constrained]
+            measures.update({key: round(value, 3) for key, value in constrained.items()})
+        return measures, inference
 
     def estimate_features(self, features, scale):
         normalized = (features - self.center) / self.scale
         values = normalized @ self.coefficients + self.intercept
-        boxes = np.array([scale[name]["garment_box_mm"] for name in ("front", "back")])
+        names = ("front",) if self.view_mode == "front" else ("front", "back")
+        boxes = np.array([scale[name]["garment_box_mm"] for name in names])
         if np.any(boxes < self.box_min * 0.89) or np.any(boxes > self.box_max * 1.11):
             raise ValueError("Garment dimensions fall outside the current tee model's capture range")
         clipped = np.clip(values, self.target_min, self.target_max)
