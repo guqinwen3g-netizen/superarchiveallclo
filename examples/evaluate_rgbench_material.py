@@ -33,16 +33,16 @@ def publisher_mass(config):
     return {"kg": float(line[1]), "source": CONFIG_URL}
 
 
-def compare_variants(baseline, measured, directory):
+def compare_variants(baseline, measured, baseline_dir, measured_dir, *, labels=("baseline", "publisher_mass")):
     if (baseline["pattern_sha256"] != measured["pattern_sha256"]
             or baseline["before"]["sha256"] != measured["before"]["sha256"]):
         raise ValueError("The mass comparison must start from the same pattern and mesh")
     arrays = []
-    for name, report in (("baseline", baseline), ("publisher-mass", measured)):
+    for folder, report in ((baseline_dir, baseline), (measured_dir, measured)):
         archive = report["gravity_ray_errors"]
-        source = directory / name / archive["file"]
+        source = folder / archive["file"]
         if sha256(source.read_bytes()).hexdigest() != archive["sha256"]:
-            raise ValueError(f"{name}: ray evidence changed during comparison")
+            raise ValueError(f"{folder.name}: ray evidence changed during comparison")
         with np.load(source, allow_pickle=False) as data:
             arrays.append({key: data[key] for key in data.files})
     cases = []
@@ -53,15 +53,28 @@ def compare_variants(baseline, measured, directory):
         old, new = (array[key] for array in arrays)
         old_hits, new_hits = np.isfinite(old), np.isfinite(new)
         common = old_hits & new_hits
-        if not common.any():
-            raise ValueError(f"{key}: no common valid measured rays")
+        left, right = labels
         cases.append({
             "scan": key, "sha256": earlier["sha256"], "measured_rays": len(old), "common_hits": int(common.sum()),
-            "baseline_hit_rays": int(old_hits.sum()), "publisher_mass_hit_rays": int(new_hits.sum()),
-            "baseline_depth_mm": depth_error_stats(old[common]), "publisher_mass_depth_mm": depth_error_stats(new[common]),
-            "baseline_front_iou": earlier["after"]["front_iou"], "publisher_mass_front_iou": later["after"]["front_iou"],
+            f"{left}_hit_rays": int(old_hits.sum()), f"{right}_hit_rays": int(new_hits.sum()),
+            f"{left}_depth_mm": depth_error_stats(old[common]), f"{right}_depth_mm": depth_error_stats(new[common]),
+            f"{left}_front_iou": earlier["after"]["front_iou"], f"{right}_front_iou": later["after"]["front_iou"],
         })
     return cases
+
+
+def summarize_pairs(rows, labels):
+    summary = {}
+    for name in labels:
+        depths = [row[f"{name}_depth_mm"] for row in rows]
+        summary[name] = {
+            "front_iou": round(float(np.median([row[f"{name}_front_iou"] for row in rows])), 5),
+            "absolute_depth_median_mm": round(float(np.median([row["absolute_median_mm"] for row in depths])), 3)
+            if all(depths) else None,
+            "absolute_depth_p90_mm": round(float(np.median([row["absolute_p90_mm"] for row in depths])), 3)
+            if all(depths) else None,
+        }
+    return summary
 
 
 def evaluate(archive, suspension, config, output, blender):
@@ -83,14 +96,8 @@ def evaluate(archive, suspension, config, output, blender):
 
     with ThreadPoolExecutor(max_workers=2) as pool:
         baseline, measured = pool.map(run, experiments.items())
-    rows = compare_variants(baseline, measured, output)
-    summary = {}
-    for name in ("baseline", "publisher_mass"):
-        summary[name] = {
-            "front_iou": round(float(np.median([row[f"{name}_front_iou"] for row in rows])), 5),
-            "absolute_depth_median_mm": round(float(np.median([row[f"{name}_depth_mm"]["absolute_median_mm"] for row in rows])), 3),
-            "absolute_depth_p90_mm": round(float(np.median([row[f"{name}_depth_mm"]["absolute_p90_mm"] for row in rows])), 3),
-        }
+    rows = compare_variants(baseline, measured, output / "baseline", output / "publisher-mass")
+    summary = summarize_pairs(rows, ("baseline", "publisher_mass"))
     return write_json(output / "study.json", {
         "item_id": source["item_id"], "pattern_sha256": baseline["pattern_sha256"],
         "initial_glb_sha256": baseline["before"]["sha256"],

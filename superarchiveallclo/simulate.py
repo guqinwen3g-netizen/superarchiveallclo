@@ -17,6 +17,7 @@ from mathutils.bvhtree import BVHTree
 from mathutils.geometry import delaunay_2d_cdt
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from superarchiveallclo.cloth_material import REFERENCE_BENDING_STIFFNESS
 from superarchiveallclo.mesh_openings import boundary_loops, sewn_opening_perimeters
 from superarchiveallclo.pattern import Edge
 from superarchiveallclo.reference_form import DEFAULT_ARM_ANGLE_DEG, arm_angle, upper_arm
@@ -338,7 +339,7 @@ def fit_metric(vertices, edges, target_lengths, pins, *, lock_height=False):
         vertices[pins] = original[pins]
 
 
-def configure_cloth(model, pins, *, frame_end=FRAME, garment_mass_kg=None):
+def configure_cloth(model, pins, *, frame_end=FRAME, garment_mass_kg=None, bending_stiffness=None):
     group = model.vertex_groups.new(name="Mannequin shoulder support")
     if len(pins):
         group.add(pins, 1, "REPLACE")
@@ -350,7 +351,8 @@ def configure_cloth(model, pins, *, frame_end=FRAME, garment_mass_kg=None):
     cloth.settings.tension_stiffness = 32
     cloth.settings.compression_stiffness = 32
     cloth.settings.shear_stiffness = 19
-    cloth.settings.bending_stiffness = 1.45
+    cloth.settings.bending_model = "ANGULAR"
+    cloth.settings.bending_stiffness = REFERENCE_BENDING_STIFFNESS if bending_stiffness is None else bending_stiffness
     cloth.settings.bending_damping = 0.8
     cloth.settings.vertex_group_mass = group.name
     cloth.settings.pin_stiffness = 1
@@ -364,6 +366,11 @@ def configure_cloth(model, pins, *, frame_end=FRAME, garment_mass_kg=None):
         "requested_garment_mass_kg": garment_mass_kg,
         "distribution": "reference_solver_setting" if garment_mass_kg is None else "uniform_over_sewn_vertices",
     }
+
+
+def bending_settings(model):
+    settings = model.modifiers["Cloth drape"].settings
+    return {"model": settings.bending_model, "stiffness": settings.bending_stiffness, "damping": settings.bending_damping}
 
 
 def evaluated_positions(garment):
@@ -616,6 +623,7 @@ def main():
     parser.add_argument("--frames", type=int, default=FRAME)
     parser.add_argument("--arm-angle", type=float)
     parser.add_argument("--garment-mass-kg", type=float)
+    parser.add_argument("--bending-stiffness", type=float)
     parser.add_argument("--photo-appearance", action="store_true")
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
     source, output, form = args.source, args.output, args.form
@@ -623,6 +631,8 @@ def main():
         parser.error("Drape requires at least two frames")
     if args.garment_mass_kg is not None and (not np.isfinite(args.garment_mass_kg) or args.garment_mass_kg <= 0):
         parser.error("Measured garment mass must be positive and finite")
+    if args.bending_stiffness is not None and (not np.isfinite(args.bending_stiffness) or args.bending_stiffness <= 0):
+        parser.error("Blender bending stiffness must be positive and finite")
     try:
         angle = arm_angle(form, args.arm_angle)
     except ValueError as error:
@@ -643,7 +653,7 @@ def main():
     photo_uv = texture_coordinates(uv, panels, appearance) if appearance is not None else None
     garment, opening_loops = sewn_mesh(points, welded_faces, faces, uv, panels, photo_uv=photo_uv)
     mass_settings = configure_cloth(garment, [] if contact_only else pins, frame_end=args.frames,
-                                    garment_mass_kg=args.garment_mass_kg)
+                                    garment_mass_kg=args.garment_mass_kg, bending_stiffness=args.bending_stiffness)
     earlier_frame = max(1, args.frames - 5)
     for frame in range(1, args.frames + 1):
         scene.frame_set(frame)
@@ -676,6 +686,7 @@ def main():
         "evaluated_frame": args.frames,
         "frames_per_second": scene.render.fps / scene.render.fps_base,
         "mass_settings": mass_settings,
+        "bending_settings": bending_settings(garment),
         "last_interval_vertex_displacement_mm": motion,
         "flat_metric_absolute_strain_percent": {
             "median": round(float(np.median(strain)) * 100, 2),

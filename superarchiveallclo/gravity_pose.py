@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from superarchiveallclo.flat_pose import flat_assembly
 from superarchiveallclo.hang_supports import place_for_gravity, rotate_about_support
 from superarchiveallclo.read_garment_glb import mesh_geometry
-from superarchiveallclo.simulate import configure_cloth, displacement_summary, evaluated_positions, sewn_mesh
+from superarchiveallclo.simulate import bending_settings, configure_cloth, displacement_summary, evaluated_positions, sewn_mesh
 
 FRAME = 55
 MOTION_INTERVAL_FRAMES = 8
@@ -65,9 +65,11 @@ def main():
         camera = job["camera_world_m"] if "camera_world_m" in job else None
         forecast = job["forecast_rotation_radians"] if "forecast_rotation_radians" in job else None
         mass = float(job["garment_mass_kg"]) if "garment_mass_kg" in job else None
+        bending = float(job["blender_bending_stiffness"]) if "blender_bending_stiffness" in job else None
     garment, loops = sewn_mesh(posed, triangles, faces, uv, panels)
     save_pose(garment, posed, directory / "before-gravity.glb")
-    mass_settings = configure_cloth(garment, np.concatenate(patches).tolist(), frame_end=FRAME, garment_mass_kg=mass)
+    mass_settings = configure_cloth(garment, np.concatenate(patches).tolist(), frame_end=FRAME, garment_mass_kg=mass,
+                                    bending_stiffness=bending)
     cloth = garment.modifiers["Cloth drape"]
     cloth.settings.effector_weights.gravity = 1.0
     cloth.settings.time_scale = 0.8
@@ -92,6 +94,7 @@ def main():
             earlier, final, FRAME - MOTION_INTERVAL_FRAMES, FRAME,
         ),
         "openings": len(loops), "cloth_mass_setting": mass_settings["vertex_mass_kg"], "mass_settings": mass_settings,
+        "bending_settings": bending_settings(garment),
     }, indent=2) + "\n")
     metrics = {}
     for variant, name in (("before", "before-gravity.glb"), ("after", "gravity-pose.glb")):

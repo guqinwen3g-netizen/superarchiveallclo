@@ -14,7 +14,8 @@ from scipy import ndimage
 from scipy.spatial import cKDTree
 
 from .check_archive import check_archive, glb_inventory
-from .cloth_material import mass_observation, material_mass, verify_mass_settings
+from .cloth_material import (blender_bending, mass_observation, material_bending, material_mass,
+                             verify_bending_settings, verify_mass_settings)
 from .compare_flat import capture_sleeve_angle
 from .compare_shape import check_frame
 from .hang_supports import observed_pitch, pendulum_forecast, rotate_about_support
@@ -177,6 +178,9 @@ def compare_hang(archive, manifest, output, blender="blender", *, save_ray_error
     mass = mass_observation(source["garment_mass"]) if "garment_mass" in source else material_mass(capture.get("material"))
     if mass is not None:
         job["garment_mass_kg"] = np.asarray(mass["kg"])
+    bending = blender_bending(source["blender_bending"]) if "blender_bending" in source else material_bending(capture.get("material"))
+    if bending is not None:
+        job["blender_bending_stiffness"] = np.asarray(bending["stiffness"])
     angle, angle_source = capture_sleeve_angle(capture)
     report = {
         "schema_version": 1, "item_id": source["item_id"], "source": source["source"],
@@ -195,6 +199,8 @@ def compare_hang(archive, manifest, output, blender="blender", *, save_ray_error
     }
     if mass is not None:
         report["garment_mass"] = mass
+    if bending is not None:
+        report["blender_bending"] = bending
     if "swing_history" in source:
         report["swing_forecast"] = prepare_swing(source, manifest.parent, extrinsic, support_file, evidence_hashes, job)
     for number, name in enumerate(names, 1):
@@ -229,6 +235,8 @@ def compare_hang(archive, manifest, output, blender="blender", *, save_ray_error
         report["support_metrics"] = json.loads((workspace / "support-metrics.json").read_text())
         if mass is not None:
             verify_mass_settings(mass, report["support_metrics"].get("mass_settings"))
+        if bending is not None:
+            verify_bending_settings(bending, report["support_metrics"].get("bending_settings"))
         with np.load(workspace / "hang-metrics.npz", allow_pickle=False) as data:
             if save_ray_errors:
                 ray_errors = bundle / "gravity-ray-errors.npz"

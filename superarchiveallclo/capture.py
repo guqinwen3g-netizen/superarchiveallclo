@@ -16,7 +16,7 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 from .appearance import build_appearance
 from .cad import export_dxf
 from .check_archive import check_archive
-from .cloth_material import material_mass
+from .cloth_material import material_bending, material_mass
 from .export import write_exports
 from .reference_form import arm_angle
 from .tee import TeeSpec, draft
@@ -115,6 +115,7 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
     if capture.get("garment") != "crew_neck_tee":
         raise ValueError("This reconstruction supports crew_neck_tee")
     material_mass(capture.get("material"))
+    material_bending(capture.get("material"))
     mode = capture.get("input_mode", "paired")
     if mode not in ("paired", "front_only"):
         raise ValueError("Unknown capture input mode")
@@ -274,10 +275,12 @@ def archive(source, output, blender, model_path=None, *, blind=False, form="tors
             arm_options = [] if arm_angle_deg is None else ["--arm-angle", str(angle)]
             mass = material_mass(manifest.get("material"))
             mass_options = [] if mass is None else ["--garment-mass-kg", str(mass["kg"])]
+            bending = material_bending(manifest.get("material"))
+            bending_options = [] if bending is None else ["--bending-stiffness", str(bending["stiffness"])]
             result = run([
                 blender, "-b", "--factory-startup", "--python-exit-code", "1", "--python", str(script),
                 "--", str(bundle / "pattern" / "pattern.json"), str(model), form, *frame_options, *photo_options,
-                *arm_options, *mass_options,
+                *arm_options, *mass_options, *bending_options,
             ], stdout=log, stderr=log, check=False)
         if result.returncode or not all((model / name).is_file() for name in (
             "garment.glb", "garment.blend", "simulation.json", "front.png", "back.png", "three-quarter.png",

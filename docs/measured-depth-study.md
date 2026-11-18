@@ -43,6 +43,29 @@ python -m examples.evaluate_rgbench_material build/rgbench-scan/frames/18-21-20-
 
 归档及悬挂参考清单可以用下节命令生成。程序校验发布方配置哈希，`study.json` 保存同版纸样哈希和逐帧指标，两组子目录保留各自 GLB 和用于共同射线评分的原始差值。
 
+## 用早期实测拟合弯曲参数
+
+整衣质量固定为发布方记录的 **255 克**，沿用同一纸样、夹持点和重力设置。按时间把两张较早的扫描用于拟合，把后四张留给评分。五组 Blender 角弯曲刚度独立仿真。采用拟合轮廓交并比最高的设置，同时要求每帧共同命中射线达到 95%，且两帧的深度误差 P90 中位数比参考设置最多增加 4 mm，约为一个轮廓评分网格宽。拟合选出 **0.0145**，从 **74.46%** 提高到 **76.60%**。程序写入选择记录和材料后才读取后四帧。[拟合和留出指标](rgbench-bending-study.json)
+
+| 四帧留出的中位数 | 255 克＋参考弯曲 1.45 | 255 克＋拟合弯曲 0.0145 |
+| --- | ---: | ---: |
+| 正视轮廓交并比 | 74.71% | 76.85% |
+| 共同命中射线绝对深度中位数 | 11.72 mm | 10.97 mm |
+| 共同命中射线绝对深度 P90 | 46.66 mm | 44.75 mm |
+
+四帧均改善轮廓和深度 P90，共同命中率为 **99.08%–99.72%**。两版纸样、初始网格、拉伸、剪切和弯曲阻尼一致。弯曲值是 Blender 角模型在这件衣服和双点悬挂条件下的有效拟合值。袖部剩余偏差仍较明显，独立布样的物性和其他姿态需要分别验证。
+
+![第 3 和第 6 帧实物在两种弯曲设置下的悬挂轮廓](../examples/rgbench-bending-overlay.png)
+
+橙色为仿真独有区域，蓝色为实物独有区域，深灰为重叠。图中两版同时保留 255 克整衣质量。实物扫描来自 Hu 等人，许可为 CC BY 4.0。[实物来源与许可](https://huggingface.co/datasets/RGBench/RGBench-Cloth-Sim2Real-v1)
+
+```sh
+python -m examples.evaluate_rgbench_bending build/rgbench-scan/frames/18-21-20-start/archive \
+  build/rgbench-forecast/data/suspension.json -o build/rgbench-bending
+```
+
+`fitted-material.json` 可写入同件捕获清单的 `material`。`fit-selection.json` 保存候选参数和选择依据，`study.json` 保存四帧留出数据、纸样和两版 GLB 的哈希。
+
 ## 数据入口核查
 
 已从格拉斯哥大学 CC BY 4.0 的 CloPeMa Clothes 高分辨率档案读取首卷签名和末卷索引，核对 6,073 项条目，其中包括先前实验所用两件 T 恤的第 0 帧 RGB、深度和分割记录。索引列出 PNG、MAT 和目录，未发现单列的标定文件。原始分卷为约 25.77 GB，本次核查使用远程范围读取文件索引。[正式数据档案](https://researchdata.gla.ac.uk/270/)

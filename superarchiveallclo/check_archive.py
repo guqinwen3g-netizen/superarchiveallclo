@@ -12,7 +12,7 @@ import ezdxf
 from ezdxf import units
 from PIL import Image
 
-from .cloth_material import material_mass, verify_mass_settings
+from .cloth_material import material_bending, material_mass, verify_bending_settings, verify_mass_settings
 
 
 def dxf_inventory(path, pattern):
@@ -123,6 +123,9 @@ def check_archive(root: Path):
     recorded_mass = material_mass(capture.get("material"))
     if recorded_mass is not None:
         verify_mass_settings(recorded_mass, simulation.get("mass_settings"))
+    recorded_bending = material_bending(capture.get("material"))
+    if recorded_bending is not None:
+        verify_bending_settings(recorded_bending, simulation.get("bending_settings"))
     if "opening_perimeters_mm" in simulation:
         openings = simulation["opening_perimeters_mm"]
         if not isinstance(openings, dict) or openings.keys() != {"neck", "sleeve_left", "sleeve_right", "hem"}:
@@ -159,6 +162,7 @@ def check_archive(root: Path):
         "garment_openings": simulation["welded_opening_count"],
         "glb": glb_inventory(root / "model/garment.glb", atlas=atlas),
         **({"garment_mass_kg": recorded_mass["kg"]} if recorded_mass is not None else {}),
+        **({"blender_bending_stiffness": recorded_bending["stiffness"]} if recorded_bending is not None else {}),
     }
 
 

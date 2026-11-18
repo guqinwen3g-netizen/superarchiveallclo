@@ -115,6 +115,8 @@ python -m superarchiveallclo.rgbd rgbd.json \
 
 已知整件成衣重量时，可在 `material` 中提供 `"garment_mass": {"kg": 0.255, "source": "成衣称重记录"}`。Blender 把整衣质量均分到缝合后的网格顶点，归档核对顶点质量总和。提供质量的仿真仍沿用参考织物的拉伸、剪切和弯曲设置。[同件实物的质量对照](measured-depth-study.md#记录整衣重量后的对照)
 
+完成 Blender 布料拟合的样衣可在 `material` 中提供 `"blender_bending": {"stiffness": 0.0145, "source": "Blender 角弯曲拟合记录"}`。归档回读核对求解器的弯曲模型和实际值。示例值来自指定 T 恤及固定支撑，应用到新布料前需要该布料的拟合或测试。[留出扫描上的弯曲验证](measured-depth-study.md#用早期实测拟合弯曲参数)
+
 对侧缝近似直线、腋下与下摆都可见的照片，可在采集文件顶层填 `"body_profile": "paired_silhouette"`，由双面模型分别估计胸宽和下摆宽。两面估计相符并通过配缝时，纸样会使用两种宽度。归档保留轮廓取点和来源。袖窿缝在两面均清楚时，归档同时记录缝线位置和两肩的投影跨度，供复查模型肩宽。证据不足时使用基础模型。也可直接提供可信的 `flat_hem_mm`。[衣身轮廓和袖窿缝实物实验](body-profile-study.md)
 
 两张平铺照均拍到完整的左右袖口时，可填 `"sleeve_profile": "paired_cuff_span"`。模型从每张照的两个袖口方向和横跨估算袖长，两面的估算接近且能配缝时用于制板。归档保留每面估算值和原回归值。遮挡、两面不一致或几何不相容时沿用回归。[袖长与实拍对照](stellenbosch-drape-study.md#用双面袖口约束袖长)

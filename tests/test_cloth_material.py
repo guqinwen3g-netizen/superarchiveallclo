@@ -1,6 +1,8 @@
 from unittest import TestCase
 
-from superarchiveallclo.cloth_material import mass_observation, material_mass, verify_mass_settings
+from superarchiveallclo.cloth_material import (
+    blender_bending, mass_observation, material_bending, material_mass, verify_bending_settings, verify_mass_settings,
+)
 
 
 class ClothMaterialTest(TestCase):
@@ -19,3 +21,14 @@ class ClothMaterialTest(TestCase):
         verify_mass_settings(observation, settings)
         with self.assertRaisesRegex(ValueError, "do not sum"):
             verify_mass_settings(observation, {**settings, "vertex_mass_kg": 0.15})
+
+    def test_solver_specific_bending_needs_finite_value_and_matching_model(self):
+        fit = {"stiffness": 0.0145, "source": "two separate calibration scans"}
+        observed = material_bending({"blender_bending": fit})
+        verify_bending_settings(observed, {"model": "ANGULAR", "stiffness": 0.0145000003})
+        with self.assertRaisesRegex(ValueError, "angular bending stiffness"):
+            verify_bending_settings(observed, {"model": "LINEAR", "stiffness": 0.0145})
+        with self.assertRaisesRegex(ValueError, "positive and finite"):
+            blender_bending({**fit, "stiffness": 0})
+        with self.assertRaisesRegex(ValueError, "calibration source"):
+            blender_bending({**fit, "source": ""})
