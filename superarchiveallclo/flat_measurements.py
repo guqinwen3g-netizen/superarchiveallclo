@@ -188,6 +188,32 @@ def projected_sleeve(measures, updates, opening, layout, top):
     return {**proposed, "sleeve_length_mm": length}
 
 
+def sleeve_length_from_span(spec, cuffs):
+    """Recover the cuff reach from both sleeve ends when only one underarm is visible."""
+    left, _, left_vector = cuff_axes(cuffs["image_left"], -1)
+    right, _, right_vector = cuff_axes(cuffs["image_right"], 1)
+    directions = np.array([left_vector, right_vector])
+    if not np.all((0 <= directions[:, 1]) & (directions[:, 1] <= 0.65)):
+        return None
+    span = float(right[0] - left[0])
+    # The outer tips lie on the folded sleeve centerlines. Their transverse
+    # reach already includes the rotation about each underarm join.
+    width = spec.sleeve_bicep_flat_mm
+    taper = (spec.sleeve_bicep_flat_mm - spec.sleeve_opening_flat_mm) / 2
+    reach = (span - spec.flat_chest_mm - width / 2 * directions[:, 1].sum()) / abs(directions[:, 0]).sum()
+    if not MIN_SLEEVE_BELOW_CAP_MM + 2 <= reach <= 0.48 * spec.flat_chest_mm:
+        return None
+    front, back = (body_panel(spec, side).edge("armhole_right").length() for side in (True, False))
+    try:
+        front_span, cap = cap_dimensions(width, min(front, back), front, back)
+    except ValueError:
+        return None
+    if cap < 10 or taper >= min(front_span, width - front_span):
+        return None
+    length = float(cap + reach)
+    return length if 0.17 * spec.flat_chest_mm <= length <= 0.60 * spec.flat_chest_mm else None
+
+
 def draft_constraints(measures, evidence):
     """Constrain observed lengths while retaining priors for hidden seam geometry."""
     updates = {
@@ -237,6 +263,11 @@ def draft_constraints(measures, evidence):
         underarms = [cuff["underarm_join_y_mm"] - top for cuff in cuffs.values() if cuff["underarm_join_y_mm"] is not None]
         if underarms and armhole > min(underarms):
             return updates, methods, "Required armhole would extend past the visible sleeve-to-body join"
+        span_length = None
+        if len(underarms) == 1 and "sleeve_length_mm" not in proposed:
+            span_length = sleeve_length_from_span(TeeSpec(**{**measures, **updates, **proposed}), cuffs)
+            if span_length is not None:
+                proposed["sleeve_length_mm"] = span_length
         spec = TeeSpec(**{**measures, **updates, **proposed})
         try:
             spec.check()
@@ -245,6 +276,8 @@ def draft_constraints(measures, evidence):
             return updates, methods, str(error)
         updates.update(proposed)
         methods.update(dict.fromkeys(proposed, "scan_with_prior"))
+        if span_length is not None:
+            methods["sleeve_length_mm"] = "scan_cuff_span"
     return updates, methods, None
 
 

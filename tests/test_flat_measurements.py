@@ -41,6 +41,34 @@ class FlatLandmarkTest(TestCase):
             self.assertAlmostEqual(estimates[name], getattr(part, name), delta=0.15)
         draft(TeeSpec(**{**prior, **estimates}))
 
+    def test_cuff_span_recovers_sleeve_reach_with_one_hidden_underarm(self):
+        part = TeeSpec(flat_chest_mm=550, garment_shoulder_width_mm=480, shoulder_slope_mm=46,
+                       armhole_depth_mm=250, sleeve_bicep_flat_mm=385, sleeve_opening_flat_mm=330,
+                       sleeve_length_mm=247)
+        front, back = (body_panel(part, side).edge("armhole_right").length() for side in (True, False))
+        _, cap = cap_dimensions(part.sleeve_bicep_flat_mm, min(front, back), front, back)
+        cuffs = {}
+        for side, key, degrees in ((-1, "image_left", 8), (1, "image_right", 18)):
+            angle = radians(degrees)
+            across = np.array([-side * sin(angle), cos(angle)])
+            outward = np.array([side * cos(angle), sin(angle)])
+            underarm = np.array([500 + side * part.flat_chest_mm / 2, part.armhole_depth_mm])
+            outer = underarm + outward * (part.sleeve_length_mm - cap) - across * part.sleeve_bicep_flat_mm / 2
+            # An off-center torso reading makes the two shoulder-based runs unreliable.
+            cuffs[key] = {"outer_mm": outer.tolist(),
+                         "inner_mm": (outer + across * part.sleeve_opening_flat_mm / 2).tolist(),
+                         "folded_opening_mm": part.sleeve_opening_flat_mm / 2,
+                         "underarm_join_y_mm": float(underarm[1]) if side == 1 else None}
+        evidence = {"lower_torso_width_mm": part.flat_chest_mm, "shoulder_line_y_mm": 0,
+                    "shoulder_level_to_hem_mm": part.back_length_mm + part.back_neck_depth_mm,
+                    "flat_landmarks": {"cuffs": cuffs, "torso_center_x_mm": 576}}
+        prior = {field: getattr(part, field) for field in FIELDS}
+        prior["sleeve_length_mm"] = 180
+        estimates, sources, reason = draft_constraints(prior, evidence)
+        self.assertIsNone(reason)
+        self.assertEqual(sources["sleeve_length_mm"], "scan_cuff_span")
+        self.assertAlmostEqual(estimates["sleeve_length_mm"], part.sleeve_length_mm, delta=0.15)
+
     def test_folded_cuffs_preserve_scale_with_rotation_and_different_sleeve_poses(self):
         for seed in (1, 2, 6):
             with self.subTest(seed=seed):

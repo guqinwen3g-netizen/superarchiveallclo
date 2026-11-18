@@ -262,6 +262,62 @@
             -4.9
           ]
         }
+      },
+      "turned_647_with_cuff_span": {
+        "frame": "n00647",
+        "original_asset_sha256": {
+          "rgb": "89fce2ffd9875aa383bf25d2b0a8a5a50da226c4264286fc8cc00aedfe41aa4c",
+          "pcd": "3f4cc60ee4175eb6610915c8ea481258e759034938b0203653091ee380bb2563",
+          "mask": "d9da01b3a48c9aec41fc9d58c8ae05889943a171665c16420e4cd68123f55941"
+        },
+        "upright_rotation_deg": -85.5,
+        "upright_outline_score": 0.18666,
+        "archive_audit": {
+          "capture_kind": "physical",
+          "pattern_sha256": "81db28586f4c15d744f7096642dcd801e948c38978ceb9d388d780fa17f1b87a",
+          "source_photos": 1,
+          "vision_estimates": 4,
+          "dxf_panels": 5,
+          "seams": 15,
+          "garment_openings": 4,
+          "glb": {
+            "meshes": 1,
+            "bounds_span_m": [
+              0.6328,
+              0.6997,
+              0.2808
+            ]
+          }
+        },
+        "flat_chest_mm": 478.0,
+        "back_center_length_mm": 675.613,
+        "sleeve_length_mm": 240.37,
+        "flat_glb_sha256": "c0d69e07e5733cc8e597c80398181bb25a4e9d4852f101719566dbdccb5cba7a",
+        "reference_comparison": {
+          "id": "scan-01",
+          "cloud_sha256": "3edb7b80cfea114a92b8063b14b856ad8758e6596cb2ca47faabd485e44ad12e",
+          "point_count": 110386,
+          "plane_distance_p95_mm": 10.286,
+          "intersection_over_union": 0.7651,
+          "contour_distance_mm": {
+            "median": 28.0,
+            "p90": 68.26
+          },
+          "model_minus_reference_width_height_mm": [
+            -17.73,
+            43.57
+          ],
+          "reference_to_glb_surface_distance_mm": {
+            "median": 2.3,
+            "p90": 15.6
+          },
+          "reference_translation_mm": [
+            26.39,
+            -294.67,
+            -4.9
+          ]
+        },
+        "length_evidence": "scan_cuff_span"
       }
     },
     "raw_634_dimensions": {
@@ -278,6 +334,7 @@
       "estimated_rotation_deg": 2.0,
       "applied_rotation_deg": 0.0,
       "projection_unchanged": true
-    }
+    },
+    "orientation_only_revision": "c22e6be5e635ec0c9ed38d232e61a912ccd6bfe2"
   }
 }
