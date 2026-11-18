@@ -11,7 +11,7 @@ from PIL import Image, ImageOps
 from scipy import ndimage
 from scipy.spatial import ConvexHull, QhullError
 
-from . import body_profile
+from . import body_profile, shoulder_seams
 from .flat_measurements import compatible_scan_sleeve_length, draft_constraints, flat_landmarks, paired_cuff_span
 
 # The card is a 100 mm square of solid magenta printed at actual size.
@@ -191,7 +191,12 @@ def picture_features(image, view=None, *, measure_body=False, measure_sleeve=Fal
     if measure_body or measure_sleeve:
         outer = ndimage.binary_fill_holes(crop)
         if measure_body:
-            evidence["torso_profile"] = body_profile.observe(outer, mm_per_px)
+            torso_profile = body_profile.observe(outer, mm_per_px)
+            evidence["torso_profile"] = torso_profile
+            if torso_profile is not None:
+                left, top, right, bottom = bounds
+                gray = np.asarray(image.crop((left, top, right + 1, bottom + 1)).convert("L"), dtype=float)
+                evidence["projected_shoulder_seams"] = shoulder_seams.observe(gray, outer, mm_per_px, torso_profile)
         if measure_sleeve:
             evidence["cuff_span_landmarks"] = flat_landmarks(outer, mm_per_px, torso)
     if view and view.get("calibration", {}).get("type") == "metric_orthographic_point_cloud":
@@ -363,6 +368,7 @@ class TeeVision:
             overrides, profile = body_profile.constrain(measures, scale)
             measures.update(overrides)
             bounded = [field for field in bounded if field not in overrides]
+            profile["shoulder_seams"] = shoulder_seams.paired_evidence(scale, measures["garment_shoulder_width_mm"])
         return measures, bounded, profile
 
 

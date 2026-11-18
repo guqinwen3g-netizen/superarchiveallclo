@@ -107,7 +107,7 @@ python -m superarchiveallclo.rgbd rgbd.json \
 
 尺寸键放在 `measurements` 下。卷尺实测可填 `{"value": 560}`。馆方实测可加 `"method": "catalogue_measurement"` 和 `"source"` 来记录原始目录。照片标注可填 `{"view": "front", "points": [[120, 300], [960, 301]], "axis": "x"}`。材料观察放在 `material`，随原始记录保留。每个字段的来源和推断项会写入输出档案。
 
-对侧缝近似直线、腋下与下摆都可见的照片，可在采集文件顶层填 `"body_profile": "paired_silhouette"`，由双面模型分别估计胸宽和下摆宽。两面估计相符并通过配缝时，纸样会使用两种宽度。归档保留轮廓取点和来源。证据不足时使用基础模型。也可直接提供可信的 `flat_hem_mm`。[衣身轮廓实物实验](body-profile-study.md)
+对侧缝近似直线、腋下与下摆都可见的照片，可在采集文件顶层填 `"body_profile": "paired_silhouette"`，由双面模型分别估计胸宽和下摆宽。两面估计相符并通过配缝时，纸样会使用两种宽度。归档保留轮廓取点和来源。袖窿缝在两面均清楚时，归档同时记录缝线位置和两肩的投影跨度，供复查模型肩宽。证据不足时使用基础模型。也可直接提供可信的 `flat_hem_mm`。[衣身轮廓和袖窿缝实物实验](body-profile-study.md)
 
 两张平铺照均拍到完整的左右袖口时，可填 `"sleeve_profile": "paired_cuff_span"`。模型从每张照的两个袖口方向和横跨估算袖长，两面的估算接近且能配缝时用于制板。归档保留每面估算值和原回归值。遮挡、两面不一致或几何不相容时沿用回归。[袖长与实拍对照](stellenbosch-drape-study.md#用双面袖口约束袖长)
 

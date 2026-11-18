@@ -22,6 +22,31 @@
 | 黄色正面 | 89.29% | 89.33% | 36.88 → 32.80 mm |
 | 黄色背面 | 87.92% | 87.48% | 34.00 → 33.99 mm |
 
+## 双面袖窿缝与肩宽
+
+同一入口还会从照片定位左右袖窿缝与肩缘的交点。程序用衣身侧缝确定腋下搜索区，沿候选曲线检查连续的窄缝线对比度，并比较两面的肩点水平跨度。归档保留每侧的像素轨迹、接近最高得分的肩点范围、两面差异与模型纸样偏差。轨迹证据参与评测，制板沿用选定模型。馆方公布的肩宽仍作为独立评分依据。
+
+![2017.66.37 正背原照的自动袖窿缝追踪和肩点](../examples/stellenbosch-shoulder-seams.jpg)
+
+红线为检测的袖窿缝，红点为肩缘交点。原图由 Auckland War Memorial Museum Tāmaki Paenga Hira 以 CC BY 4.0 发布，此图裁切原照并加上量测标记。[正面原照](https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-6).jpg) · [背面原照](https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-7).jpg) · [许可](https://creativecommons.org/licenses/by/4.0/)
+
+| 藏品 | 正面投影 | 背面投影 | 双面均值 | 基础纸样 | 窄身纸样 | 馆方肩宽 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 2017.66.22 | 511.95 mm | 494.16 mm | 503.06 mm | 502.68 mm | 514.05 mm | 505 mm |
+| 2017.66.37 | 539.34 mm | 528.19 mm | 533.77 mm | 585.65 mm | 534.63 mm | 590 mm |
+| 2002.94.1.1 | 423.55 mm | 433.87 mm | 428.71 mm | 461.14 mm | 405.47 mm | — |
+
+`2017.66.37` 的窄身版与图像跨度相差 0.86 mm，与馆方读数相差 55.37 mm。基础版与馆方读数相差 4.35 mm，与图像跨度相差 51.88 mm。两面使用同一个馆方衣长值定尺度，且馆方未公布肩宽的取点方法，需补充同次摆放下的独立横向量尺。黄色款有实拍标尺，但相近得分的曲线跨度较宽，尤其受褶皱影响。[原图及摄影许可](paired-photo-study.md) · [两组权重说明](varied-tee-model.md)
+
+```sh
+python -m examples.evaluate_auckland_tees --case stellenbosch --body-profile \
+  -o build/shoulder-seams-baseline
+python -m examples.evaluate_auckland_tees --case stellenbosch --body-profile \
+  --model models/tee-vision-varied.npz -o build/shoulder-seams-varied
+```
+
+运行结果中的 `shoulder-seams.png` 标出原照上用于复核的缝线和肩点。`review/archive/capture.json` 记录图像校验值、各照片的像素证据和毫米差值。替换 `--case` 可复现另外两个样本。
+
 ## 独立挂拍检查
 
 白色款的新纸样另在人台上重跑带臂与无臂两种仿真，并与前次实验使用的固定相机参数、三维照片外包络和留出正面 #01 对照。两版无臂模拟的留出正面轮廓交并比为 **76.03% → 76.18%**，轮廓距离 P90 为 **55.24 → 55.33 mm**。新无臂 GLB 的前后跨度从 **293.29 mm** 增至 **331.96 mm**，实物外包络约 **270 mm**。到外包络的单向面积加权距离 P90 从 **46.32 mm** 增至 **47.48 mm**。修改让平铺衣身尺寸更接近目录和照片，悬挂深度的差异更大。还需独立扫描及支撑与面料参数，才能核对这些差异来自模拟垂坠、影像标定还是原衣物的摆放。[同件藏品的挂拍、标尺与方法](mannequin-study.md)

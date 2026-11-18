@@ -8,6 +8,8 @@ from math import dist
 from pathlib import Path
 from urllib.request import Request, urlopen
 
+from PIL import Image, ImageDraw, ImageOps
+
 from superarchiveallclo.capture import archive, load_capture
 from superarchiveallclo.check_archive import check_archive
 from superarchiveallclo.compare_flat_photos import compare
@@ -48,12 +50,12 @@ def tape_intervals(samples):
     return report
 
 
-def neckline_sensitivity(case, data):
+def neckline_sensitivity(case, data, model):
     session = deepcopy(case["session"])
     for view, point in case["alternate_neck_points_px"].items():
         session["views"][view]["scale"]["points"][0] = point
     source = write_json(data / "alternate-neck-edge.json", session)
-    capture, _ = load_capture(source, model_path=PAIRED_WEIGHTS, blind=True)
+    capture, _ = load_capture(source, model_path=model, blind=True)
     basis = {view.get("scale", {}).get("basis_field") for view in capture["views"].values()}
     return {
         "mm_per_pixel": {name: view["mm_per_pixel"] for name, view in capture["views"].items() if "scale" in view},
@@ -65,7 +67,45 @@ def neckline_sensitivity(case, data):
     }
 
 
-def evaluate_case(case, output, blender, rights, *, measure_body=False, measure_sleeve=False):
+def shoulder_overlay(archive_root, output):
+    capture = json.loads((archive_root / "capture.json").read_bytes())
+    figures = []
+    for name, view in capture["inference"]["scale_evidence"].items():
+        seams = view.get("projected_shoulder_seams")
+        if seams is None:
+            continue
+        with Image.open(archive_root / capture["views"][name]["file"]) as photo:
+            image = ImageOps.exif_transpose(photo).convert("RGB")
+            image.thumbnail((720, 720), Image.Resampling.BOX)
+        if sha256(image.tobytes()).hexdigest() != view["processed_image_sha256"]:
+            raise ValueError(f"Processed {name} photo changed since shoulder measurement")
+        left, top, right, _ = view["garment_crop_px"]
+        lower = max(y for side in ("image_left", "image_right") for _, y in seams[side]["trace_crop_px"])
+        figure = image.crop((left, max(0, top - 6), right + 1, top + int(lower) + 12))
+        offset_y = min(6, top)
+        draw = ImageDraw.Draw(figure)
+        for side in ("image_left", "image_right"):
+            trace = seams[side]
+            draw.line([(x, y + offset_y) for x, y in trace["trace_crop_px"]], fill="#e41842", width=3)
+            x, y = trace["shoulder_crop_px"]
+            y += offset_y
+            draw.ellipse((x - 4, y - 4, x + 4, y + 4), fill="#e41842")
+        figures.append((name, seams["projected_width_mm"], figure))
+    if not figures:
+        return None
+    sheet = Image.new("RGB", (max(figure.width for _, _, figure in figures),
+                              sum(figure.height + 23 for _, _, figure in figures)), "white")
+    draw = ImageDraw.Draw(sheet)
+    y = 0
+    for name, width, figure in figures:
+        draw.text((6, y + 4), f"{name}   {width:.2f} mm", fill="black")
+        sheet.paste(figure, (0, y + 23))
+        y += figure.height + 23
+    sheet.save(output)
+    return output.name
+
+
+def evaluate_case(case, output, blender, rights, *, model=PAIRED_WEIGHTS, measure_body=False, measure_sleeve=False):
     data = output / "data"
     data.mkdir(parents=True, exist_ok=True)
     for filename, photo in case["assets"].items():
@@ -84,17 +124,19 @@ def evaluate_case(case, output, blender, rights, *, measure_body=False, measure_
         dataset = write_json(data / "dataset.json", {"schema_version": 1, "samples": [{
             "session": paired.name, "group": session["item_id"], "split": "test", "rights": rights,
         }]})
-        evidence = review(dataset, session["item_id"], PAIRED_WEIGHTS, output / "review", blender)
+        evidence = review(dataset, session["item_id"], model, output / "review", blender)
         result = {"review": evidence}
         candidate = output / "review/archive"
     else:
         candidate = output / "paired"
-        archive(paired, candidate, blender, PAIRED_WEIGHTS, blind=True)
+        archive(paired, candidate, blender, model, blind=True)
         result = {"archive": check_archive(candidate)}
     if candidate.is_dir():
         result["flat_layout"] = compare(candidate, reference, output / "flat-layout", blender)
+        if measure_body:
+            result["shoulder_seam_overlay"] = shoulder_overlay(candidate, output / "shoulder-seams.png")
     if "alternate_neck_points_px" in case:
-        result["alternate_neck_edge"] = neckline_sensitivity({**case, "session": session}, data)
+        result["alternate_neck_edge"] = neckline_sensitivity({**case, "session": session}, data, model)
 
     if "tape_checks" in case:
         single_session = {
@@ -117,13 +159,14 @@ def main():
     document = json.loads(SOURCE.read_bytes())
     parser.add_argument("--case", choices=document["cases"], help="Run only the specified physical garment")
     parser.add_argument("--blender", default="blender")
-    parser.add_argument("--body-profile", action="store_true", help="Measure chest and hem from each paired silhouette")
+    parser.add_argument("--model", type=Path, default=PAIRED_WEIGHTS, help="Paired photo model weights")
+    parser.add_argument("--body-profile", action="store_true", help="Measure chest, hem and projected shoulder seams")
     parser.add_argument("--sleeve-profile", action="store_true", help="Constrain sleeve length using both cuff spans")
     args = parser.parse_args()
     rights = f'{document["photo_attribution"]}, {document["license"]}, {document["license_url"]}'
     for name, case in document["cases"].items():
         if args.case is None or args.case == name:
-            evaluate_case(case, args.output / name, args.blender, rights, measure_body=args.body_profile,
+            evaluate_case(case, args.output / name, args.blender, rights, model=args.model, measure_body=args.body_profile,
                           measure_sleeve=args.sleeve_profile)
             print(f"Wrote {args.output / name / 'study.json'}")
 
