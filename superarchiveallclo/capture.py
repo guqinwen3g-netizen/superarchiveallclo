@@ -10,9 +10,11 @@ from shutil import copyfile
 from subprocess import run
 from tempfile import TemporaryDirectory
 
+from ezdxf import DXFError
 from PIL import Image, ImageOps, UnidentifiedImageError
 
 from .cad import export_dxf
+from .check_archive import check_archive
 from .export import write_exports
 from .tee import TeeSpec, draft
 from .vision import FIELDS, TeeVision
@@ -47,7 +49,7 @@ def segment_length(segment, size, axis=None):
     return dist(a, b)
 
 
-def load_capture(source, photo_dir, model_path=None):
+def capture_observations(source, photo_dir=None, model_path=None, *, allow_partial=False):
     capture = json.loads(source.read_text(encoding="utf8"))
     if not isinstance(capture, dict) or capture.get("schema_version") != 1:
         raise ValueError("Expected capture schema_version 1")
@@ -58,8 +60,9 @@ def load_capture(source, photo_dir, model_path=None):
     views = capture["views"]
     if not isinstance(views, dict) or not {"front", "back"}.issubset(views):
         raise ValueError("Include front and back views")
-    archived = {}
-    photo_dir.mkdir()
+    archived, paths = {}, {}
+    if photo_dir is not None:
+        photo_dir.mkdir()
     for name, view in views.items():
         if not re.fullmatch(r"[a-z][a-z0-9_]*", name):
             raise ValueError(f"Invalid view ID {name!r}")
@@ -71,10 +74,15 @@ def load_capture(source, photo_dir, model_path=None):
             extension = {"JPEG": ".jpg", "PNG": ".png"}.get(image.format)
         if extension is None:
             raise ValueError(f"{name}: photo must be JPEG or PNG")
-        target = photo_dir / (name + extension)
-        copyfile(original, target)
+        target = original
+        output_name = view["file"]
+        if photo_dir is not None:
+            target = photo_dir / (name + extension)
+            copyfile(original, target)
+            output_name = f"photos/{target.name}"
+        paths[name] = target
         info = {
-            "file": f"photos/{target.name}", "upright_px": list(size),
+            "file": output_name, "upright_px": list(size),
             "sha256": sha256(target.read_bytes()).hexdigest(),
         }
         if "scale" in view:
@@ -86,9 +94,7 @@ def load_capture(source, photo_dir, model_path=None):
 
     predicted, inference = {}, None
     if model_path is not None:
-        with Image.open(photo_dir.parent / archived["front"]["file"]) as front, Image.open(
-            photo_dir.parent / archived["back"]["file"],
-        ) as back:
+        with Image.open(paths["front"]) as front, Image.open(paths["back"]) as back:
             predicted, inference = TeeVision(model_path).estimate(front, back)
 
     values, provenance = {}, {}
@@ -101,6 +107,8 @@ def load_capture(source, photo_dir, model_path=None):
                 values[name], method = ASSUMPTIONS[name], "assumed"
             elif name in predicted:
                 values[name], method = predicted[name], "vision_model"
+            elif allow_partial:
+                continue
             else:
                 raise ValueError(f"{name}: provide a measurement or a trained --model")
             provenance[name] = {"source": method, "value": values[name]}
@@ -133,6 +141,11 @@ def load_capture(source, photo_dir, model_path=None):
     }
     if inference is not None:
         manifest["inference"] = inference
+    return manifest, values
+
+
+def load_capture(source, photo_dir=None, model_path=None):
+    manifest, values = capture_observations(source, photo_dir, model_path)
     spec = TeeSpec(body_chest_mm=None, body_shoulder_width_mm=None, shoulder_extension_mm=None, **values)
     return manifest, spec
 
@@ -162,6 +175,7 @@ def archive(source, output, blender, model_path=None):
         )):
             log = (model / "blender.log").read_text(encoding="utf8", errors="replace")
             raise ValueError(f"Blender did not finish:\n{log[-2500:]}")
+        check_archive(bundle)
         bundle.rename(output)
 
 
@@ -174,7 +188,7 @@ def main():
     args = parser.parse_args()
     try:
         archive(args.session, args.output, args.blender, args.model)
-    except (ValueError, TypeError, KeyError, OSError, UnidentifiedImageError) as error:
+    except (ValueError, TypeError, KeyError, OSError, UnidentifiedImageError, DXFError) as error:
         parser.error(str(error))
     print(f"Wrote {args.output}")
 

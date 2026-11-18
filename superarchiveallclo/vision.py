@@ -127,9 +127,22 @@ class TeeVision:
             self.target_max = data["target_max"]
             self.box_min = data["box_min"]
             self.box_max = data["box_max"]
+            self.validation_domain = str(data["validation_domain"]) if "validation_domain" in data else (
+                "synthetic flat-lay views"
+            )
 
     def estimate(self, front, back):
         features, scale = paired_features(front, back)
+        measures, bounded = self.estimate_features(features, scale)
+        return measures, {
+            "method": "learned_paired_silhouette_ridge",
+            "weights_sha256": self.checksum,
+            "scale_evidence": scale,
+            "bounded_fields": bounded,
+            "validation_domain": self.validation_domain,
+        }
+
+    def estimate_features(self, features, scale):
         normalized = (features - self.center) / self.scale
         values = normalized @ self.coefficients + self.intercept
         boxes = np.array([scale[name]["garment_box_mm"] for name in ("front", "back")])
@@ -137,10 +150,4 @@ class TeeVision:
             raise ValueError("Garment dimensions fall outside the current tee model's capture range")
         clipped = np.clip(values, self.target_min, self.target_max)
         measures = {key: round(float(value), 3) for key, value in zip(FIELDS, clipped, strict=True)}
-        return measures, {
-            "method": "learned_paired_silhouette_ridge",
-            "weights_sha256": self.checksum,
-            "scale_evidence": scale,
-            "bounded_fields": [field for field, raw, used in zip(FIELDS, values, clipped) if raw != used],
-            "validation_domain": "synthetic flat-lay views",
-        }
+        return measures, [field for field, raw, used in zip(FIELDS, values, clipped) if raw != used]

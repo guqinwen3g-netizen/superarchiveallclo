@@ -1,6 +1,7 @@
 """Train and evaluate a reproducible photo-to-measurement tee model."""
 
 from argparse import ArgumentParser
+from collections import Counter
 from io import BytesIO
 import json
 from math import cos, radians, sin
@@ -11,6 +12,7 @@ from PIL import Image, ImageDraw
 from reportlab.lib.units import mm
 from reportlab.pdfgen.canvas import Canvas
 
+from .dataset import arrays, evaluate, load_dataset
 from .tee import TeeSpec, body_panel, draft
 from .vision import CARD_MM, FIELDS, MODEL_VERSION, TeeVision, paired_features
 
@@ -171,15 +173,32 @@ def main():
     parser.add_argument("--report", type=Path, required=True)
     parser.add_argument("--demo", type=Path)
     parser.add_argument("--card", type=Path)
+    parser.add_argument("--dataset", type=Path, help="Optional manifest of independently labelled photo pairs")
+    parser.add_argument("--compare-model", type=Path, help="Score incumbent weights on the same labelled test rows")
     args = parser.parse_args()
     if args.weights.suffix != ".npz":
         parser.error("--weights must have an .npz extension")
+    if args.compare_model is not None and args.dataset is None:
+        parser.error("--compare-model requires --dataset")
+    try:
+        labelled, dataset_checksum = load_dataset(args.dataset) if args.dataset else ([], None)
+        incumbent = TeeVision(args.compare_model) if args.compare_model else None
+    except (KeyError, TypeError, ValueError, OSError) as error:
+        parser.error(str(error))
 
     sizes = (960, 160, 200)
     train, validation, test = (
         sample_set(size, SEED + split) for split, size in enumerate(sizes)
     )
+    extra_train = arrays(labelled, "train")
+    extra_validation = arrays(labelled, "validation")
+    if extra_train is not None:
+        train = tuple(np.concatenate((a, b)) for a, b in zip(train, extra_train, strict=True))
+    if extra_validation is not None:
+        validation = extra_validation
     weights, penalty = fit_ridge(train, validation)
+    if extra_validation is not None:
+        weights["validation_domain"] = np.array("labelled validation split; see evaluation report")
     args.weights.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(args.weights, **weights)
     x, y, _ = test
@@ -216,10 +235,31 @@ def main():
             for i, name in enumerate(FIELDS)
         },
     }
+    model = TeeVision(args.weights)
+    if args.dataset:
+        report["labelled_dataset"] = {
+            "manifest_sha256": dataset_checksum,
+            "items_by_split": dict(Counter(item.split for item in labelled)),
+            "rejected_captures_by_split": dict(Counter(
+                item.split for item in labelled if item.capture_error is not None
+            )),
+            "partial_references_by_split": dict(Counter(
+                item.split for item in labelled if len(item.truth) < len(FIELDS)
+            )),
+            "used_for_training": 0 if extra_train is None else len(extra_train[0]),
+            "used_for_regularization_choice": 0 if extra_validation is None else len(extra_validation[0]),
+            "weights_sha256": model.checksum,
+            "test": evaluate(labelled, model),
+        }
+        if incumbent is not None:
+            report["labelled_dataset"]["incumbent"] = {
+                "weights_sha256": incumbent.checksum,
+                "test": evaluate(labelled, incumbent),
+            }
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(report, indent=2) + "\n")
     if args.demo:
-        write_demo(args.demo, TeeVision(args.weights))
+        write_demo(args.demo, model)
     if args.card:
         save_card(args.card)
     print(json.dumps(report, indent=2))
