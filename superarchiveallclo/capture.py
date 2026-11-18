@@ -49,7 +49,9 @@ def segment_length(segment, size, axis=None):
     return dist(a, b)
 
 
-def capture_observations(source, photo_dir=None, model_path=None, *, allow_partial=False):
+def capture_observations(source, photo_dir=None, model_path=None, *, allow_partial=False, blind=False):
+    if blind and model_path is None:
+        raise ValueError("Blind reconstruction requires trained --model weights")
     capture = json.loads(source.read_text(encoding="utf8"))
     if not isinstance(capture, dict) or capture.get("schema_version") != 1:
         raise ValueError("Expected capture schema_version 1")
@@ -98,7 +100,7 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
             predicted, inference = TeeVision(model_path).estimate(front, back)
 
     values, provenance = {}, {}
-    supplied = capture.get("measurements", {})
+    supplied = {} if blind else capture.get("measurements", {})
     if not isinstance(supplied, dict):
         raise ValueError("Measurements must be an object")
     for name in FIELDS + tuple(ASSUMPTIONS):
@@ -140,17 +142,18 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
         "review": "Unverified against a physical original",
     }
     if inference is not None:
+        inference["reference_measurements_withheld"] = blind
         manifest["inference"] = inference
     return manifest, values
 
 
-def load_capture(source, photo_dir=None, model_path=None):
-    manifest, values = capture_observations(source, photo_dir, model_path)
+def load_capture(source, photo_dir=None, model_path=None, *, blind=False):
+    manifest, values = capture_observations(source, photo_dir, model_path, blind=blind)
     spec = TeeSpec(body_chest_mm=None, body_shoulder_width_mm=None, shoulder_extension_mm=None, **values)
     return manifest, spec
 
 
-def archive(source, output, blender, model_path=None):
+def archive(source, output, blender, model_path=None, *, blind=False):
     if output.exists():
         raise ValueError(f"Output already exists: {output}")
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -158,7 +161,7 @@ def archive(source, output, blender, model_path=None):
     with TemporaryDirectory(dir=output.parent) as temporary:
         bundle = Path(temporary) / "bundle"
         bundle.mkdir()
-        manifest, spec = load_capture(source, bundle / "photos", model_path)
+        manifest, spec = load_capture(source, bundle / "photos", model_path, blind=blind)
         (bundle / "capture.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf8")
         pattern = draft(spec)
         write_exports(pattern, bundle / "pattern")
@@ -185,9 +188,10 @@ def main():
     parser.add_argument("-o", "--output", type=Path, required=True)
     parser.add_argument("--blender", default="blender", help="Blender executable")
     parser.add_argument("--model", type=Path, help="Use trained weights to infer dimensions from the photos")
+    parser.add_argument("--blind", action="store_true", help="Withhold all recorded measurements from reconstruction")
     args = parser.parse_args()
     try:
-        archive(args.session, args.output, args.blender, args.model)
+        archive(args.session, args.output, args.blender, args.model, blind=args.blind)
     except (ValueError, TypeError, KeyError, OSError, UnidentifiedImageError, DXFError) as error:
         parser.error(str(error))
     print(f"Wrote {args.output}")

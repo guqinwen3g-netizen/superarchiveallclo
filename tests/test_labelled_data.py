@@ -95,3 +95,18 @@ class LabelledDatasetTest(TestCase):
         self.assertEqual(sum(d["source"] == "vision_model" for d in capture["measurements"].values()), 11)
         for data in capture["views"].values():
             self.assertEqual(sha256((self.root / data["file"]).read_bytes()).hexdigest(), data["sha256"])
+
+    def test_blind_mode_does_not_feed_reference_labels_into_reconstruction(self):
+        entry = self.entry("blind", "style-d", "test")
+        session = self.root / entry["session"]
+        source = json.loads(session.read_text())
+        source["measurements"]["flat_chest_mm"] = {"value": 432}
+        session.write_text(json.dumps(source), encoding="utf8")
+        model = ROOT / "models/tee-vision.npz"
+        manual, _ = load_capture(session, model_path=model)
+        inferred, _ = load_capture(session, model_path=model, blind=True)
+        self.assertEqual(manual["measurements"]["flat_chest_mm"]["value"], 432)
+        self.assertEqual(inferred["measurements"]["flat_chest_mm"]["source"], "vision_model")
+        self.assertTrue(inferred["inference"]["reference_measurements_withheld"])
+        self.assertTrue(all(m["source"] == "vision_model" for name, m in inferred["measurements"].items()
+                            if name in FIELDS))
