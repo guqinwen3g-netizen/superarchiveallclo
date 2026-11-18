@@ -73,9 +73,11 @@ def main():
     parser.add_argument("--model", type=Path, default=Path("models/tee-vision-front.npz"))
     parser.add_argument("--archive", action="store_true", help="Also generate the input frame's DXF and GLB")
     parser.add_argument("--compare-references", action="store_true", help="Generate the archive and compare net panels and the flat-pose GLB")
+    parser.add_argument("--baseline-archive", type=Path, help="Compare a previous archive with the same flat-pose solver and reference scans")
     parser.add_argument("--blender", default="blender")
     args = parser.parse_args()
-    generate_archive = args.archive or args.compare_references
+    compare_references = args.compare_references or args.baseline_archive is not None
+    generate_archive = args.archive or compare_references
     args.output.mkdir(parents=True, exist_ok=True)
     if (args.output / "frames").exists():
         parser.error("Choose a fresh output directory to reproduce all frames")
@@ -131,13 +133,18 @@ def main():
     if generate_archive:
         candidate = args.output / "frames" / INPUT / "archive"
         report["archive"] = check_archive(candidate)
-    if args.compare_references:
+    if compare_references:
         if len({row["world_to_camera_sha256"] for row in rows}) != 1:
             raise ValueError("The reproduction expects the same calibration across these scans")
-        compare_flat(candidate, [args.output / f'{row["frame"]}.pcd' for row in holdout],
-                     args.output / "flat-comparison", item_id="rgbench-green-tshirt",
-                     setup="RGBench green_tshirt, three RealSense D455 recordings, CC BY 4.0, flat visible side",
-                     transform=args.output / "18-21-20-transform.json", right="y", down="x", blender=args.blender)
+        scans = [args.output / f'{row["frame"]}.pcd' for row in holdout]
+        setup = "RGBench green_tshirt, RealSense D455, eight reference frames, CC BY 4.0"
+        transform = args.output / "18-21-20-transform.json"
+        current_flat = compare_flat(candidate, scans, args.output / "flat-comparison", item_id="rgbench-green-tshirt",
+                                    setup=setup, transform=transform, right="y", down="x", blender=args.blender)
+        if args.baseline_archive is not None:
+            compare_flat(args.baseline_archive, scans, args.output / "flat-baseline-comparison", item_id="rgbench-green-tshirt",
+                         setup=setup, transform=transform, right="y", down="x", blender=args.blender,
+                         sleeve_angle=current_flat["sleeve_angle_below_horizontal_deg"])
         reference = download(args.output, "green_tshirt_5k.obj", REFERENCE_OBJ)
         compare_pattern(candidate, reference, args.output / "pattern-comparison", item_id="rgbench-green-tshirt",
                         source="RGBench green_tshirt_5k Style3D simulation mesh, CC BY 4.0, Sim2Real-v1",

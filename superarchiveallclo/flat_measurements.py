@@ -3,7 +3,7 @@
 import numpy as np
 from scipy import ndimage
 
-from .tee import TeeSpec, body_panel, sleeve_panels
+from .tee import TeeSpec, body_panel, cap_dimensions, sleeve_panels
 
 
 def sleeve_cuff(outline, raw, torso_x, torso_width, mm_per_pixel):
@@ -101,6 +101,32 @@ def visible_neck(mask, center_x, torso_width, mm_per_pixel):
     }
 
 
+def cuff_axes(cuff, side):
+    outer = np.asarray(cuff["outer_mm"])
+    chord = np.asarray(cuff["inner_mm"]) - outer
+    across = chord / np.linalg.norm(chord)
+    outward = np.array([side * across[1], -side * across[0]])
+    return outer, across, outward
+
+
+def sleeve_layout(cuffs, center, torso_width):
+    """Resolve the visible underarm join along and across each sleeve."""
+    layout = {}
+    for side, tag in ((-1, "image_left"), (1, "image_right")):
+        cuff = cuffs[tag]
+        height = cuff["underarm_join_y_mm"]
+        if height is None:
+            return None
+        underarm = np.array([center + side * torso_width / 2, height])
+        tip, across, outward = cuff_axes(cuff, side)
+        layout[tag] = {
+            "underarm_mm": underarm.round(2).tolist(),
+            "folded_width_at_join_mm": round(float((underarm - tip) @ across), 2),
+            "join_to_cuff_run_mm": round(float((tip - underarm) @ outward), 2),
+        }
+    return layout
+
+
 def flat_landmarks(mask, mm_per_pixel, torso_width):
     """Return only bilateral landmarks supported by this projected view."""
     height, width = mask.shape
@@ -127,10 +153,39 @@ def flat_landmarks(mask, mm_per_pixel, torso_width):
         left, right = (sides[side]["folded_opening_mm"] for side in ("image_left", "image_right"))
         if max(left, right) <= 1.18 * min(left, right):
             evidence["cuffs"] = sides
+            layout = sleeve_layout(sides, center, torso_width)
+            if layout is not None:
+                evidence["sleeve_layout"] = layout
     neckline = visible_neck(mask, center, torso_width, mm_per_pixel)
     if neckline is not None:
         evidence["visible_neck"] = neckline
     return evidence
+
+
+def projected_sleeve(measures, updates, opening, layout, top):
+    """Use both underarms and the folded cuff directions to constrain the sleeve cap."""
+    rows = tuple(layout.values())
+    widths = [row["folded_width_at_join_mm"] for row in rows]
+    runs = [row["join_to_cuff_run_mm"] for row in rows]
+    depths = [row["underarm_mm"][1] - top for row in rows]
+    chest = updates["flat_chest_mm"]
+    bicep = sum(widths)
+    depth = sum(depths) / 2
+    if (min(runs) < 25 or max(runs) > 1.25 * min(runs) or max(widths) > 1.18 * min(widths)
+            or max(depths) - min(depths) > 0.065 * chest or not opening <= bicep <= 0.94 * chest
+            or depth <= measures["shoulder_slope_mm"] + 40 or depth > 0.65 * chest):
+        return None
+    proposed = {"sleeve_bicep_flat_mm": bicep, "sleeve_opening_flat_mm": opening, "armhole_depth_mm": depth}
+    spec = TeeSpec(**{**measures, **updates, **proposed})
+    front, back = (body_panel(spec, side).edge("armhole_right").length() for side in (True, False))
+    try:
+        _, cap = cap_dimensions(bicep, min(front, back), front, back)
+    except ValueError:
+        return None
+    length = cap + sum(runs) / 2
+    if not 0.17 * chest <= length <= 0.60 * chest:
+        return None
+    return {**proposed, "sleeve_length_mm": length}
 
 
 def draft_constraints(measures, evidence):
@@ -153,19 +208,25 @@ def draft_constraints(measures, evidence):
     if "cuffs" in landmarks:
         cuffs = landmarks["cuffs"]
         opening = sum(cuff["folded_opening_mm"] for cuff in cuffs.values())
+        top = evidence["shoulder_line_y_mm"]
+        if "sleeve_layout" in landmarks:
+            geometry = projected_sleeve(measures, updates, opening, landmarks["sleeve_layout"], top)
+            if geometry is not None:
+                updates.update(geometry)
+                methods.update(dict.fromkeys(geometry, "scan_projected_joins"))
+                methods["sleeve_opening_flat_mm"] = "scan_with_prior"
+                return updates, methods, None
+
         taper = max(0, measures["sleeve_bicep_flat_mm"] - measures["sleeve_opening_flat_mm"])
         bicep = opening + taper
         shoulder_slope = measures["shoulder_slope_mm"]
         armhole = max(measures["armhole_depth_mm"], shoulder_slope + bicep / 2 + 6)
         proposed = {"sleeve_opening_flat_mm": opening, "sleeve_bicep_flat_mm": bicep, "armhole_depth_mm": armhole}
         center = landmarks["torso_center_x_mm"]
-        top = evidence["shoulder_line_y_mm"]
         lengths = []
         for side, tag in ((-1, "image_left"), (1, "image_right")):
             cuff = cuffs[tag]
-            outer, inner = np.asarray(cuff["outer_mm"]), np.asarray(cuff["inner_mm"])
-            delta_x, delta_y = inner - outer
-            direction = np.array([side * delta_y, -side * delta_x]) / np.linalg.norm(inner - outer)
+            outer, _, direction = cuff_axes(cuff, side)
             shoulder = np.array([center + side * measures["garment_shoulder_width_mm"] / 2, top + shoulder_slope])
             lengths.append(float((outer - shoulder) @ direction))
         short, long = sorted(lengths)

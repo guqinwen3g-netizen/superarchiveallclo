@@ -89,22 +89,8 @@ def calibration(rgb):
     }
 
 
-def picture_features(image, view=None):
-    """Return metric dimensions and crop-relative silhouette descriptors."""
-    image = ImageOps.exif_transpose(image).convert("RGB")
-    original_width, original_height = image.size
-    image.thumbnail((720, 720), Image.Resampling.BOX)
-    rgb = np.asarray(image, dtype=np.int16)
+def garment_crop(rgb, exclusion, *, require_margin=True):
     height, width = rgb.shape[:2]
-    if view and "mm_per_pixel" in view:
-        mm_per_px = view["mm_per_pixel"] * np.sqrt(original_width / width * original_height / height)
-        exclusion = np.zeros((height, width), dtype=bool)
-        scale = {
-            "method": "metric_calibration" if "calibration" in view else "reference_segment",
-            "source": view["calibration"]["source"] if "calibration" in view else "known length in image plane",
-        }
-    else:
-        mm_per_px, exclusion, scale = calibration(rgb)
     border = np.concatenate((rgb[:4].reshape(-1, 3), rgb[-4:].reshape(-1, 3),
                              rgb[:, :4].reshape(-1, 3), rgb[:, -4:].reshape(-1, 3)))
     backdrop = np.median(border, axis=0)
@@ -122,9 +108,28 @@ def picture_features(image, view=None):
     mask = objects == piece
     yy, xx = np.where(mask)
     top, bottom, left, right = int(yy.min()), int(yy.max()), int(xx.min()), int(xx.max())
-    if min(top, left, height - 1 - bottom, width - 1 - right) < 3:
+    if require_margin and min(top, left, height - 1 - bottom, width - 1 - right) < 3:
         raise ValueError("Keep the entire garment, including the sleeves, away from image edges")
-    crop = mask[top:bottom + 1, left:right + 1]
+    return mask[top:bottom + 1, left:right + 1], [left, top, right, bottom]
+
+
+def picture_features(image, view=None):
+    """Return metric dimensions and crop-relative silhouette descriptors."""
+    image = ImageOps.exif_transpose(image).convert("RGB")
+    original_width, original_height = image.size
+    image.thumbnail((720, 720), Image.Resampling.BOX)
+    rgb = np.asarray(image, dtype=np.int16)
+    height, width = rgb.shape[:2]
+    if view and "mm_per_pixel" in view:
+        mm_per_px = view["mm_per_pixel"] * np.sqrt(original_width / width * original_height / height)
+        exclusion = np.zeros((height, width), dtype=bool)
+        scale = {
+            "method": "metric_calibration" if "calibration" in view else "reference_segment",
+            "source": view["calibration"]["source"] if "calibration" in view else "known length in image plane",
+        }
+    else:
+        mm_per_px, exclusion, scale = calibration(rgb)
+    crop, bounds = garment_crop(rgb, exclusion)
     h, w = crop.shape
     actual_width, actual_height = float(w * mm_per_px), float(h * mm_per_px)
     bands = np.linspace(0, h - 1, 48).round().astype(int)
@@ -143,7 +148,7 @@ def picture_features(image, view=None):
         "processed_mm_per_pixel": round(mm_per_px, 5),
         "processed_image_px": [width, height],
         "processed_image_sha256": sha256(image.tobytes()).hexdigest(),
-        "garment_crop_px": [left, top, right, bottom],
+        "garment_crop_px": bounds,
         "garment_box_mm": [round(actual_width, 2), round(actual_height, 2)],
         "lower_torso_width_mm": round(torso, 2),
     }
@@ -158,6 +163,40 @@ def picture_features(image, view=None):
         evidence["shoulder_line_y_mm"] = round(float(upper * mm_per_px), 2)
         evidence["flat_landmarks"] = flat_landmarks(crop, mm_per_px, torso)
     return descriptor, evidence
+
+
+def unscaled_pair(front, back):
+    """Check relative proportions of two source photographs without metric inference."""
+    views = {}
+    for name, image in (("front", front), ("back", back)):
+        image = ImageOps.exif_transpose(image).convert("RGB")
+        image.thumbnail((720, 720), Image.Resampling.BOX)
+        rgb = np.asarray(image, dtype=np.int16)
+        crop, bounds = garment_crop(rgb, np.zeros(rgb.shape[:2], dtype=bool), require_margin=False)
+        height, width = crop.shape
+        lower = crop[round(0.64 * height):round(0.87 * height)]
+        left, top, right, bottom = bounds
+        margins = (left, top, image.width - 1 - right, image.height - 1 - bottom)
+        boundary = [name for name, margin in zip(("left", "top", "right", "bottom"), margins, strict=True) if margin < 3]
+        height_visible = min(margins[1::2]) >= 3
+        torso_visible = (margins[0] >= 3 or not lower[:, :3].any()) and (margins[2] >= 3 or not lower[:, -3:].any())
+        views[name] = {
+            "processed_image_sha256": sha256(image.tobytes()).hexdigest(),
+            "silhouette_bounds_px": bounds,
+            "possibly_clipped_edges": boundary,
+            "width_to_height": round(width / height, 4) if not boundary else None,
+            "lower_torso_width_to_height": (round(float(np.median(lower.sum(axis=1))) / height, 4)
+                                            if height_visible and torso_visible else None),
+        }
+    if views["front"]["processed_image_sha256"] == views["back"]["processed_image_sha256"]:
+        raise ValueError("Provide two distinct photographs, one front and one back")
+    return {
+        "scope": "Dimensionless comparison of visible silhouettes from two photographs",
+        "views": views,
+        "absolute_proportion_delta": {name: (round(abs(views["front"][name] - views["back"][name]), 4)
+                                             if all(view[name] is not None for view in views.values()) else None)
+                                      for name in ("width_to_height", "lower_torso_width_to_height")},
+    }
 
 
 def paired_features(front, back, views=None):
@@ -255,10 +294,14 @@ def main():
     parser = ArgumentParser(description="Check a calibrated front/back photo pair before creating a 3D archive.")
     parser.add_argument("front", type=Path)
     parser.add_argument("back", type=Path)
+    parser.add_argument("--shape-only", action="store_true", help="Compare visible proportions without a metric scale")
     args = parser.parse_args()
     try:
         with Image.open(args.front) as front, Image.open(args.back) as back:
-            _, evidence = paired_features(front, back)
+            if args.shape_only:
+                evidence = unscaled_pair(front, back)
+            else:
+                _, evidence = paired_features(front, back)
     except (ValueError, OSError) as error:
         parser.error(str(error))
     print(json.dumps(evidence, indent=2))

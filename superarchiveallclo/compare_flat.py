@@ -3,6 +3,7 @@
 from argparse import ArgumentParser
 from hashlib import sha256
 import json
+from math import atan2, degrees
 from pathlib import Path
 from subprocess import run
 from tempfile import TemporaryDirectory
@@ -13,6 +14,7 @@ from PIL import Image
 
 from .check_archive import check_archive, glb_inventory
 from .compare_shape import GRID_MM, compare_masks, crop_surface, project as project_mesh
+from .flat_measurements import cuff_axes
 from .scan import AXES, in_world, project as project_scan, read_pcd
 
 
@@ -26,16 +28,32 @@ def flat_coordinates(points, right, down):
     return points @ np.column_stack((horizontal, vertical, normal))
 
 
+def capture_sleeve_angle(capture):
+    evidence = capture.get("inference", {}).get("scale_evidence", {}).get("front", {})
+    cuffs = evidence.get("flat_landmarks", {}).get("cuffs", {})
+    if "image_left" in cuffs and "image_right" in cuffs:
+        angles = []
+        for side, tag in ((-1, "image_left"), (1, "image_right")):
+            _, _, outward = cuff_axes(cuffs[tag], side)
+            angles.append(degrees(atan2(outward[1], abs(outward[0]))))
+        if min(angles) >= 0 and max(angles) <= 50:
+            return sum(angles) / 2, "Mean of cuff directions from the reconstruction input"
+    return 23.0, "Standard flat-lay placement"
+
+
 def compare_flat(archive, clouds, output, *, item_id, setup, transform=None, right="x", down="y",
-                 sleeve_angle=23.0, blender="blender"):
+                 sleeve_angle=None, blender="blender"):
     if output.exists():
         raise ValueError(f"Output already exists: {output}")
-    if not 0 <= sleeve_angle <= 50:
+    if sleeve_angle is not None and not 0 <= sleeve_angle <= 50:
         raise ValueError("Flat sleeve angle must be between 0 and 50 degrees below horizontal")
     if not setup.strip() or not clouds:
         raise ValueError("Provide reference scans and record the flat-lay capture setup")
     integrity = check_archive(archive)
     capture = json.loads((archive / "capture.json").read_text())
+    angle_source = "Provided sleeve angle"
+    if sleeve_angle is None:
+        sleeve_angle, angle_source = capture_sleeve_angle(capture)
     if capture["kind"] != "physical" or not item_id.strip() or item_id != capture["item_id"]:
         raise ValueError("Reference scans must identify the same physical garment as the archive")
     original = {view.get("calibration", {}).get("cloud_sha256") for view in capture["views"].values()}
@@ -49,8 +67,9 @@ def compare_flat(archive, clouds, output, *, item_id, setup, transform=None, rig
         "reference_setup": setup,
         "pattern_sha256": integrity["pattern_sha256"],
         "capture_clouds_sha256": sorted(digest for digest in original if digest),
-        "model_pose": "Sewn panels supported flat with a 2 mm layer separation and a prescribed sleeve direction",
+        "model_pose": "Sewn panels supported flat with a 2 mm layer separation and sleeves placed from the underarm joins",
         "sleeve_angle_below_horizontal_deg": sleeve_angle,
+        "sleeve_angle_source": angle_source,
         "alignment": "Translation of the top and horizontal midpoint, with median scan height at the upper layer",
         "scope": "Overhead silhouette and one-way observed-point-to-mesh distances in flat pose",
         "reference_axes": {"right": right, "down": down},
@@ -135,7 +154,7 @@ def main():
     parser.add_argument("--world-to-camera", type=Path)
     parser.add_argument("--right", choices=AXES, default="x")
     parser.add_argument("--down", choices=AXES, default="y")
-    parser.add_argument("--sleeve-angle-deg", type=float, default=23)
+    parser.add_argument("--sleeve-angle-deg", type=float, help="Override the angle recovered from the input cuffs")
     parser.add_argument("--blender", default="blender")
     args = parser.parse_args()
     try:

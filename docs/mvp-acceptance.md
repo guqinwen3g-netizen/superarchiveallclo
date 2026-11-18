@@ -118,6 +118,7 @@ python -m superarchiveallclo.compare_shape build/tee-01 \
 - Kitanesque 的旧衣数据提供 558 件商品的卷尺记录和商品链接，表格许可为 CC BY 4.0。实测表没有配套的标定正背照，商品照片的使用范围也需单独查证。[实测数据表](https://www.kaggle.com/datasets/andradalcaran/vintage-clothing-sizing-label-vs-tape)
 - Trossen Robotics 的 T 恤折叠数据提供 Apache-2.0 许可的机器人拍摄视频，数据卡未列出同件成衣的毫米实测、纸样或标准正背面采集。[数据卡](https://huggingface.co/datasets/TrossenRoboticsCommunity/aloha_fold_tshirt)
 - V&A 馆藏抽查有单件 T 恤的毫米可换算尺寸。O1782036 记录高 66 cm、肩宽 35.7 cm。三张馆藏图为正面和印花细节，未见背照和可用标尺。馆藏元数据与图像用途依馆方条款核对。[馆藏对象记录](https://api.vam.ac.uk/v2/object/O1782036) · [馆方使用条款](https://www.vam.ac.uk/info/va-websites-terms-conditions)
-- RGBench 的公开 Sim2Real 数据提供同件 T 恤的标定实物点云和 Style3D 数字参考。已量出平铺三维、裁片净线、连接关系与实物袖口的误差。扫描未提供带正背标签的平铺配对及卷尺记录。[RGBench 最新结果](scan-landmark-study.md)
+- RGBench 的公开 Sim2Real 数据提供同件 T 恤的标定实物点云和 Style3D 数字参考。已量出平铺三维、裁片净线、连接关系与实物袖口的误差。扫描未提供带正背标签的平铺配对及卷尺记录。[RGBench 最新结果](sleeve-join-study.md)
 - PatternedClothing 提供同一研究 T 恤的裁片模型和实拍注册网格，许可为 CC BY-NC 4.0。Open+Pattern 提供 CC BY 4.0 的 T 恤 DXF、CLO 文件和 GLB，其公开产品页列出的图像为插图。两者分别提供动态几何和独立制板参考。[PatternedClothing](https://github.com/facebookresearch/PatternedClothing) · [Open+Pattern](https://openpattern.io/product/standard-fit-t-shirt/)
 - Smithsonian 藏品 `nmah_460141` 有馆方标注的同件正背照片和整体尺寸 63.50 × 68.58 × 5.08 cm。该页面的 CC0 适用于目录元数据，照片另列使用条件。已核查目录和照片标注。[Smithsonian 藏品记录](https://www.si.edu/object/t-shirt:nmah_460141)
+- Wikimedia Commons 的鹿儿岛 OpenStreetMap 调查 T 恤提供同件正背图，许可为 CC BY-SA 4.0。已验证可见衣身的相对比例，并检查到袖缘贴图边。该对照还需要可信尺度和独立原件尺寸。[正背照报告](sleeve-join-study.md#有授权的同件正背照)

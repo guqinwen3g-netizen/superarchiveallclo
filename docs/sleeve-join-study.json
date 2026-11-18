@@ -1,0 +1,742 @@
+{
+  "baseline_commit": "1819516106b19b60441027f2d25fc87b9f87e9f9",
+  "input_sleeve_layout": {
+    "image_left": {
+      "underarm_mm": [
+        167.86,
+        330.0
+      ],
+      "folded_width_at_join_mm": 226.2,
+      "join_to_cuff_run_mm": 95.21
+    },
+    "image_right": {
+      "underarm_mm": [
+        770.86,
+        350.0
+      ],
+      "folded_width_at_join_mm": 227.86,
+      "join_to_cuff_run_mm": 101.63
+    }
+  },
+  "input_scan_estimates": {
+    "armhole_depth_mm": {
+      "source": "scan_projected_joins",
+      "value": 340.0
+    },
+    "sleeve_length_mm": {
+      "source": "scan_projected_joins",
+      "value": 281.889
+    },
+    "sleeve_bicep_flat_mm": {
+      "source": "scan_projected_joins",
+      "value": 454.06
+    },
+    "sleeve_opening_flat_mm": {
+      "source": "scan_with_prior",
+      "value": 353.72
+    }
+  },
+  "capture_count": 9,
+  "sleeve_layouts_found": 8,
+  "archive": {
+    "capture_kind": "physical",
+    "pattern_sha256": "919924d8ad85b91b743d677d463426240e11d28333825097ce633ed219599333",
+    "source_photos": 1,
+    "vision_estimates": 3,
+    "dxf_panels": 5,
+    "seams": 15,
+    "garment_openings": 4,
+    "glb": {
+      "meshes": 1,
+      "bounds_span_m": [
+        0.8027,
+        0.7553,
+        0.3747
+      ]
+    }
+  },
+  "flat_baseline": {
+    "schema_version": 1,
+    "item_id": "rgbench-green-tshirt",
+    "reference_setup": "RGBench green_tshirt, RealSense D455, eight reference frames, CC BY 4.0",
+    "pattern_sha256": "6fcea93a9aa118030d7c69a84ca5e00c427a5f2c0bc8fce57c6b5343126d4948",
+    "capture_clouds_sha256": [
+      "fc09af2cb4af4536794c4960b62811ec9cf13f72bae095b811d799b743a47769"
+    ],
+    "model_pose": "Sewn panels supported flat with a 2 mm layer separation and sleeves placed from the underarm joins",
+    "sleeve_angle_below_horizontal_deg": 18.185952693944415,
+    "sleeve_angle_source": "Provided sleeve angle",
+    "alignment": "Translation of the top and horizontal midpoint, with median scan height at the upper layer",
+    "scope": "Overhead silhouette and one-way observed-point-to-mesh distances in flat pose",
+    "reference_axes": {
+      "right": "y",
+      "down": "x"
+    },
+    "references": [
+      {
+        "id": "scan-01",
+        "file": "18-21-20-start-2.pcd",
+        "cloud_sha256": "7e83920079ee7b1f8f22c34fee3d766f2c93ecd8631ba95615956774a42ff0d6",
+        "point_count": 69595,
+        "plane_distance_p95_mm": 9.145,
+        "intersection_over_union": 0.9134,
+        "contour_distance_mm": {
+          "median": 11.66,
+          "p90": 27.2
+        },
+        "model_minus_reference_width_height_mm": [
+          44.3,
+          17.26
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.13,
+          "p90": 7.34
+        },
+        "reference_translation_mm": [
+          8.88,
+          123.17,
+          -1.03
+        ],
+        "overlay": "scan-01-overlay.png"
+      },
+      {
+        "id": "scan-02",
+        "file": "18-21-20-middle.pcd",
+        "cloud_sha256": "0e8d52dfeac8a36be9dbc75c385f35b592828c00b1b6e1bf3d34c9d0bd30d062",
+        "point_count": 69654,
+        "plane_distance_p95_mm": 10.236,
+        "intersection_over_union": 0.9125,
+        "contour_distance_mm": {
+          "median": 12.0,
+          "p90": 28.07
+        },
+        "model_minus_reference_width_height_mm": [
+          48.3,
+          11.26
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.3,
+          "p90": 7.86
+        },
+        "reference_translation_mm": [
+          7.45,
+          115.85,
+          -1.31
+        ],
+        "overlay": "scan-02-overlay.png"
+      },
+      {
+        "id": "scan-03",
+        "file": "18-22-41-start.pcd",
+        "cloud_sha256": "abdca3fbfd8ab72f4b04adba3acbb97e265a54b7cc1059add3a393f002fd3efb",
+        "point_count": 69357,
+        "plane_distance_p95_mm": 10.393,
+        "intersection_over_union": 0.9201,
+        "contour_distance_mm": {
+          "median": 10.0,
+          "p90": 28.0
+        },
+        "model_minus_reference_width_height_mm": [
+          44.3,
+          11.26
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.37,
+          "p90": 8.34
+        },
+        "reference_translation_mm": [
+          -25.76,
+          109.79,
+          -1.09
+        ],
+        "overlay": "scan-03-overlay.png"
+      },
+      {
+        "id": "scan-04",
+        "file": "18-22-41-start-2.pcd",
+        "cloud_sha256": "1a91087c9ff3873919d3a7136467ff0b334184f51c9473e57dac2053f766a5aa",
+        "point_count": 68947,
+        "plane_distance_p95_mm": 10.367,
+        "intersection_over_union": 0.92,
+        "contour_distance_mm": {
+          "median": 12.0,
+          "p90": 26.0
+        },
+        "model_minus_reference_width_height_mm": [
+          38.3,
+          11.26
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.38,
+          "p90": 8.14
+        },
+        "reference_translation_mm": [
+          -21.19,
+          108.99,
+          -1.15
+        ],
+        "overlay": "scan-04-overlay.png"
+      },
+      {
+        "id": "scan-05",
+        "file": "18-22-41-middle.pcd",
+        "cloud_sha256": "90d90081fe7b01c8ab9daa9630237f4e78109f92d1e0661f3c40d4dcc0c85066",
+        "point_count": 68657,
+        "plane_distance_p95_mm": 10.748,
+        "intersection_over_union": 0.9151,
+        "contour_distance_mm": {
+          "median": 12.0,
+          "p90": 27.87
+        },
+        "model_minus_reference_width_height_mm": [
+          32.3,
+          11.26
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.4,
+          "p90": 8.38
+        },
+        "reference_translation_mm": [
+          -20.75,
+          108.57,
+          -1.67
+        ],
+        "overlay": "scan-05-overlay.png"
+      },
+      {
+        "id": "scan-06",
+        "file": "18-29-24-start.pcd",
+        "cloud_sha256": "6b7a1f68143e5f19b660ff3670582bcfa7c96c9268177cdab2f7225b7fb16f47",
+        "point_count": 69316,
+        "plane_distance_p95_mm": 9.157,
+        "intersection_over_union": 0.899,
+        "contour_distance_mm": {
+          "median": 12.65,
+          "p90": 37.95
+        },
+        "model_minus_reference_width_height_mm": [
+          46.3,
+          7.26
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.26,
+          "p90": 7.57
+        },
+        "reference_translation_mm": [
+          -14.51,
+          105.3,
+          -1.97
+        ],
+        "overlay": "scan-06-overlay.png"
+      },
+      {
+        "id": "scan-07",
+        "file": "18-29-24-start-2.pcd",
+        "cloud_sha256": "001bd74aaf44ed86c2995bf9e69c5850a90c04eda1d6780d04794cb1acabab36",
+        "point_count": 69278,
+        "plane_distance_p95_mm": 9.61,
+        "intersection_over_union": 0.8959,
+        "contour_distance_mm": {
+          "median": 14.0,
+          "p90": 34.93
+        },
+        "model_minus_reference_width_height_mm": [
+          42.3,
+          5.26
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.27,
+          "p90": 7.9
+        },
+        "reference_translation_mm": [
+          -11.08,
+          108.05,
+          -2.01
+        ],
+        "overlay": "scan-07-overlay.png"
+      },
+      {
+        "id": "scan-08",
+        "file": "18-29-24-middle.pcd",
+        "cloud_sha256": "24209e0702bb4e5359946a33d893af7aa5c1f9b34febfc572bff1efc7ef166e3",
+        "point_count": 68535,
+        "plane_distance_p95_mm": 9.572,
+        "intersection_over_union": 0.903,
+        "contour_distance_mm": {
+          "median": 12.0,
+          "p90": 30.44
+        },
+        "model_minus_reference_width_height_mm": [
+          44.3,
+          17.26
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.23,
+          "p90": 7.58
+        },
+        "reference_translation_mm": [
+          -15.84,
+          115.28,
+          -1.93
+        ],
+        "overlay": "scan-08-overlay.png"
+      }
+    ],
+    "world_to_camera_sha256": "726c3ebb132b79b8f4f28e999c608c3947ed3bddccb14b45de3e0de420f3e3d5",
+    "flat_glb": {
+      "meshes": 1,
+      "bounds_span_m": [
+        0.9883,
+        0.0025,
+        0.7513
+      ],
+      "sha256": "1cc089d7bd39517d56db5ee6e24d4738ee827675003d432667b4d31a6e9db250",
+      "welded_openings": 4,
+      "mesh_edge_strain_p95_percent": 9.32
+    }
+  },
+  "flat_scan": {
+    "schema_version": 1,
+    "item_id": "rgbench-green-tshirt",
+    "reference_setup": "RGBench green_tshirt, RealSense D455, eight reference frames, CC BY 4.0",
+    "pattern_sha256": "919924d8ad85b91b743d677d463426240e11d28333825097ce633ed219599333",
+    "capture_clouds_sha256": [
+      "fc09af2cb4af4536794c4960b62811ec9cf13f72bae095b811d799b743a47769"
+    ],
+    "model_pose": "Sewn panels supported flat with a 2 mm layer separation and sleeves placed from the underarm joins",
+    "sleeve_angle_below_horizontal_deg": 18.185952693944415,
+    "sleeve_angle_source": "Mean of cuff directions from the reconstruction input",
+    "alignment": "Translation of the top and horizontal midpoint, with median scan height at the upper layer",
+    "scope": "Overhead silhouette and one-way observed-point-to-mesh distances in flat pose",
+    "reference_axes": {
+      "right": "y",
+      "down": "x"
+    },
+    "references": [
+      {
+        "id": "scan-01",
+        "file": "18-21-20-start-2.pcd",
+        "cloud_sha256": "7e83920079ee7b1f8f22c34fee3d766f2c93ecd8631ba95615956774a42ff0d6",
+        "point_count": 69595,
+        "plane_distance_p95_mm": 9.145,
+        "intersection_over_union": 0.9034,
+        "contour_distance_mm": {
+          "median": 14.14,
+          "p90": 30.0
+        },
+        "model_minus_reference_width_height_mm": [
+          -13.8,
+          17.27
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.15,
+          "p90": 7.52
+        },
+        "reference_translation_mm": [
+          8.88,
+          123.19,
+          -1.03
+        ],
+        "overlay": "scan-01-overlay.png"
+      },
+      {
+        "id": "scan-02",
+        "file": "18-21-20-middle.pcd",
+        "cloud_sha256": "0e8d52dfeac8a36be9dbc75c385f35b592828c00b1b6e1bf3d34c9d0bd30d062",
+        "point_count": 69654,
+        "plane_distance_p95_mm": 10.236,
+        "intersection_over_union": 0.9153,
+        "contour_distance_mm": {
+          "median": 12.17,
+          "p90": 26.0
+        },
+        "model_minus_reference_width_height_mm": [
+          -9.8,
+          11.27
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.32,
+          "p90": 7.91
+        },
+        "reference_translation_mm": [
+          7.45,
+          115.86,
+          -1.31
+        ],
+        "overlay": "scan-02-overlay.png"
+      },
+      {
+        "id": "scan-03",
+        "file": "18-22-41-start.pcd",
+        "cloud_sha256": "abdca3fbfd8ab72f4b04adba3acbb97e265a54b7cc1059add3a393f002fd3efb",
+        "point_count": 69357,
+        "plane_distance_p95_mm": 10.393,
+        "intersection_over_union": 0.9177,
+        "contour_distance_mm": {
+          "median": 12.0,
+          "p90": 27.8
+        },
+        "model_minus_reference_width_height_mm": [
+          -13.8,
+          11.27
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.36,
+          "p90": 8.28
+        },
+        "reference_translation_mm": [
+          -25.76,
+          109.8,
+          -1.09
+        ],
+        "overlay": "scan-03-overlay.png"
+      },
+      {
+        "id": "scan-04",
+        "file": "18-22-41-start-2.pcd",
+        "cloud_sha256": "1a91087c9ff3873919d3a7136467ff0b334184f51c9473e57dac2053f766a5aa",
+        "point_count": 68947,
+        "plane_distance_p95_mm": 10.367,
+        "intersection_over_union": 0.9217,
+        "contour_distance_mm": {
+          "median": 12.0,
+          "p90": 26.08
+        },
+        "model_minus_reference_width_height_mm": [
+          -19.8,
+          11.27
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.37,
+          "p90": 8.13
+        },
+        "reference_translation_mm": [
+          -21.19,
+          109.0,
+          -1.15
+        ],
+        "overlay": "scan-04-overlay.png"
+      },
+      {
+        "id": "scan-05",
+        "file": "18-22-41-middle.pcd",
+        "cloud_sha256": "90d90081fe7b01c8ab9daa9630237f4e78109f92d1e0661f3c40d4dcc0c85066",
+        "point_count": 68657,
+        "plane_distance_p95_mm": 10.748,
+        "intersection_over_union": 0.9127,
+        "contour_distance_mm": {
+          "median": 13.42,
+          "p90": 27.78
+        },
+        "model_minus_reference_width_height_mm": [
+          -25.8,
+          11.27
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.43,
+          "p90": 8.54
+        },
+        "reference_translation_mm": [
+          -20.75,
+          108.58,
+          -1.67
+        ],
+        "overlay": "scan-05-overlay.png"
+      },
+      {
+        "id": "scan-06",
+        "file": "18-29-24-start.pcd",
+        "cloud_sha256": "6b7a1f68143e5f19b660ff3670582bcfa7c96c9268177cdab2f7225b7fb16f47",
+        "point_count": 69316,
+        "plane_distance_p95_mm": 9.157,
+        "intersection_over_union": 0.9148,
+        "contour_distance_mm": {
+          "median": 12.65,
+          "p90": 25.3
+        },
+        "model_minus_reference_width_height_mm": [
+          -11.8,
+          7.27
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.22,
+          "p90": 7.4
+        },
+        "reference_translation_mm": [
+          -14.51,
+          105.31,
+          -1.97
+        ],
+        "overlay": "scan-06-overlay.png"
+      },
+      {
+        "id": "scan-07",
+        "file": "18-29-24-start-2.pcd",
+        "cloud_sha256": "001bd74aaf44ed86c2995bf9e69c5850a90c04eda1d6780d04794cb1acabab36",
+        "point_count": 69278,
+        "plane_distance_p95_mm": 9.61,
+        "intersection_over_union": 0.9074,
+        "contour_distance_mm": {
+          "median": 14.0,
+          "p90": 27.73
+        },
+        "model_minus_reference_width_height_mm": [
+          -15.8,
+          5.27
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.26,
+          "p90": 7.79
+        },
+        "reference_translation_mm": [
+          -11.08,
+          108.06,
+          -2.01
+        ],
+        "overlay": "scan-07-overlay.png"
+      },
+      {
+        "id": "scan-08",
+        "file": "18-29-24-middle.pcd",
+        "cloud_sha256": "24209e0702bb4e5359946a33d893af7aa5c1f9b34febfc572bff1efc7ef166e3",
+        "point_count": 68535,
+        "plane_distance_p95_mm": 9.572,
+        "intersection_over_union": 0.9032,
+        "contour_distance_mm": {
+          "median": 12.65,
+          "p90": 30.55
+        },
+        "model_minus_reference_width_height_mm": [
+          -13.8,
+          17.27
+        ],
+        "reference_to_glb_surface_distance_mm": {
+          "median": 2.22,
+          "p90": 7.63
+        },
+        "reference_translation_mm": [
+          -15.84,
+          115.29,
+          -1.93
+        ],
+        "overlay": "scan-08-overlay.png"
+      }
+    ],
+    "world_to_camera_sha256": "726c3ebb132b79b8f4f28e999c608c3947ed3bddccb14b45de3e0de420f3e3d5",
+    "flat_glb": {
+      "meshes": 1,
+      "bounds_span_m": [
+        0.9302,
+        0.0025,
+        0.7513
+      ],
+      "sha256": "1cac110c23fdecabe6a9b7c022183f0b85a1eab05e18a3390f6099f955a72cc3",
+      "welded_openings": 4,
+      "mesh_edge_strain_p95_percent": 12.17
+    }
+  },
+  "digital_pattern": {
+    "schema_version": 1,
+    "item_id": "rgbench-green-tshirt",
+    "reference_source": "RGBench green_tshirt_5k Style3D simulation mesh, CC BY 4.0, Sim2Real-v1",
+    "reference_obj_sha256": "38e58e5575257ef463901fc064e0e442e00138832d40418e456ff2a058db0823",
+    "pattern_sha256": "919924d8ad85b91b743d677d463426240e11d28333825097ce633ed219599333",
+    "reference_mm_per_uv": 540.83967,
+    "scale_method": "Median 3D edge length in millimetres divided by the paired UV edge length, excluding the collar",
+    "reference_edge_mm_per_uv_p05_p50_p95": [
+      535.80709,
+      540.83967,
+      544.55188
+    ],
+    "scope": "Net sewing geometry and cross-panel adjacency from the digital reference. The collar uses the candidate folded strip. Seam allowances and self-seams need independent evidence.",
+    "alignment": "Flip OBJ V for image coordinates, then translate chart top and horizontal center; no rescaling to fit",
+    "adjacency": {
+      "shared": [
+        [
+          "back",
+          "collar"
+        ],
+        [
+          "back",
+          "front"
+        ],
+        [
+          "back",
+          "sleeve_left"
+        ],
+        [
+          "back",
+          "sleeve_right"
+        ],
+        [
+          "collar",
+          "front"
+        ],
+        [
+          "front",
+          "sleeve_left"
+        ],
+        [
+          "front",
+          "sleeve_right"
+        ]
+      ],
+      "reference_only": [],
+      "candidate_only": []
+    },
+    "panels": {
+      "front": {
+        "intersection_over_union": 0.933,
+        "contour_distance_mm": {
+          "median": 2.0,
+          "p90": 22.0
+        },
+        "reference_width_height_mm": [
+          608.84,
+          769.02
+        ],
+        "candidate_width_height_mm": [
+          603.0,
+          746.0
+        ],
+        "candidate_minus_reference_width_height_mm": [
+          -5.84,
+          -23.02
+        ],
+        "overlay": "front-overlay.png"
+      },
+      "back": {
+        "intersection_over_union": 0.9505,
+        "contour_distance_mm": {
+          "median": 4.0,
+          "p90": 18.0
+        },
+        "reference_width_height_mm": [
+          608.86,
+          764.73
+        ],
+        "candidate_width_height_mm": [
+          603.0,
+          746.0
+        ],
+        "candidate_minus_reference_width_height_mm": [
+          -5.86,
+          -18.73
+        ],
+        "overlay": "back-overlay.png"
+      },
+      "sleeve_right": {
+        "intersection_over_union": 0.7804,
+        "contour_distance_mm": {
+          "median": 8.0,
+          "p90": 51.12
+        },
+        "reference_width_height_mm": [
+          487.52,
+          274.07
+        ],
+        "candidate_width_height_mm": [
+          454.06,
+          281.89
+        ],
+        "candidate_minus_reference_width_height_mm": [
+          -33.46,
+          7.82
+        ],
+        "overlay": "sleeve_right-overlay.png"
+      },
+      "sleeve_left": {
+        "intersection_over_union": 0.781,
+        "contour_distance_mm": {
+          "median": 8.0,
+          "p90": 50.99
+        },
+        "reference_width_height_mm": [
+          487.52,
+          274.07
+        ],
+        "candidate_width_height_mm": [
+          454.06,
+          281.89
+        ],
+        "candidate_minus_reference_width_height_mm": [
+          -33.46,
+          7.82
+        ],
+        "overlay": "sleeve_left-overlay.png"
+      },
+      "collar": {
+        "intersection_over_union": 0.7443,
+        "contour_distance_mm": {
+          "median": 4.0,
+          "p90": 4.0
+        },
+        "reference_width_height_mm": [
+          466.51,
+          22.96
+        ],
+        "candidate_width_height_mm": [
+          416.88,
+          18.0
+        ],
+        "candidate_minus_reference_width_height_mm": [
+          -49.64,
+          -4.96
+        ],
+        "overlay": "collar-overlay.png"
+      }
+    }
+  },
+  "unscaled_photo_pair": {
+    "author": "あじさか",
+    "license": "CC BY-SA 4.0",
+    "sources": {
+      "front": {
+        "file_page": "https://commons.wikimedia.org/wiki/File:OpenStreetMap_Kagoshima_survey_T-shirt_front.jpg",
+        "source_sha256": "3c1a21a9c501294807edc9bd4ee32616bd293d07243ee844d4300682cc36de3d"
+      },
+      "back": {
+        "file_page": "https://commons.wikimedia.org/wiki/File:OpenStreetMap_Kagoshima_survey_T-shirt_back.jpg",
+        "source_sha256": "28241bfa40ee2777fe271b125d73fc4d9673909108372232bd9e7d6b854d4287"
+      }
+    },
+    "measurements": {
+      "scope": "Dimensionless comparison of visible silhouettes from two photographs",
+      "views": {
+        "front": {
+          "processed_image_sha256": "c2d0ce03205115666f74ddf80469cfa7424c2384682cd95042ef5b8e5445e319",
+          "silhouette_bounds_px": [
+            3,
+            157,
+            538,
+            616
+          ],
+          "possibly_clipped_edges": [
+            "right"
+          ],
+          "width_to_height": null,
+          "lower_torso_width_to_height": 0.7033
+        },
+        "back": {
+          "processed_image_sha256": "9e1cd7776b5929141162c143565187bca6d2ecb518b29813d024904b4d605f9a",
+          "silhouette_bounds_px": [
+            1,
+            175,
+            538,
+            668
+          ],
+          "possibly_clipped_edges": [
+            "left",
+            "right"
+          ],
+          "width_to_height": null,
+          "lower_torso_width_to_height": 0.6923
+        }
+      },
+      "absolute_proportion_delta": {
+        "width_to_height": null,
+        "lower_torso_width_to_height": 0.011
+      }
+    }
+  }
+}

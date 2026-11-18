@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from PIL import Image, ImageDraw
 
-from superarchiveallclo.vision import paired_features, picture_features
+from superarchiveallclo.vision import paired_features, picture_features, unscaled_pair
 
 
 def photo(*, turn=0, card_height=40, body_width=140, circle=False, shirt_color=43):
@@ -30,6 +30,14 @@ def photo(*, turn=0, card_height=40, body_width=140, circle=False, shirt_color=4
 
 
 class CaptureQualityTest(TestCase):
+    def test_unscaled_reports_only_observable_proportions(self):
+        front = photo().crop((100, 38, 320, 295))
+        back = front.resize((440, 514))
+        result = unscaled_pair(front, back)
+        self.assertIn("left", result["views"]["front"]["possibly_clipped_edges"])
+        self.assertIsNone(result["absolute_proportion_delta"]["width_to_height"])
+        self.assertLess(result["absolute_proportion_delta"]["lower_torso_width_to_height"], 0.01)
+
     def test_known_scale_preserves_dimensions_after_resizing(self):
         small = photo()
         large = small.resize((1360, 1340))

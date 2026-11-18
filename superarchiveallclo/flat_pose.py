@@ -49,11 +49,20 @@ def place_flat(pattern, name, edges, point, angle):
 
     side = 1 if name == "sleeve_right" else -1
     shoulder = pattern["measurements"]["across_shoulders_mm"] / 2
-    drop = pattern["parameters"]["shoulder_slope_mm"]
+    p = pattern["parameters"]
     along = Vector((side * cos(angle), -sin(angle), 0))
     across = Vector((-side * sin(angle), -cos(angle), 0))
-    anchor = body_point("front" if side * x >= 0 else "back", side * shoulder, drop)
-    return anchor + (along * y + across * abs(x)) / 1000
+    upper = side * x >= 0
+    layer = "front" if upper else "back"
+    cap = next(edge for edge in edges if edge.id == "cap_front")
+    cap_height = max(cap.start[1], cap.end[1])
+    underarm = body_point(layer, side * p["flat_chest_mm"] / 2, p["armhole_depth_mm"])
+    shoulder_point = body_point(layer, side * shoulder, p["shoulder_slope_mm"])
+    origin = underarm - (along * cap_height + across * p["sleeve_bicep_flat_mm"] / 2) / 1000
+    # Place the lower sleeve from its underarm seam. Fade the corresponding
+    # shoulder correction through the cap so the cuff keeps its metric run.
+    shoulder_offset = (shoulder_point - origin) * max(0, 1 - y / cap_height)
+    return origin + (along * y + across * abs(x)) / 1000 + shoulder_offset
 
 
 def main():
