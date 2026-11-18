@@ -32,6 +32,8 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 深度入口也能读入与彩照逐像素对应的 XYZ 点云并恢复毫米纸样。已用另一帧实物 Kinect 点云核对同版平铺 3D。[IRI UPC-CSIC 实物复扫](docs/iri-pcd-study.md)
 
+设备只保留衣物深度时，可以用同一相机的外部实测平面生成毫米俯视图。留出的深度帧可直接按相机射线核对同版 GLB。[表面深度评测与复现](docs/registered-depth-review.md)
+
 真实正背照已用于候选纸样归档、留出的馆方尺寸评分及同版平铺 GLB 的投影对照。[两件奥克兰博物馆藏品实验](docs/paired-photo-study.md)
 
 归档时可以把实拍衣身的颜色、文字和图案映射到由纸样生成的 3D，并随 GLB 和 Blender 工程保存。[两件实物的正背印花和渲染对照](docs/photo-appearance-study.md)

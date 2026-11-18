@@ -17,6 +17,7 @@ from .vision import picture_features
 
 AXES = ("x", "y", "z", "-x", "-y", "-z")
 PCD_TYPES = {"F": "f", "U": "u", "I": "i"}
+FLAT_PLANE_DISTANCE_P95_MM = 35.0
 
 
 def read_pcd(encoded, *, organized=False):
@@ -91,8 +92,8 @@ def project(points_m, right, down, mm_per_pixel):
     projected = points[:, (x_axis, y_axis)] * [-1 if axis.startswith("-") else 1 for axis in (right, down)]
     normal = points[:, 3 - x_axis - y_axis]
     plane_distance = float(np.quantile(np.abs(normal - np.median(normal)), 0.95))
-    if plane_distance > 35:
-        raise ValueError("Scan departs more than 35 mm from the flat-lay plane at P95")
+    if plane_distance > FLAT_PLANE_DISTANCE_P95_MM:
+        raise ValueError(f"Scan departs more than {FLAT_PLANE_DISTANCE_P95_MM:g} mm from the flat-lay plane at P95")
 
     low, high = np.quantile(projected, [0.001, 0.999], axis=0)
     span = high - low

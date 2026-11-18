@@ -117,6 +117,7 @@ def level_reference(root, frame):
         "frame": frame, "support_plane_residual_p90_mm": round(residual * 1000, 3),
         "hem_rotation_deg": round(float(np.degrees(angle)), 4),
         "foreground_coverage": round(float(valid[mask].mean()), 6),
+        "leveled_origin_camera_m": origin.tolist(), "leveled_basis_camera": (axes @ rotation).tolist(),
     }
 
 

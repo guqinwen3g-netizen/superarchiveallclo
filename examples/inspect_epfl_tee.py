@@ -5,12 +5,14 @@ from hashlib import sha256
 from io import BytesIO
 from pathlib import Path
 from zipfile import ZipFile
+import re
 
 import numpy as np
 from PIL import Image
 
 from examples.evaluate_auckland_tees import write_json
 from superarchiveallclo.rgbd import back_project
+from superarchiveallclo.scan import FLAT_PLANE_DISTANCE_P95_MM
 
 PREFIX = "textureless_deformable_surfaces"
 INTRINSICS_SHA = "17f4e9aa779f5458cc00cf1b2cdfe0c14fa81904fc8b591ce8c7506fad6056f7"
@@ -33,7 +35,46 @@ def checked(read, name, expected):
     return data
 
 
-def inspect_members(read):
+def observed_surface(raw, intrinsics):
+    with np.load(BytesIO(raw), allow_pickle=False) as archive:
+        depth = archive["depth"]
+    valid = (depth > 0) & np.isfinite(depth)
+    surface = back_project(depth, valid, intrinsics) * 1000
+    if len(surface) < 3:
+        raise ValueError("Insufficient depth points for a plane")
+    centered = surface - surface.mean(axis=0)
+    _, span, basis = np.linalg.svd(centered, full_matrices=False)
+    if span[1] < 1e-6:
+        raise ValueError("Depth points do not span a plane")
+    signed = centered @ basis[-1]
+    return depth.shape[::-1], surface, signed
+
+
+def screen_flatness(read, entries, intrinsics):
+    views = {}
+    pattern = re.compile(r"tshirt/depth_maps/(L[cdlr]_(?:front(?:_big)?|back))/depth_(\d+)\.npz")
+    for name in sorted(entries):
+        found = pattern.fullmatch(name)
+        if found is None:
+            continue
+        sequence, frame = found.groups()
+        raw = read(name)
+        row = {"frame": frame, "depth_sha256": sha256(raw).hexdigest()}
+        try:
+            _, points, signed = observed_surface(raw, intrinsics)
+        except ValueError as reason:
+            row["rejected"] = str(reason)
+        else:
+            row.update(visible_points=len(points),
+                       centered_plane_p95_mm=round(float(np.quantile(np.abs(signed - np.median(signed)), 0.95)), 3))
+        views.setdefault(sequence, []).append(row)
+    return {"limit_mm": FLAT_PLANE_DISTANCE_P95_MM, "sample_count": sum(map(len, views.values())),
+            "sequences": {name: sorted(frames, key=lambda row: row.get("centered_plane_p95_mm", float("inf")))
+                          for name, frames in views.items()},
+            "scope": "Depth-only plane screening before RGB correspondence and paired garment checks."}
+
+
+def inspect_members(read, entries=None):
     calibration = np.loadtxt(BytesIO(checked(read, "camera_intrinsics.txt", INTRINSICS_SHA)))
     intrinsics = {"fx": calibration[0, 0], "fy": calibration[1, 1],
                   "cx": calibration[0, 2], "cy": calibration[1, 2]}
@@ -43,37 +84,37 @@ def inspect_members(read):
         depth_name = f"tshirt/depth_maps/{sequence}/depth_{frame}.npz"
         with Image.open(BytesIO(checked(read, photo_name, photo_hash))) as photo:
             size = photo.size
-        with np.load(BytesIO(checked(read, depth_name, depth_hash)), allow_pickle=False) as archive:
-            depth = archive["depth"]
-        if depth.shape != size[::-1]:
+        depth_size, surface, signed = observed_surface(checked(read, depth_name, depth_hash), intrinsics)
+        if depth_size != size:
             raise ValueError("Published RGB and depth must share the same raster")
-        valid = (depth > 0) & np.isfinite(depth)
-        surface = back_project(depth, valid, intrinsics) * 1000
-        centered = surface - surface.mean(axis=0)
-        _, _, basis = np.linalg.svd(centered, full_matrices=False)
-        plane_residual = np.abs(centered @ basis[-1])
         summary[f"{sequence}/{frame}"] = {
             "photo": photo_name, "photo_sha256": photo_hash, "depth": depth_name, "depth_sha256": depth_hash,
             "image_size_px": list(size), "visible_points": len(surface),
             "camera_xyz_span_mm": np.ptp(surface, axis=0).round(1).tolist(),
-            "best_plane_residual_p90_mm": round(float(np.quantile(plane_residual, 0.9)), 1),
+            "best_plane_residual_p90_mm": round(float(np.quantile(np.abs(signed), 0.9)), 1),
         }
-    return {"source_url": "https://www.epfl.ch/labs/cvlab/data/texless-defsurf-data/", "camera_intrinsics": calibration.tolist(),
-            "intrinsics_sha256": INTRINSICS_SHA, "depth_unit_assumption": "m",
-            "scope": "Visible cloth of separate held and deformed poses, measured on the registered 224 px grid.",
-            "frames": summary}
+    report = {"source_url": "https://www.epfl.ch/labs/cvlab/data/texless-defsurf-data/", "camera_intrinsics": calibration.tolist(),
+              "intrinsics_sha256": INTRINSICS_SHA, "depth_unit_assumption": "m",
+              "scope": "Visible cloth of separate held and deformed poses, measured on the registered 224 px grid.",
+              "frames": summary}
+    if entries is not None:
+        report["screening"] = screen_flatness(read, entries, intrinsics)
+    return report
 
 
 def main():
     parser = ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path, help="Published ZIP or directory containing the extracted camera file and tshirt directory")
     parser.add_argument("-o", "--output", type=Path, required=True)
+    parser.add_argument("--screen", action="store_true", help="Rank the available front and back depth frames by planarity")
     args = parser.parse_args()
     if args.source.is_dir():
-        result = inspect_members(lambda name: (args.source / name).read_bytes())
+        entries = (path.relative_to(args.source).as_posix() for path in args.source.glob("tshirt/depth_maps/*/*.npz"))
+        result = inspect_members(lambda name: (args.source / name).read_bytes(), entries if args.screen else None)
     else:
         with ZipFile(args.source) as archive:
-            result = inspect_members(lambda name: archive.read(f"{PREFIX}/{name}"))
+            entries = (name.removeprefix(f"{PREFIX}/") for name in archive.namelist()) if args.screen else None
+            result = inspect_members(lambda name: archive.read(f"{PREFIX}/{name}"), entries)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     print(f"Wrote {write_json(args.output, result)}")
 

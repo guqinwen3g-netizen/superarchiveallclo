@@ -63,8 +63,26 @@ def registered_regions(mask, valid):
     return garment, ring, coverage
 
 
-def project_surface(points, support, coverage, mm_per_pixel, *, auto_upright=False):
-    origin, basis, residual = plane_basis(support)
+def measured_plane(record):
+    source = record.get("source")
+    origin = np.asarray(record["origin_camera_m"], dtype=float)
+    basis = np.asarray(record["basis_camera"], dtype=float)
+    if (not isinstance(source, str) or not source.strip() or origin.shape != (3,) or basis.shape != (3, 3)
+            or not np.isfinite(origin).all() or not np.isfinite(basis).all()
+            or not np.allclose(basis.T @ basis, np.eye(3), atol=1e-5)
+            or not np.isclose(np.linalg.det(basis), 1.0, atol=1e-5)):
+        raise ValueError("Provide a measured plane source, metric camera origin and a right-handed orthonormal basis")
+    return origin, basis, source
+
+
+def project_surface(points, support, coverage, mm_per_pixel, *, auto_upright=False, support_plane=None):
+    if support_plane is None:
+        origin, basis, residual = plane_basis(support)
+        method = {"support_plane_method": "registered_table_depth"}
+    else:
+        origin, basis, source = measured_plane(support_plane)
+        residual = float(np.quantile(np.abs((support - origin) @ basis[:, 2]), 0.9)) if len(support) >= 100 else None
+        method = {"support_plane_method": "measured_plane", "support_plane_source": source}
     tabletop = (points - origin) @ basis
     orientation = {}
     if auto_upright:
@@ -74,39 +92,50 @@ def project_surface(points, support, coverage, mm_per_pixel, *, auto_upright=Fal
     return image, {
         **evidence,
         "registered_depth_coverage": round(float(coverage), 4),
-        "support_points": len(support), "support_plane_residual_p90_mm": round(residual * 1000, 3),
+        "support_points": len(support),
+        "support_plane_residual_p90_mm": round(residual * 1000, 3) if residual is not None else None,
         "surface_distance_to_support_p95_mm": round(float(np.quantile(np.abs(tabletop[:, 2]), 0.95) * 1000), 3),
         "support_origin_camera_m": origin.tolist(), "support_basis_camera": basis.tolist(),
-        **orientation,
+        **method, **orientation,
     }
 
 
-def metric_projection(depth, mask, intrinsics, mm_per_pixel, *, auto_upright=False):
+def metric_projection(depth, mask, intrinsics, mm_per_pixel, *, auto_upright=False, support_plane=None):
     if depth.ndim != 2 or depth.shape != mask.shape:
         raise ValueError("The depth and foreground mask must share one registered pixel grid")
     garment, ring, coverage = registered_regions(mask, np.isfinite(depth) & (depth > 0))
     return project_surface(back_project(depth, garment, intrinsics),
-                           back_project(depth, ring, intrinsics), coverage, mm_per_pixel, auto_upright=auto_upright)
+                           back_project(depth, ring, intrinsics), coverage, mm_per_pixel, auto_upright=auto_upright,
+                           support_plane=support_plane)
 
 
 def read_depth(raw, extension):
-    if extension == ".npy":
-        depth = np.load(BytesIO(raw), allow_pickle=False)
+    if extension in (".npy", ".npz"):
+        data = np.load(BytesIO(raw), allow_pickle=False)
+        if isinstance(data, np.lib.npyio.NpzFile):
+            with data:
+                if extension != ".npz" or "depth" not in data.files:
+                    raise ValueError("Depth NPZ must provide a numeric array named depth")
+                depth = data["depth"]
+        else:
+            if extension == ".npz":
+                raise ValueError("Depth NPZ must provide a numeric array named depth")
+            depth = data
         if not isinstance(depth, np.ndarray) or depth.dtype.kind not in "fui":
-            raise ValueError("Depth NPY must contain a numeric array")
+            raise ValueError("Depth NPY/NPZ must contain a numeric array")
         return depth
     with Image.open(BytesIO(raw)) as image:
         if image.format != "PNG" or image.mode not in ("I", "I;16", "I;16B", "I;16L"):
-            raise ValueError("Depth must be a 16-bit PNG or a numeric NPY array")
+            raise ValueError("Depth must be a 16-bit PNG or a numeric NPY/NPZ array")
         return np.asarray(image)
 
 
 def prepare_view(root, view, name, directory, provenance, mm_per_pixel, *, auto_upright=False):
     rgb_bytes = (root / view["rgb"]).read_bytes()
     with Image.open(BytesIO(rgb_bytes)) as encoded:
-        extension = {"JPEG": ".jpg", "PNG": ".png"}.get(encoded.format)
+        extension = {"JPEG": ".jpg", "PNG": ".png", "TIFF": ".tiff"}.get(encoded.format)
         if extension is None:
-            raise ValueError("Registered colour inputs must be JPEG or PNG")
+            raise ValueError("Registered colour inputs must be JPEG, PNG or TIFF")
         rgb = np.asarray(ImageOps.exif_transpose(encoded).convert("RGB"))
     assets = {"rgb": (extension, rgb_bytes)}
     sources = {"depth", "pcd"} & view.keys()
@@ -141,11 +170,15 @@ def prepare_view(root, view, name, directory, provenance, mm_per_pixel, *, auto_
         mask[top:bottom + 1, left:right + 1] = crop
     if auto_upright and (mask[0].any() or mask[-1].any() or mask[:, 0].any() or mask[:, -1].any()):
         raise ValueError(f"{name}: automatic orientation needs the full garment within the RGB frame")
+    plane = view.get("support_plane")
+    if plane is not None and not isinstance(plane, dict):
+        raise ValueError(f"{name}: support_plane must identify the measured plane coordinates")
     if geometry == "depth":
         depth = read_depth(data, path.suffix.lower()).astype(float) * metres
         if depth.shape != rgb.shape[:2]:
             raise ValueError(f"{name}: depth must align with the upright RGB image dimensions")
-        image, readings = metric_projection(depth, mask, view["intrinsics"], mm_per_pixel, auto_upright=auto_upright)
+        image, readings = metric_projection(depth, mask, view["intrinsics"], mm_per_pixel, auto_upright=auto_upright,
+                                            support_plane=plane)
         sensor = {"origin_type": "registered_rgbd", "depth_unit": unit, "camera_intrinsics_px": view["intrinsics"]}
     else:
         points = read_pcd(data, organized=True) * metres
@@ -153,7 +186,8 @@ def prepare_view(root, view, name, directory, provenance, mm_per_pixel, *, auto_
             raise ValueError(f"{name}: PCD must align with the upright RGB image dimensions")
         valid = np.isfinite(points).all(axis=2) & (points[:, :, 2] > 0)
         garment, ring, coverage = registered_regions(mask, valid)
-        image, readings = project_surface(points[garment], points[ring], coverage, mm_per_pixel, auto_upright=auto_upright)
+        image, readings = project_surface(points[garment], points[ring], coverage, mm_per_pixel,
+                                          auto_upright=auto_upright, support_plane=plane)
         sensor = {"origin_type": "registered_pcd", "pcd_unit": unit, "cloud_sha256": sha256(data).hexdigest()}
     calibration = {
         **readings, "mm_per_pixel": mm_per_pixel, "source": provenance,
@@ -190,8 +224,9 @@ def prepare(source, output, *, weights=None, blender="blender", mm_per_pixel=2.0
         raise ValueError("Capture kind must be physical or synthetic_fixture")
     session = {"schema_version": 1, "kind": kind, "garment": "crew_neck_tee", "item_id": item_id,
                "input_mode": "paired" if "back" in views else "front_only", "views": {}}
-    if "material" in record:
-        session["material"] = record["material"]
+    for key in ("material", "body_profile", "sleeve_profile"):
+        if key in record:
+            session[key] = record[key]
     result = {}
     output.parent.mkdir(parents=True, exist_ok=True)
     with TemporaryDirectory(dir=output.parent) as temporary:

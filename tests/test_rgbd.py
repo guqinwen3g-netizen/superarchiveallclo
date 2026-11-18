@@ -87,6 +87,36 @@ class RegisteredDepthTest(TestCase):
             self.assertEqual(state["inference"]["method"], "learned_paired_silhouette_ridge")
             self.assertEqual(set(state["views"]), {"front", "back"})
 
+    def test_tiff_npz_and_measured_plane_keep_masked_physical_scale(self):
+        camera, depth, mask = oblique_flat_lay()
+        angle = np.radians(24)
+        c, s = np.cos(angle), np.sin(angle)
+        plane = {"source": "independent fixture", "origin_camera_m": [0, 0, 1],
+                 "basis_camera": [[1, 0, 0], [0, c, -s], [0, s, c]]}
+        with TemporaryDirectory() as temp:
+            root = Path(temp)
+            Image.fromarray(np.where(mask, 40, 230).astype(np.uint8)).save(root / "rgb.tiff")
+            masked = np.where(mask, depth, np.nan)
+            np.savez_compressed(root / "depth.npz", depth=masked)
+            source = root / "capture.json"
+            source.write_text(json.dumps({
+                "schema_version": 1, "kind": "synthetic_fixture", "item_id": "known-plane", "source": "Test fixture",
+                "views": {"front": {"rgb": "rgb.tiff", "depth": "depth.npz", "depth_unit": "m",
+                                    "intrinsics": camera, "support_plane": plane}},
+            }))
+            output = root / "prepared"
+            prepare(source, output)
+            manifest, _ = capture_observations(output / "session.json", allow_partial=True)
+            front = manifest["views"]["front"]
+            self.assertEqual(front["calibration"]["support_plane_method"], "measured_plane")
+            self.assertIsNone(front["calibration"]["support_plane_residual_p90_mm"])
+            np.testing.assert_allclose(front["calibration"]["raw_point_span_p0_1_to_p99_9_mm"], [780, 630], atol=5)
+            for kind, original in (("rgb", "rgb.tiff"), ("depth", "depth.npz")):
+                path = output / front["source_assets"][kind]["file"]
+                self.assertEqual(path.read_bytes(), (root / original).read_bytes())
+        with self.assertRaisesRegex(ValueError, "visible tabletop"):
+            metric_projection(masked, mask, camera, 2)
+
     def test_organized_point_cloud_preserves_metric_scale_and_pixel_indices(self):
         camera, depth, mask = oblique_flat_lay()
         points = back_project(depth, np.ones_like(mask), camera).reshape(*mask.shape, 3)
