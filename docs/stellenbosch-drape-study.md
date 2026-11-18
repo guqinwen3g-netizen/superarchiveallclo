@@ -1,0 +1,29 @@
+# 第二件圆领 T 恤的挂拍三维对照
+
+以奥克兰博物馆藏品 `2017.66.37` 为样本。正背平铺照片驱动模型制板。馆方后中衣长 770 mm 用于定尺度。胸宽和肩宽只用于盲测，候选纸样分别偏小 19.325 mm 和 4.351 mm。归档重新回读了 5 片毫米 DXF、15 条配缝和同版 GLB 的 4 个开口，并保存带实拍贴图的 GLB 和可编辑 Blender 工程。[馆藏尺寸和平铺实验](paired-photo-study.md)
+
+两张独立特写可见内领连接处和成分标签。标签写明 67% 涤纶、33% 棉。归档记录成分来源，仿真仍使用参考针织物的机械参数。领条净长度、实际缝份、克重和拉伸仍待核对。[领口内侧](https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-18).jpg) · [成分标签](https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-19).jpg)
+
+## 对照方法
+
+相机约从正、背、左、右四个方向拍摄同一姿态。使用 #21 的 50 cm 实体尺和各张图中同一根立杆的图像宽度传递尺度。留出的 #01 和 #21 上的服装轮廓和局部标点均未用于构造参考外包络或三角测量。#21 的尺和立杆读数参与尺度标定。人体支架比前一件挂拍多出完整手臂。侧面被手臂挡住的区域标为未知，在外包络计算中保留这些射线，并从轮廓交并比与轮廓距离中排除。[馆藏照片、标尺读数、遮挡及轮廓标注](../examples/stellenbosch-drape.json)
+
+程序只按立杆和颈顶注册导出的 GLB，保留纸样尺度。四个方向用 5 mm 网格估计外包络；六处签名笔画从不同方向的图像估计三维位置，再量到 GLB 三角面的最近距离。照片来自 Auckland War Memorial Museum Tāmaki Paenga Hira，采用 CC BY 4.0。[局部点位置](../examples/stellenbosch-landmarks.json) · [许可](https://creativecommons.org/licenses/by/4.0/)
+
+| 留出实拍 | 同版 GLB 轮廓交并比 | GLB 轮廓距离 P90 | 照片外包络轮廓交并比 |
+| --- | ---: | ---: | ---: |
+| #01 无尺正照 | 85.25% | 50.58 mm | 88.15% |
+| #21 带尺正照 | 84.10% | 52.18 mm | 86.41% |
+
+正交估算下，六点到 GLB 的最近距离中位数为 55.53 mm，P90 为 63.86 mm。中、下衣身的最近模型点分别比照片估算位置向后约 48 mm 和 46 mm，分组各有两点和三点。两张留出图的反投影偏差合并中位数为 22.07 mm，按立杆平面换算。采用 EXIF 焦距的针孔近似时，点到 GLB 中位数变为 41.05 mm，留出反投影偏差中位数增至 40.68 mm。相机近似为这些三维差值引入了可见的测量不确定性。
+
+照片外包络横跨约 615 mm，GLB 横跨约 674 mm。颈顶以下 200–300 mm 的一段，GLB 比外包络宽约 114 mm。400–500 mm 段的顺序反转，GLB 窄约 190 mm。600–700 mm 的衣身横跨差约 6 mm。横跨误差随高度变化，主要差距集中在袖子和其支撑附近。这里同时受袖片、通用人台形状和相机近似影响，仍缺同件实物的直接布面扫描和物性测试。
+
+## 复现
+
+```sh
+python -m examples.evaluate_auckland_archive --case stellenbosch -o build/stellenbosch-review
+python -m superarchiveallclo.check_archive build/stellenbosch-review/review/archive
+```
+
+实验使用 Blender 4.3.2。`evidence.json` 记录尺寸和文件校验。`reference/calibration.json` 保留物理尺和立杆读数，`hull/comparison.json` 记录每个视角和高度带的数值，`landmarks/comparison.json` 保存点位和留出反投影。两种对照均校验同一交付 GLB 的哈希。

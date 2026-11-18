@@ -112,6 +112,16 @@
           "url": "https://upload.wikimedia.org/wikipedia/commons/2/27/T-shirt%2C_netball_%28AM_2017.66.37-7%29.jpg",
           "catalogue_photo": "https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-7).jpg",
           "sha256": "476966fe3e630ac32ab4265ae66bead421c219ee9d59b52445a436e678f9549c"
+        },
+        "stellenbosch-18.jpg": {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/T-shirt%2C_netball_%28AM_2017.66.37-18%29.jpg",
+          "catalogue_photo": "https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-18).jpg",
+          "sha256": "ec735246b8ba0a0a1481c8b4c350a6243bffb3a30baea3df3712b2d6c93ddad6"
+        },
+        "stellenbosch-19.jpg": {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/b/ba/T-shirt%2C_netball_%28AM_2017.66.37-19%29.jpg",
+          "catalogue_photo": "https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-19).jpg",
+          "sha256": "27a4b7344805a2e8954070c128b73ab8f9f7baef928ee5edee8a1c099802ca37"
         }
       },
       "session": {
@@ -121,8 +131,11 @@
         "garment": "crew_neck_tee",
         "views": {
           "front": {"file": "stellenbosch-06.jpg", "scale": {"points": [[1780, 414], [1780, 3193]], "mm": 770, "basis_field": "back_length_mm", "source": "https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-6).jpg"}},
-          "back": {"file": "stellenbosch-07.jpg", "scale": {"points": [[2010, 304], [2010, 3211]], "mm": 770, "basis_field": "back_length_mm", "source": "https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-7).jpg"}}
+          "back": {"file": "stellenbosch-07.jpg", "scale": {"points": [[2010, 304], [2010, 3211]], "mm": 770, "basis_field": "back_length_mm", "source": "https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-7).jpg"}},
+          "collar_inner": {"file": "stellenbosch-18.jpg"},
+          "material_label": {"file": "stellenbosch-19.jpg"}
         },
+        "material": {"source_view": "material_label", "fiber_percent": {"polyester": 67, "cotton": 33}},
         "measurements": {
           "back_length_mm": {"value": 770, "method": "catalogue_measurement", "source": "https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-6).jpg"},
           "flat_chest_mm": {"value": 610, "method": "catalogue_measurement", "source": "https://commons.wikimedia.org/wiki/File:T-shirt,_netball_(AM_2017.66.37-6).jpg"},

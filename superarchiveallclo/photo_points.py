@@ -152,6 +152,7 @@ def score(matrix_sets, views, metadata, annotations, triangles):
                 "fit_residual_proxy_mm": projected_errors(xyz, fit, matrices, views),
                 "held_out_residual_proxy_mm": projected_errors(xyz, hold, matrices, views),
                 "nearest_glb_point_mm": closest.round(3).tolist(),
+                "nearest_glb_minus_reference_xyz_mm": (closest - xyz).round(3).tolist(),
                 "distance_to_glb_mm": round(float(np.linalg.norm(closest - xyz)), 3),
             }
         points[name] = {"label": entry["label"], "region": entry["region"], **measurements}
@@ -160,6 +161,37 @@ def score(matrix_sets, views, metadata, annotations, triangles):
             sensitivity = np.linalg.norm(primary - measurements["exif_pinhole"]["position_mm"])
             points[name]["camera_assumption_displacement_mm"] = round(float(sensitivity), 3)
     return points
+
+
+def summarize_points(points, methods):
+    summary, by_region = {}, {}
+    for method in methods:
+        local = [point[method]["distance_to_glb_mm"] for point in points.values()]
+        reprojections = {}
+        for point in points.values():
+            for view, error in point[method]["held_out_residual_proxy_mm"].items():
+                reprojections.setdefault(view, []).append(error)
+        heldout = [error for errors in reprojections.values() for error in errors]
+        summary[method] = {
+            "distance_to_glb_median_mm": round(float(np.median(local)), 3),
+            "distance_to_glb_p90_mm": round(float(np.quantile(local, 0.9)), 3),
+            "held_out_residual_median_proxy_mm": round(float(np.median(heldout)), 3),
+            "held_out_residual_max_proxy_mm": max(heldout),
+            "held_out_residual_median_by_view_proxy_mm": {
+                name: round(float(np.median(errors)), 3) for name, errors in reprojections.items()
+            },
+        }
+    for region in sorted({point["region"] for point in points.values()}):
+        selected = [point for point in points.values() if point["region"] == region]
+        by_region[region] = {"points": len(selected)}
+        for method in methods:
+            distances = [point[method]["distance_to_glb_mm"] for point in selected]
+            offsets = [point[method]["nearest_glb_minus_reference_xyz_mm"] for point in selected]
+            by_region[region][method] = {
+                "distance_to_glb_median_mm": round(float(np.median(distances)), 3),
+                "median_nearest_glb_minus_reference_xyz_mm": np.median(offsets, axis=0).round(3).tolist(),
+            }
+    return summary, by_region
 
 
 def draw_held_out(directory, photos, views, annotations, points, matrix_sets):
@@ -229,23 +261,14 @@ def compare(archive, reference, observations, output, *, blender="blender"):
     if sha256(model.read_bytes()).hexdigest() != checksum:
         raise ValueError("GLB changed during landmark evaluation")
     points = score(matrix_sets, views, metadata, labels["points"], (vertices * 1000 - placement)[triangles])
-    summary = {}
-    for method in matrix_sets:
-        local = [point[method]["distance_to_glb_mm"] for point in points.values()]
-        heldout = [error for point in points.values() for error in point[method]["held_out_residual_proxy_mm"].values()]
-        summary[method] = {
-            "distance_to_glb_median_mm": round(float(np.median(local)), 3),
-            "distance_to_glb_p90_mm": round(float(np.quantile(local, 0.9)), 3),
-            "held_out_residual_median_proxy_mm": round(float(np.median(heldout)), 3),
-            "held_out_residual_max_proxy_mm": max(heldout),
-        }
+    summary, by_region = summarize_points(points, matrix_sets)
     report = {
         "schema_version": 1, "item_id": source["item_id"], "setup": source["setup"],
         "scope": "Sparse physical points under declared camera approximations. Reprojection residuals use datum-plane scales.",
         "reference_sha256": sha256(raw).hexdigest(), "observations_sha256": sha256(marked).hexdigest(),
         "pattern_sha256": audit["pattern_sha256"], "garment_glb_sha256": checksum, "archive_audit": audit,
         "exif_focal_pixels": focal, "reference_photo_sha256": dict(zip(views, hashes, strict=True)),
-        "model_origin_mm": placement.tolist(), "summary": summary, "points": points,
+        "model_origin_mm": placement.tolist(), "summary": summary, "by_region": by_region, "points": points,
     }
     output.parent.mkdir(parents=True, exist_ok=True)
     with TemporaryDirectory(dir=output.parent) as tmp:

@@ -71,10 +71,17 @@ def prepare(data, archive, source):
         mask_path = f"{name}-mask.png"
         image = Image.new("1", tuple(mask_size))
         ImageDraw.Draw(image).polygon(view["silhouette_px"], fill=1)
-        image.save(data / mask_path)
         views[name] = {"photo": view["file"], "photo_sha256": view["sha256"], "mask": mask_path,
                        "role": view["role"], "axis": view["axis"], "mm_per_pixel": scale,
                        "origin_px": [pole["center_original_px"] / resize_factor, view["neck_rim_y_px"]]}
+        if "occlusion_px" in view:
+            hidden = Image.new("1", tuple(mask_size))
+            ImageDraw.Draw(hidden).polygon(view["occlusion_px"], fill=1)
+            occlusion_path = f"{name}-occluded.png"
+            hidden.save(data / occlusion_path)
+            image.paste(0, (0, 0), hidden)
+            views[name]["occlusion_mask"] = occlusion_path
+        image.save(data / mask_path)
         details["views"][name] = {"pole": pole, "exif_focal_length_mm": focal,
                                    "mm_per_mask_pixel": scale, "same_distance_exif_only_mm_per_mask_pixel":
                                        base_scale * resize_factor * fixed_distance_focal / focal}
@@ -84,9 +91,9 @@ def prepare(data, archive, source):
     model_origin = [0, 0, 1520 + 100 * length / 680]
     manifest = write_json(data / "hull-reference.json", {
         "schema_version": 1, "kind": "physical", "item_id": source["item_id"],
-        "setup": "Near-cardinal photographs of the museum's mannequin. Scale transfers from two rulers "
-                 "through the common stand pole. Orthographic cameras use the pole center and the neck rim height. "
-                 "The GLB uses the generic archive form; its neck rim is registered by translation.",
+        "setup": source.get("setup", "Near-cardinal photographs of the museum's mannequin. Scale transfers from two rulers "
+                            "through the common stand pole. Orthographic cameras use the pole center and neck rim height. "
+                            "The GLB uses the generic archive form; its neck rim is registered by translation."),
         "model_origin_mm": model_origin, "views": views,
     })
     return manifest, details

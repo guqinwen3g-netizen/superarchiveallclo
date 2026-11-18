@@ -129,6 +129,6 @@ python -m superarchiveallclo.compare_shape build/tee-01 \
 - PatternedClothing 提供同一研究 T 恤的裁片模型和实拍注册网格，许可为 CC BY-NC 4.0。Open+Pattern 提供 CC BY 4.0 的 T 恤 DXF、CLO 文件和 GLB，其公开产品页列出的图像为插图。两者分别提供动态几何和独立制板参考。[PatternedClothing](https://github.com/facebookresearch/PatternedClothing) · [Open+Pattern](https://openpattern.io/product/standard-fit-t-shirt/)
 - Smithsonian 藏品 `nmah_460141` 有馆方标注的同件正背照片和整体尺寸 63.50 × 68.58 × 5.08 cm。该页面的 CC0 适用于目录元数据，照片另列使用条件。已核查目录和照片标注。[Smithsonian 藏品记录](https://www.si.edu/object/t-shirt:nmah_460141)
 - Wikimedia Commons 的鹿儿岛 OpenStreetMap 调查 T 恤提供同件正背图，许可为 CC BY-SA 4.0。已验证可见衣身的相对比例，并检查到袖缘贴图边。该对照还需要可信尺度和独立原件尺寸。[正背照报告](sleeve-join-study.md#有授权的同件正背照)
-- 奥克兰博物馆的两件圆领 T 恤提供 CC BY 4.0 的同件正背照。一件带独立标尺，另一件有馆方尺寸、独立内部结构照和额外的近正交挂拍。两件均已生成候选归档。挂拍支持毫米外包络对照，原版纸样和直接三维布面测量仍待核对。[正背照盲测](paired-photo-study.md) · [人台三维对照](mannequin-study.md)
+- 奥克兰博物馆的三件圆领 T 恤提供 CC BY 4.0 的同件正背照。一件带独立标尺，两件带馆方尺寸、独立内部结构照和额外的近正交挂拍。已生成候选归档，并从两件的挂拍估计毫米外包络和少量三维对应点。原版纸样和直接三维布面测量仍待核对。[正背照盲测](paired-photo-study.md) · [第一件三维对照](photo-landmark-study.md) · [第二件三维对照](stellenbosch-drape-study.md)
 - Deep Fashion3D V2 提供真实服装点云、注册网格和领口等边缘标注，许可为 CC BY-NC 4.0。归档的官方下载页面要求申请解压密码，发布说明未列出独立卷尺尺寸或原厂纸样。[发布说明](https://kv2000.github.io/2023/06/20/deepFashion3DV2/) · [下载与许可](https://github.com/GAP-LAB-CUHK-SZ/deepFashion3D)
 - 犹他大学的双层标记服装采集项目已下载核对服装模板和长袖 T 恤的 16 视角同步样本。该帧标定文件及独立测得的布面有待取得。CTU Spread Garments 的说明提供短袖正背标签和深度，完整发布入口本轮暂不可用。[两个实拍来源的核查记录](drape-support-study.md#其他实拍来源)

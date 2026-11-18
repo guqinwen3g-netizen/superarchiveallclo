@@ -30,6 +30,7 @@ class CameraView:
     sign: int
     origin: np.ndarray
     mm_per_pixel: float
+    occluded: np.ndarray | None = None
 
 
 def photograph_indices(view, horizontal, height):
@@ -44,8 +45,9 @@ def carve(views, step):
     if {view.axis for view in views} != {0, 1}:
         raise ValueError("Provide both a front/back direction and a side direction")
     extent = [[], [], []]
-    for view in views:
-        v, u = np.where(view.mask)
+    possible_masks = [view.mask if view.occluded is None else view.mask | view.occluded for view in views]
+    for view, possible in zip(views, possible_masks, strict=True):
+        v, u = np.where(possible)
         horizontal = (np.array([u.min(), u.max()]) - view.origin[0]) * view.sign * view.mm_per_pixel
         height = (view.origin[1] - np.array([v.min(), v.max()])) * view.mm_per_pixel
         extent[view.axis].extend(horizontal)
@@ -57,11 +59,11 @@ def carve(views, step):
         raise ValueError("Visual hull grid is too large. Check camera units and pixel scales")
     axes = [np.arange(a, b) * step for a, b in zip(low, high, strict=True)]
     volume = np.ones(shape, dtype=bool)
-    for view in views:
+    for view, possible in zip(views, possible_masks, strict=True):
         u, v = photograph_indices(view, axes[view.axis], axes[2])
         height, width = view.mask.shape
         contained = (u >= 0)[:, None] & (u < width)[:, None] & (v >= 0) & (v < height)
-        silhouette = contained & view.mask[v.clip(0, height - 1)[None, :], u.clip(0, width - 1)[:, None]]
+        silhouette = contained & possible[v.clip(0, height - 1)[None, :], u.clip(0, width - 1)[:, None]]
         volume &= silhouette[:, None, :] if view.axis == 0 else silhouette[None, :, :]
     if not volume.any():
         raise ValueError("The calibrated silhouettes have no common 3D volume")
@@ -90,21 +92,32 @@ def mesh_mask(vertices_mm, triangles, view):
     return np.asarray(image, dtype=bool)
 
 
-def silhouette_metrics(observed, candidate, mm_per_pixel):
+def silhouette_metrics(observed, candidate, mm_per_pixel, occluded=None):
+    if occluded is not None:
+        observed, candidate = observed & ~occluded, candidate & ~occluded
     if not candidate.any():
         return {"iou": 0, "contour_p90_mm": None}
     a = observed & ~ndimage.binary_erosion(observed)
     b = candidate & ~ndimage.binary_erosion(candidate)
-    distances = np.r_[ndimage.distance_transform_edt(~a)[b], ndimage.distance_transform_edt(~b)[a]] * mm_per_pixel
+    if occluded is not None:
+        known = ~ndimage.binary_dilation(occluded, iterations=2)
+        a &= known
+        b &= known
+    distance = None
+    if a.any() and b.any():
+        distances = np.r_[ndimage.distance_transform_edt(~a)[b], ndimage.distance_transform_edt(~b)[a]] * mm_per_pixel
+        distance = round(float(np.quantile(distances, 0.9)), 2)
     return {"iou": round(float((observed & candidate).sum() / (observed | candidate).sum()), 4),
-            "contour_p90_mm": round(float(np.quantile(distances, 0.9)), 2)}
+            "contour_p90_mm": distance}
 
 
-def save_overlay(path, observed, candidate):
+def save_overlay(path, observed, candidate, occluded=None):
     image = np.full((*observed.shape, 3), (250, 248, 243), dtype=np.uint8)
     image[observed & ~candidate] = (22, 119, 167)
     image[candidate & ~observed] = (205, 86, 41)
     image[candidate & observed] = (49, 61, 60)
+    if occluded is not None:
+        image[occluded] = (166, 157, 184)
     Image.fromarray(image).save(path)
 
 
@@ -158,6 +171,16 @@ def read_view(base, entry):
         mask = np.asarray(image.convert("L")) > 127
     if not mask.any() or mask[0].any() or mask[-1].any() or mask[:, 0].any() or mask[:, -1].any():
         raise ValueError("Each visual hull mask must contain a garment with an unclipped border")
+    occluded, occlusion_audit = None, {}
+    if "occlusion_mask" in entry:
+        hidden = (base / entry["occlusion_mask"]).read_bytes()
+        with Image.open(BytesIO(hidden)) as image:
+            occluded = np.asarray(image.convert("L")) > 127
+        if (occluded.shape != mask.shape or not occluded.any() or (mask & occluded).any()
+                or occluded[0].any() or occluded[-1].any() or occluded[:, 0].any() or occluded[:, -1].any()):
+            raise ValueError("The occlusion mask must mark a separate, unclipped region in the same photo")
+        occlusion_audit = {"occlusion_mask_sha256": sha256(hidden).hexdigest(),
+                           "occluded_pixels": int(occluded.sum())}
     origin = np.asarray(entry["origin_px"], dtype=float)
     scale = float(entry["mm_per_pixel"])
     if (origin.shape != (2,) or not np.isfinite(origin).all() or np.any(origin < 0)
@@ -170,7 +193,9 @@ def read_view(base, entry):
     if photo != entry["photo_sha256"]:
         raise ValueError(f'{entry["photo"]}: photograph does not match the reference checksum')
     axis, sign = AXES[entry["axis"]]
-    return CameraView(mask, axis, sign, origin, scale), {**entry, "mask_sha256": sha256(raw).hexdigest()}
+    return CameraView(mask, axis, sign, origin, scale, occluded), {
+        **entry, "mask_sha256": sha256(raw).hexdigest(), **occlusion_audit,
+    }
 
 
 def compare(archive, reference, output, *, blender="blender", step=5.0):
@@ -226,10 +251,12 @@ def compare(archive, reference, output, *, blender="blender", step=5.0):
         for name, (view, entry) in views.items():
             hull = hull_mask(volume, low, step, view)
             model = mesh_mask(vertices, triangles, view)
-            save_overlay(bundle / f"{name}-hull.png", view.mask, hull)
-            save_overlay(bundle / f"{name}-glb.png", view.mask, model)
-            report["views"][name] = {**entry, "hull": silhouette_metrics(view.mask, hull, view.mm_per_pixel),
-                                     "glb": silhouette_metrics(view.mask, model, view.mm_per_pixel)}
+            save_overlay(bundle / f"{name}-hull.png", view.mask, hull, view.occluded)
+            save_overlay(bundle / f"{name}-glb.png", view.mask, model, view.occluded)
+            report["views"][name] = {
+                **entry, "hull": silhouette_metrics(view.mask, hull, view.mm_per_pixel, view.occluded),
+                "glb": silhouette_metrics(view.mask, model, view.mm_per_pixel, view.occluded),
+            }
         (bundle / "comparison.json").write_text(json.dumps(report, indent=2) + "\n")
         bundle.rename(output)
     return report

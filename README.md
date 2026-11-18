@@ -40,6 +40,8 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 一条命令可从奥克兰馆藏正背原照重跑盲测、毫米 DXF、同版 3D、独立挂拍外包络和局部三维点对照。[完整实物实验与复现](docs/photo-landmark-study.md)
 
+第二件馆藏圆领 T 恤的挂拍评测支持显式标记人台遮挡，并按高度报告袖部和衣身的宽度与深度偏差。[带臂人台的实物对照](docs/stellenbosch-drape-study.md)
+
 双面采集可分别恢复腋下胸宽与下摆宽，把侧缝收窄或放宽的幅度写入毫米纸样及同版仿真。不同宽松度的实物已用馆方胸宽和肩宽做盲测。[衣身宽度对照](docs/body-profile-study.md) · [馆藏正背照与尺寸](docs/paired-photo-study.md)
 
 展台仿真可以使用无臂人台的接触支撑。对照报告记录模型随高度变化的前后深度，以及导出时布料的位移。[同版垂坠对照](docs/drape-support-study.md)

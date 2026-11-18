@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "item_id": "auckland-2017.66.37",
+  "exif_focal_plane_axes": "landscape_sensor",
+  "annotation_size_px": [576, 864],
+  "points": {
+    "upper-right-entry-stroke": {
+      "label": "Top of the isolated hooked stroke in the upper right autograph",
+      "region": "chest",
+      "fit": {"photo-02": [387, 232], "photo-03": [228, 274]},
+      "held_out": {"photo-01": [357, 181], "photo-21": [365, 172]}
+    },
+    "right-middle-capital-loop": {
+      "label": "Top of the long opening loop in the right middle autograph",
+      "region": "mid-torso",
+      "fit": {"photo-02": [386, 335], "photo-03": [202, 328]},
+      "held_out": {"photo-01": [352, 259], "photo-21": [360, 253]}
+    },
+    "right-lower-entry-stroke": {
+      "label": "Top of the isolated first stroke of the low right autograph",
+      "region": "lower-torso",
+      "fit": {"photo-02": [364, 469], "photo-03": [213, 467]},
+      "held_out": {"photo-01": [343, 369], "photo-21": [346, 360]}
+    },
+    "irene-initial": {
+      "label": "Top of the first vertical stroke in Irene on the left of the crest",
+      "region": "mid-torso",
+      "fit": {"photo-02": [182, 355], "photo-05": [419, 378]},
+      "held_out": {"photo-01": [200, 281], "photo-21": [205, 267]}
+    },
+    "left-lower-ink-tip": {
+      "label": "Top end of the first small lower left ink stroke above the diagonal autograph",
+      "region": "lower-torso",
+      "fit": {"photo-02": [177, 466], "photo-05": [423, 494]},
+      "held_out": {"photo-01": [196, 367], "photo-21": [199, 357]}
+    },
+    "diagonal-autograph-loop": {
+      "label": "Left tip of the opening loop of the diagonal lower left autograph",
+      "region": "lower-torso",
+      "fit": {"photo-02": [192, 501], "photo-05": [421, 525]},
+      "held_out": {"photo-01": [211, 396], "photo-21": [211, 382]}
+    }
+  }
+}

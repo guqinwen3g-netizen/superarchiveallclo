@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from superarchiveallclo.visual_hull import CameraView, carve, compare_surface, horizontal_spans, hull_mask
+from superarchiveallclo.visual_hull import CameraView, carve, compare_surface, horizontal_spans, hull_mask, silhouette_metrics
 
 
 def camera(axis, sign, horizontal):
@@ -29,6 +29,20 @@ class VisualHullTest(TestCase):
     def test_parallel_pictures_cannot_identify_depth(self):
         with self.assertRaisesRegex(ValueError, "side direction"):
             carve([camera(0, 1, (10, 30)), camera(0, -1, (10, 30))], 5)
+
+    def test_an_occluded_strip_is_neither_free_space_nor_a_contour(self):
+        front = camera(0, 1, (10, 30))
+        unobscured = camera(1, 1, (-25, -5))
+        side = camera(1, 1, (-25, -5))
+        rows, cols = np.indices(side.mask.shape)
+        side.occluded = (cols >= 60) & (cols <= 65) & (rows >= 32) & (rows <= 76)
+        side.mask = side.mask & ~side.occluded
+        expected, original_low = carve([front, unobscured], 5)
+        restored, low = carve([front, side], 5)
+        np.testing.assert_array_equal(np.argwhere(restored) * 5 + low,
+                                      np.argwhere(expected) * 5 + original_low)
+        self.assertEqual(silhouette_metrics(side.mask, unobscured.mask, 1.0, side.occluded),
+                         {"iou": 1.0, "contour_p90_mm": 0.0})
 
     def test_only_outside_surface_area_is_counted_as_a_violation(self):
         volume, low = carve([camera(0, 1, (10, 30)), camera(1, 1, (-25, -5))], 5)
