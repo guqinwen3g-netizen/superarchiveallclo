@@ -28,17 +28,38 @@ def flat_coordinates(points, right, down):
     return points @ np.column_stack((horizontal, vertical, normal))
 
 
-def capture_sleeve_angle(capture):
-    evidence = capture.get("inference", {}).get("scale_evidence", {}).get("front", {})
-    cuffs = evidence.get("flat_landmarks", {}).get("cuffs", {})
+def sleeve_angle_from_cuffs(cuffs):
     if "image_left" in cuffs and "image_right" in cuffs:
         angles = []
         for side, tag in ((-1, "image_left"), (1, "image_right")):
             _, _, outward = cuff_axes(cuffs[tag], side)
             angles.append(degrees(atan2(outward[1], abs(outward[0]))))
         if min(angles) >= 0 and max(angles) <= 50:
-            return sum(angles) / 2, "Mean of cuff directions from the reconstruction input"
+            return sum(angles) / 2
+    return None
+
+
+def capture_sleeve_angle(capture):
+    evidence = capture.get("inference", {}).get("scale_evidence", {}).get("front", {})
+    angle = sleeve_angle_from_cuffs(evidence.get("flat_landmarks", {}).get("cuffs", {}))
+    if angle is not None:
+        return angle, "Mean of cuff directions from the reconstruction input"
     return 23.0, "Standard flat-lay placement"
+
+
+def run_flat_pose(pattern, working, points, sleeve_angle, blender, *, legacy_solver=False):
+    script = Path(__file__).resolve().with_name("flat_pose.py")
+    snapshot = working / "pattern.json"
+    snapshot.write_bytes(pattern)
+    np.savez_compressed(working / "reference-points.npz", **points)
+    process = run([
+        blender, "-b", "--factory-startup", "--python-exit-code", "1", "--python", str(script),
+        "--", str(snapshot), str(working), str(sleeve_angle), "legacy" if legacy_solver else "relaxed",
+    ], capture_output=True, text=True, check=False)
+    result = working / "metrics.npz"
+    if process.returncode or not result.is_file():
+        raise ValueError("Blender could not compare a sewn flat pose: " + (process.stdout + process.stderr)[-2300:])
+    return working / "flat-pose.glb", result
 
 
 def compare_flat(archive, clouds, output, *, item_id, setup, transform=None, right="x", down="y",
@@ -103,23 +124,11 @@ def compare_flat(archive, clouds, output, *, item_id, setup, transform=None, rig
         })
 
     output.parent.mkdir(parents=True, exist_ok=True)
-    script = Path(__file__).resolve().with_name("flat_pose.py")
     with TemporaryDirectory(dir=output.parent) as temp:
         working = Path(temp)
         bundle = working / "comparison"
         bundle.mkdir()
-        snapshot = working / "pattern.json"
-        snapshot.write_bytes(pattern)
-        np.savez_compressed(working / "reference-points.npz", **points)
-        process = run([
-            blender, "-b", "--factory-startup", "--python-exit-code", "1", "--python", str(script),
-            "--", str(snapshot), str(working), str(sleeve_angle), "legacy" if legacy_solver else "relaxed",
-        ], capture_output=True, text=True, check=False)
-        result = working / "metrics.npz"
-        if process.returncode or not result.is_file():
-            raise ValueError("Blender could not compare a sewn flat pose: " + (process.stdout + process.stderr)[-2300:])
-
-        model = working / "flat-pose.glb"
+        model, result = run_flat_pose(pattern, working, points, sleeve_angle, blender, legacy_solver=legacy_solver)
         report["flat_glb"] = {**glb_inventory(model), "sha256": sha256(model.read_bytes()).hexdigest()}
         with np.load(result, allow_pickle=False) as values:
             model_grid, model_span = project_mesh(values["vertices"], values["triangles"], "top")

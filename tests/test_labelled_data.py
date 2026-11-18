@@ -90,6 +90,18 @@ class LabelledDatasetTest(TestCase):
                 self.entry("duplicate", "style-b", "test", photo_from="first"),
             ))
 
+    def test_a_catalogue_dimension_used_for_photo_scale_is_held_out_of_scoring(self):
+        entry = self.entry("museum-garment", "accession-1", "test")
+        session = self.root / entry["session"]
+        data = json.loads(session.read_text())
+        data["views"]["back"]["scale"] = {"mm": 680, "points": [[200, 52], [200, 264]],
+                                            "basis_field": "back_length_mm"}
+        data["measurements"]["flat_chest_mm"].update(method="catalogue_measurement", source="Museum catalogue")
+        session.write_text(json.dumps(data))
+        samples, _ = load_dataset(self.manifest(entry))
+        self.assertEqual(list(samples[0].truth), ["flat_chest_mm"])
+        self.assertEqual(samples[0].sources["flat_chest_mm"], "catalogue_measurement")
+
     def test_reprojected_depth_cannot_cross_splits(self):
         training = self.entry("first", "style-a", "train")
         testing = self.entry("reprojection", "style-b", "test")

@@ -1,0 +1,568 @@
+{
+  "schema_version": 1,
+  "photo_attribution": "Auckland War Memorial Museum Tāmaki Paenga Hira",
+  "photo_license": "https://creativecommons.org/licenses/by/4.0/",
+  "source_manifest_sha256": "e500bd22d7146a0cea406988cbffa881f87f3f2229e7dad8a9ede6590fd5e27f",
+  "runtime": {
+    "python": "3.12.14",
+    "blender": "4.3.2"
+  },
+  "weights_sha256": {
+    "tee-vision.npz": "c11748bd32e5d9134b1e5f25af16d893a8e16a6e80d68167e5ab9a0ac20b59d0",
+    "tee-vision-front.npz": "0f0a3544d675c4a7acf12c51c5c082fd36a63942c68847088d14a291879cc702"
+  },
+  "cases": {
+    "peace": {
+      "archive": {
+        "capture_kind": "physical",
+        "pattern_sha256": "dd4e16d2d119e5017805430263e403fa9a3ee84d0bd8e4fb6f4f0b027626365e",
+        "source_photos": 2,
+        "vision_estimates": 11,
+        "dxf_panels": 5,
+        "seams": 15,
+        "garment_openings": 4,
+        "glb": {
+          "meshes": 1,
+          "bounds_span_m": [
+            0.6144,
+            0.672,
+            0.2827
+          ]
+        }
+      },
+      "flat_layout": {
+        "schema_version": 1,
+        "item_id": "auckland-2002.94.1.1",
+        "reference_setup": "Flat museum photographs. Each view scaled from the 20 and 30 inch tape marks. Uniform image scale is assumed across the garment.",
+        "reference_manifest_sha256": "f6a0acd1b438677fd669c0e19d6c2ba32cc532412e0046738d1b3e67da6d6e5a",
+        "pattern_sha256": "dd4e16d2d119e5017805430263e403fa9a3ee84d0bd8e4fb6f4f0b027626365e",
+        "scope": "Outer contours of a sewn flat GLB compared with photographs; no depth reference",
+        "alignment": "Translate the top and horizontal center of silhouette bounds; no fitted scale or rotation",
+        "sleeve_angle_below_horizontal_deg": 23.0,
+        "sleeve_angle_source": "Standard flat-lay placement",
+        "views": {
+          "front": {
+            "photo_sha256": "2d5c0ef6a5bff9918a3892f35349876772a45c1206959fba421a5cae2de1eba4",
+            "role": "reconstruction_input",
+            "calibration": {
+              "scale": {
+                "points": [
+                  [
+                    1632,
+                    756
+                  ],
+                  [
+                    1630,
+                    1242
+                  ]
+                ],
+                "mm": 254,
+                "source": "20 to 30 inch marks on a visible tailor tape"
+              },
+              "mm_per_pixel": 0.5226293194879946
+            },
+            "processed_mm_per_pixel": 1.231262,
+            "intersection_over_union": 0.8929,
+            "contour_distance_mm": {
+              "median": 11.31,
+              "p90": 36.88
+            },
+            "overlay": "front-overlay.png",
+            "reference_width_height_mm": [
+              791.7,
+              698.13
+            ],
+            "model_width_height_mm": [
+              747.5,
+              675.54
+            ],
+            "model_minus_reference_width_height_mm": [
+              -44.2,
+              -22.58
+            ]
+          },
+          "back": {
+            "photo_sha256": "b69af9c4d08252fa28413c2574278b8fa2930d312e49b3e730cfe25805a4f203",
+            "role": "reconstruction_input",
+            "calibration": {
+              "scale": {
+                "points": [
+                  [
+                    1652,
+                    710
+                  ],
+                  [
+                    1648,
+                    1192
+                  ]
+                ],
+                "mm": 254,
+                "source": "20 to 30 inch marks on a visible tailor tape"
+              },
+              "mm_per_pixel": 0.5269528092237801
+            },
+            "processed_mm_per_pixel": 1.246746,
+            "intersection_over_union": 0.8792,
+            "contour_distance_mm": {
+              "median": 16.0,
+              "p90": 34.0
+            },
+            "overlay": "back-overlay.png",
+            "reference_width_height_mm": [
+              815.37,
+              709.4
+            ],
+            "model_width_height_mm": [
+              747.5,
+              675.54
+            ],
+            "model_minus_reference_width_height_mm": [
+              -67.88,
+              -33.86
+            ]
+          }
+        },
+        "flat_glb": {
+          "meshes": 1,
+          "bounds_span_m": [
+            0.7475,
+            0.0025,
+            0.6755
+          ],
+          "sha256": "fb62c72edd8db2f58a652649969d36913c3b658bdef7be031ac869eb6a122d20"
+        }
+      },
+      "single_front_archive": {
+        "capture_kind": "physical",
+        "pattern_sha256": "4a5a56cb8df222473da5a21635eae553e55a04723bb84ef1beab89c3964a4382",
+        "source_photos": 1,
+        "vision_estimates": 10,
+        "dxf_panels": 5,
+        "seams": 15,
+        "garment_openings": 4,
+        "glb": {
+          "meshes": 1,
+          "bounds_span_m": [
+            0.6434,
+            0.6915,
+            0.2871
+          ]
+        }
+      },
+      "single_front_flat_layout": {
+        "schema_version": 1,
+        "item_id": "auckland-2002.94.1.1",
+        "reference_setup": "Flat museum photographs. Each view scaled from the 20 and 30 inch tape marks. Uniform image scale is assumed across the garment.",
+        "reference_manifest_sha256": "f6a0acd1b438677fd669c0e19d6c2ba32cc532412e0046738d1b3e67da6d6e5a",
+        "pattern_sha256": "4a5a56cb8df222473da5a21635eae553e55a04723bb84ef1beab89c3964a4382",
+        "scope": "Outer contours of a sewn flat GLB compared with photographs; no depth reference",
+        "alignment": "Translate the top and horizontal center of silhouette bounds; no fitted scale or rotation",
+        "sleeve_angle_below_horizontal_deg": 23.0,
+        "sleeve_angle_source": "Standard flat-lay placement",
+        "views": {
+          "front": {
+            "photo_sha256": "2d5c0ef6a5bff9918a3892f35349876772a45c1206959fba421a5cae2de1eba4",
+            "role": "reconstruction_input",
+            "calibration": {
+              "scale": {
+                "points": [
+                  [
+                    1632,
+                    756
+                  ],
+                  [
+                    1630,
+                    1242
+                  ]
+                ],
+                "mm": 254,
+                "source": "20 to 30 inch marks on a visible tailor tape"
+              },
+              "mm_per_pixel": 0.5226293194879946
+            },
+            "processed_mm_per_pixel": 1.231262,
+            "intersection_over_union": 0.8945,
+            "contour_distance_mm": {
+              "median": 10.0,
+              "p90": 34.0
+            },
+            "overlay": "front-overlay.png",
+            "reference_width_height_mm": [
+              791.7,
+              698.13
+            ],
+            "model_width_height_mm": [
+              805.0,
+              688.91
+            ],
+            "model_minus_reference_width_height_mm": [
+              13.29,
+              -9.22
+            ]
+          },
+          "back": {
+            "photo_sha256": "b69af9c4d08252fa28413c2574278b8fa2930d312e49b3e730cfe25805a4f203",
+            "role": "separate_photo",
+            "calibration": {
+              "scale": {
+                "points": [
+                  [
+                    1652,
+                    710
+                  ],
+                  [
+                    1648,
+                    1192
+                  ]
+                ],
+                "mm": 254,
+                "source": "20 to 30 inch marks on a visible tailor tape"
+              },
+              "mm_per_pixel": 0.5269528092237801
+            },
+            "processed_mm_per_pixel": 1.246746,
+            "intersection_over_union": 0.9093,
+            "contour_distance_mm": {
+              "median": 10.0,
+              "p90": 28.0
+            },
+            "overlay": "back-overlay.png",
+            "reference_width_height_mm": [
+              815.37,
+              709.4
+            ],
+            "model_width_height_mm": [
+              805.0,
+              688.91
+            ],
+            "model_minus_reference_width_height_mm": [
+              -10.38,
+              -20.49
+            ]
+          }
+        },
+        "flat_glb": {
+          "meshes": 1,
+          "bounds_span_m": [
+            0.805,
+            0.0022,
+            0.6889
+          ],
+          "sha256": "7cff4685b69d7c90f88a93d506e3e5de94ce099343fdc00de353ee194af6576f"
+        }
+      },
+      "tape_scale_checks": {
+        "front": [
+          {
+            "inch_marks": [
+              15,
+              20
+            ],
+            "pixels": 230.035,
+            "mm_per_pixel": 0.55209
+          },
+          {
+            "inch_marks": [
+              20,
+              30
+            ],
+            "pixels": 486.004,
+            "mm_per_pixel": 0.52263
+          },
+          {
+            "inch_marks": [
+              30,
+              32
+            ],
+            "pixels": 99.081,
+            "mm_per_pixel": 0.51271
+          }
+        ],
+        "back": [
+          {
+            "inch_marks": [
+              15,
+              20
+            ],
+            "pixels": 226.02,
+            "mm_per_pixel": 0.5619
+          },
+          {
+            "inch_marks": [
+              20,
+              30
+            ],
+            "pixels": 482.017,
+            "mm_per_pixel": 0.52695
+          },
+          {
+            "inch_marks": [
+              30,
+              32
+            ],
+            "pixels": 98.02,
+            "mm_per_pixel": 0.51826
+          }
+        ]
+      },
+      "held_out_back_score_before_outer_mask": {
+        "photo_sha256": "b69af9c4d08252fa28413c2574278b8fa2930d312e49b3e730cfe25805a4f203",
+        "intersection_over_union": 0.8081,
+        "contour_distance_mm": {
+          "median": 18.0,
+          "p90": 172.0
+        },
+        "role": "separate_photo"
+      }
+    },
+    "netball": {
+      "review": {
+        "schema_version": 1,
+        "dataset_sha256": "b809a821d1aa6c1ce54a4bf47a85f4462c5dc7b01080d6583e3a51eee76580a6",
+        "weights_sha256": "c11748bd32e5d9134b1e5f25af16d893a8e16a6e80d68167e5ab9a0ac20b59d0",
+        "capture_kind": "physical",
+        "dimensions": {
+          "item_id": "auckland-2017.66.22",
+          "group": "auckland-2017.66.22",
+          "rights": "Auckland War Memorial Museum Tāmaki Paenga Hira, CC BY 4.0, https://creativecommons.org/licenses/by/4.0/",
+          "reference_mm": {
+            "flat_chest_mm": 515.0,
+            "garment_shoulder_width_mm": 505.0
+          },
+          "reference_sources": {
+            "flat_chest_mm": "catalogue_measurement",
+            "garment_shoulder_width_mm": "catalogue_measurement"
+          },
+          "photo_sha256": {
+            "front": "bd7ecb97196fe1c95ab4acec7c13bb6f2ae3cecd501f7a2ef4c55c9031c03047",
+            "back": "82d20186e3eb1e0d3f9c55e0f1fba158672069d63ab4d107ac9f5779dc31d7f3",
+            "sleeve_outer": "d3f2f7e4b371c3833efb3a089bb7eeda807c8508e9aedccec3810f393923a211",
+            "sleeve_inner": "0c511f5f3242120d5a9f46b303cae4f0d31f986bef123961d0f629a7a0babfa4"
+          },
+          "training_overlap_check": "training_fingerprints_unavailable",
+          "inferred_mm": {
+            "flat_chest_mm": 566.893,
+            "back_length_mm": 670.432,
+            "garment_shoulder_width_mm": 502.682,
+            "shoulder_slope_mm": 50.993,
+            "armhole_depth_mm": 238.729,
+            "sleeve_length_mm": 243.582,
+            "sleeve_bicep_flat_mm": 377.213,
+            "sleeve_opening_flat_mm": 327.031,
+            "neck_width_mm": 160.001,
+            "front_neck_depth_mm": 73.057,
+            "back_neck_depth_mm": 20.568
+          },
+          "bounded_fields": [
+            "shoulder_slope_mm",
+            "neck_width_mm",
+            "front_neck_depth_mm"
+          ],
+          "scale_evidence": {
+            "front": {
+              "method": "reference_segment",
+              "source": "known length in image plane",
+              "processed_mm_per_pixel": 1.74132,
+              "processed_image_px": [
+                720,
+                480
+              ],
+              "processed_image_sha256": "ec50f77358947285f7dbb8bcfd49f13d27590d5a18e8ce3a6c3c1273a18d7710",
+              "garment_crop_px": [
+                96,
+                31,
+                666,
+                453
+              ],
+              "garment_box_mm": [
+                994.3,
+                736.58
+              ],
+              "lower_torso_width_mm": 595.53
+            },
+            "back": {
+              "method": "reference_segment",
+              "source": "known length in image plane",
+              "processed_mm_per_pixel": 1.49745,
+              "processed_image_px": [
+                720,
+                546
+              ],
+              "processed_image_sha256": "0b6645c6707936f1f07c945bcbc16e1c4d7b6808dc106fdc2f4ccb8a39841509",
+              "garment_crop_px": [
+                35,
+                14,
+                698,
+                523
+              ],
+              "garment_box_mm": [
+                994.3,
+                763.7
+              ],
+              "lower_torso_width_mm": 595.24
+            }
+          },
+          "absolute_error_mm": {
+            "flat_chest_mm": 51.893,
+            "garment_shoulder_width_mm": 2.318
+          },
+          "status": "pattern_passed",
+          "panels": 5,
+          "seams": 15
+        },
+        "archive": {
+          "status": "traceability_verified",
+          "directory": "archive",
+          "capture_kind": "physical",
+          "pattern_sha256": "161ea0af06334bb3a698d09759870950281afd0edeb8014d51b21eaae96508a0",
+          "source_photos": 4,
+          "vision_estimates": 11,
+          "dxf_panels": 5,
+          "seams": 15,
+          "garment_openings": 4,
+          "glb": {
+            "meshes": 1,
+            "bounds_span_m": [
+              0.7445,
+              0.7024,
+              0.3458
+            ]
+          }
+        },
+        "shape": {
+          "status": "awaiting_reference"
+        },
+        "structure": {
+          "status": "awaiting_manual_review",
+          "additional_capture_views": [
+            "sleeve_outer",
+            "sleeve_inner"
+          ]
+        },
+        "scope": "Measurements and silhouette evidence for review, subject to physical structure and material verification."
+      },
+      "flat_layout": {
+        "schema_version": 1,
+        "item_id": "auckland-2017.66.22",
+        "reference_setup": "Flat museum photographs. Calibrated to the published center-back length of 690 mm. Sleeve shape may differ between captures.",
+        "reference_manifest_sha256": "fdcbb5a863f5fb32f85ca4bd10d28fb57433820057e7c700d3f62e1dd7c8a926",
+        "pattern_sha256": "161ea0af06334bb3a698d09759870950281afd0edeb8014d51b21eaae96508a0",
+        "scope": "Outer contours of a sewn flat GLB compared with photographs; no depth reference",
+        "alignment": "Translate the top and horizontal center of silhouette bounds; no fitted scale or rotation",
+        "sleeve_angle_below_horizontal_deg": 13.474119488354884,
+        "sleeve_angle_source": "Mean of cuff directions from the reconstruction front photo",
+        "views": {
+          "front": {
+            "photo_sha256": "bd7ecb97196fe1c95ab4acec7c13bb6f2ae3cecd501f7a2ef4c55c9031c03047",
+            "role": "reconstruction_input",
+            "calibration": {
+              "scale": {
+                "points": [
+                  [
+                    2745,
+                    404
+                  ],
+                  [
+                    2745,
+                    3257
+                  ]
+                ],
+                "mm": 690,
+                "basis_field": "back_length_mm",
+                "source": "https://commons.wikimedia.org/wiki/File:T-shirt,_playing_(AM_2017.66.22-8).jpg"
+              },
+              "mm_per_pixel": 0.24185068349106204
+            },
+            "processed_mm_per_pixel": 1.741325,
+            "intersection_over_union": 0.8644,
+            "contour_distance_mm": {
+              "median": 18.0,
+              "p90": 41.07
+            },
+            "overlay": "front-overlay.png",
+            "reference_width_height_mm": [
+              994.3,
+              736.58
+            ],
+            "model_width_height_mm": [
+              990.5,
+              699.25
+            ],
+            "model_minus_reference_width_height_mm": [
+              -3.79,
+              -37.33
+            ]
+          },
+          "back": {
+            "photo_sha256": "82d20186e3eb1e0d3f9c55e0f1fba158672069d63ab4d107ac9f5779dc31d7f3",
+            "role": "reconstruction_input",
+            "calibration": {
+              "scale": {
+                "points": [
+                  [
+                    2358,
+                    373
+                  ],
+                  [
+                    2358,
+                    3162
+                  ]
+                ],
+                "mm": 690,
+                "basis_field": "back_length_mm",
+                "source": "https://commons.wikimedia.org/wiki/File:T-shirt,_playing_(AM_2017.66.22-8).jpg"
+              },
+              "mm_per_pixel": 0.24740050197203298
+            },
+            "processed_mm_per_pixel": 1.497447,
+            "intersection_over_union": 0.7715,
+            "contour_distance_mm": {
+              "median": 31.05,
+              "p90": 64.0
+            },
+            "overlay": "back-overlay.png",
+            "reference_width_height_mm": [
+              994.3,
+              763.7
+            ],
+            "model_width_height_mm": [
+              990.5,
+              699.25
+            ],
+            "model_minus_reference_width_height_mm": [
+              -3.8,
+              -64.45
+            ]
+          }
+        },
+        "flat_glb": {
+          "meshes": 1,
+          "bounds_span_m": [
+            0.9905,
+            0.0024,
+            0.6992
+          ],
+          "sha256": "e873d8c247d69d59c3b56f6d3bb6d9e50397955dd94b586a15b16d27a4f85954"
+        }
+      },
+      "alternate_neck_edge": {
+        "mm_per_pixel": {
+          "front": 0.2327150084317032,
+          "back": 0.23883696780893043
+        },
+        "held_out_measurements_mm": {
+          "flat_chest_mm": {
+            "predicted_mm": 546.924,
+            "catalogue_mm": 515,
+            "absolute_error_mm": 31.924
+          },
+          "garment_shoulder_width_mm": {
+            "predicted_mm": 483.994,
+            "catalogue_mm": 505,
+            "absolute_error_mm": 21.006
+          }
+        }
+      }
+    }
+  }
+}

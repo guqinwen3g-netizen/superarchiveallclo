@@ -79,7 +79,9 @@ def load_dataset(path: Path):
         if split not in SPLITS:
             raise ValueError(f"{item_id}: split must be train, validation, or test")
         rights = text_field(entry.get("rights"), f"{item_id} rights")
-        known = {name: m for name, m in capture["measurements"].items() if name in FIELDS}
+        scale_basis_fields = {view.get("scale", {}).get("basis_field") for view in capture["views"].values()}
+        known = {name: m for name, m in capture["measurements"].items()
+                 if name in FIELDS and (split != "test" or name not in scale_basis_fields)}
         if not known:
             raise ValueError(f"{item_id}: provide at least one independent reference measurement")
         if groups.setdefault(group, split) != split:

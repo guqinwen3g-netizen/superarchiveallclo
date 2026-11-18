@@ -89,7 +89,7 @@ def calibration(rgb):
     }
 
 
-def garment_crop(rgb, exclusion, *, require_margin=True):
+def garment_crop(rgb, exclusion, *, require_margin=True, fill_interior=False):
     height, width = rgb.shape[:2]
     border = np.concatenate((rgb[:4].reshape(-1, 3), rgb[-4:].reshape(-1, 3),
                              rgb[:, :4].reshape(-1, 3), rgb[:, -4:].reshape(-1, 3)))
@@ -102,10 +102,16 @@ def garment_crop(rgb, exclusion, *, require_margin=True):
     piece = int(areas.argmax())
     if areas[piece] < 0.08 * width * height:
         raise ValueError("Garment silhouette could not be isolated on the backdrop")
-    other = np.delete(areas, piece)
+    mask = objects == piece
+    if fill_interior:
+        # A print can match the backdrop, but a closed region inside the
+        # photographed outline still belongs to a fully laid-out T-shirt.
+        mask = ndimage.binary_fill_holes(mask)
+        other = np.bincount(objects[~mask], minlength=len(areas))[1:]
+    else:
+        other = np.delete(areas, piece)
     if other.size and other.max() > 0.2 * areas[piece]:
         raise ValueError("Frame the garment alone on a plain backdrop")
-    mask = objects == piece
     yy, xx = np.where(mask)
     top, bottom, left, right = int(yy.min()), int(yy.max()), int(xx.min()), int(xx.max())
     if require_margin and min(top, left, height - 1 - bottom, width - 1 - right) < 3:
@@ -113,8 +119,8 @@ def garment_crop(rgb, exclusion, *, require_margin=True):
     return mask[top:bottom + 1, left:right + 1], [left, top, right, bottom]
 
 
-def picture_features(image, view=None):
-    """Return metric dimensions and crop-relative silhouette descriptors."""
+def picture_silhouette(image, view=None, *, outer_only=False):
+    """Isolate a scaled silhouette in the upright, processed photo."""
     image = ImageOps.exif_transpose(image).convert("RGB")
     original_width, original_height = image.size
     image.thumbnail((720, 720), Image.Resampling.BOX)
@@ -129,7 +135,15 @@ def picture_features(image, view=None):
         }
     else:
         mm_per_px, exclusion, scale = calibration(rgb)
-    crop, bounds = garment_crop(rgb, exclusion)
+    projected = view and view.get("calibration", {}).get("type") == "metric_orthographic_point_cloud"
+    crop, bounds = garment_crop(rgb, exclusion, fill_interior=outer_only and not projected)
+    return image, crop, bounds, mm_per_px, scale
+
+
+def picture_features(image, view=None):
+    """Return metric dimensions and crop-relative silhouette descriptors."""
+    image, crop, bounds, mm_per_px, scale = picture_silhouette(image, view)
+    width, height = image.size
     h, w = crop.shape
     actual_width, actual_height = float(w * mm_per_px), float(h * mm_per_px)
     bands = np.linspace(0, h - 1, 48).round().astype(int)
@@ -172,7 +186,7 @@ def unscaled_pair(front, back):
         image = ImageOps.exif_transpose(image).convert("RGB")
         image.thumbnail((720, 720), Image.Resampling.BOX)
         rgb = np.asarray(image, dtype=np.int16)
-        crop, bounds = garment_crop(rgb, np.zeros(rgb.shape[:2], dtype=bool), require_margin=False)
+        crop, bounds = garment_crop(rgb, np.zeros(rgb.shape[:2], dtype=bool), require_margin=False, fill_interior=True)
         height, width = crop.shape
         lower = crop[round(0.64 * height):round(0.87 * height)]
         left, top, right, bottom = bounds

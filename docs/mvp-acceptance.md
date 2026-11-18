@@ -125,3 +125,4 @@ python -m superarchiveallclo.compare_shape build/tee-01 \
 - PatternedClothing 提供同一研究 T 恤的裁片模型和实拍注册网格，许可为 CC BY-NC 4.0。Open+Pattern 提供 CC BY 4.0 的 T 恤 DXF、CLO 文件和 GLB，其公开产品页列出的图像为插图。两者分别提供动态几何和独立制板参考。[PatternedClothing](https://github.com/facebookresearch/PatternedClothing) · [Open+Pattern](https://openpattern.io/product/standard-fit-t-shirt/)
 - Smithsonian 藏品 `nmah_460141` 有馆方标注的同件正背照片和整体尺寸 63.50 × 68.58 × 5.08 cm。该页面的 CC0 适用于目录元数据，照片另列使用条件。已核查目录和照片标注。[Smithsonian 藏品记录](https://www.si.edu/object/t-shirt:nmah_460141)
 - Wikimedia Commons 的鹿儿岛 OpenStreetMap 调查 T 恤提供同件正背图，许可为 CC BY-SA 4.0。已验证可见衣身的相对比例，并检查到袖缘贴图边。该对照还需要可信尺度和独立原件尺寸。[正背照报告](sleeve-join-study.md#有授权的同件正背照)
+- 奥克兰博物馆的两件圆领 T 恤提供 CC BY 4.0 的同件正背照。一件带独立标尺，另一件有馆方尺寸及独立内部结构照。两件均已生成候选归档；现有馆藏资料支持照片轮廓比较，直接三维测量及原版纸样尚缺。[盲测结果、来源及复现](paired-photo-study.md)

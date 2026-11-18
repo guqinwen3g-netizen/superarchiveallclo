@@ -55,6 +55,8 @@ def view_calibration(view, size, name):
     if "scale" in view:
         scale = view["scale"]
         span = segment_length(scale["points"], size)
+        if "basis_field" in scale and scale["basis_field"] not in FIELDS:
+            raise ValueError(f"{name}: scale basis_field must be a supported garment dimension")
         return {"scale": scale, "mm_per_pixel": number(scale["mm"], name) / number(span, f"{name} scale pixels")}
     if "calibration" in view:
         metric = view["calibration"]
@@ -171,6 +173,10 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
         if "value" in observation:
             measured = observation["value"]
             method = "provided_ratio" if name == "collar_length_ratio" else "tape"
+            if method == "tape" and observation.get("method") == "catalogue_measurement":
+                if not isinstance(observation.get("source"), str) or not observation["source"].strip():
+                    raise ValueError(f"{name}: identify the catalogue for the published measurement")
+                method = "catalogue_measurement"
         else:
             if name == "collar_length_ratio":
                 raise ValueError("Collar ratio is unitless and requires a directly supplied value")

@@ -76,15 +76,19 @@ def reference_mask(path, mm_per_pixel):
         mask = np.asarray(image.convert("L")) > 127
     if mask[0].any() or mask[-1].any() or mask[:, 0].any() or mask[:, -1].any():
         raise ValueError("Reference garment mask must have a black margin on all four sides")
-    cropped = crop_surface(mask)
-    height, width = cropped.shape
+    grid, span = metric_mask(crop_surface(mask), mm_per_pixel)
+    return grid, span, sha256(encoded).hexdigest()
+
+
+def metric_mask(mask, mm_per_pixel):
+    height, width = mask.shape
     span = np.asarray((width, height)) * mm_per_pixel
     target_width, target_height = [round(s / GRID_MM) for s in span]
     check_frame(target_width, target_height)
-    grid = Image.fromarray(cropped.astype(np.uint8) * 255).resize(
+    grid = Image.fromarray(mask.astype(np.uint8) * 255).resize(
         (target_width, target_height), Image.Resampling.BOX,
     )
-    return crop_surface(np.asarray(grid) > 127), span, sha256(encoded).hexdigest()
+    return crop_surface(np.asarray(grid) > 127), span
 
 
 def compare_masks(observed, projected):

@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "photo_attribution": "Auckland War Memorial Museum T\u0101maki Paenga Hira",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "cases": {
+    "peace": {
+      "setup": "Flat museum photographs. Each view scaled from the 20 and 30 inch tape marks. Uniform image scale is assumed across the garment.",
+      "assets": {
+        "peace-01.jpg": {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/3/3e/T-shirt_%28AM_2002.94.1.1-1%29.jpg",
+          "catalogue_photo": "https://commons.wikimedia.org/?curid=64330673",
+          "sha256": "2d5c0ef6a5bff9918a3892f35349876772a45c1206959fba421a5cae2de1eba4"
+        },
+        "peace-02.jpg": {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/d/d1/T-shirt_%28AM_2002.94.1.1-2%29.jpg",
+          "catalogue_photo": "https://commons.wikimedia.org/?curid=64330689",
+          "sha256": "b69af9c4d08252fa28413c2574278b8fa2930d312e49b3e730cfe25805a4f203"
+        }
+      },
+      "session": {
+        "schema_version": 1,
+        "item_id": "auckland-2002.94.1.1",
+        "kind": "physical",
+        "garment": "crew_neck_tee",
+        "views": {
+          "front": {
+            "file": "peace-01.jpg",
+            "scale": {
+              "points": [
+                [
+                  1632,
+                  756
+                ],
+                [
+                  1630,
+                  1242
+                ]
+              ],
+              "mm": 254,
+              "source": "20 to 30 inch marks on a visible tailor tape"
+            }
+          },
+          "back": {
+            "file": "peace-02.jpg",
+            "scale": {
+              "points": [
+                [
+                  1652,
+                  710
+                ],
+                [
+                  1648,
+                  1192
+                ]
+              ],
+              "mm": 254,
+              "source": "20 to 30 inch marks on a visible tailor tape"
+            }
+          }
+        },
+        "measurements": {}
+      },
+      "tape_checks": {
+        "front": {
+          "15": [
+            1628,
+            526
+          ],
+          "20": [
+            1632,
+            756
+          ],
+          "30": [
+            1630,
+            1242
+          ],
+          "32": [
+            1626,
+            1341
+          ]
+        },
+        "back": {
+          "15": [
+            1649,
+            484
+          ],
+          "20": [
+            1652,
+            710
+          ],
+          "30": [
+            1648,
+            1192
+          ],
+          "32": [
+            1646,
+            1290
+          ]
+        }
+      }
+    },
+    "netball": {
+      "setup": "Flat museum photographs. Calibrated to the published center-back length of 690 mm. Sleeve shape may differ between captures.",
+      "assets": {
+        "netball-06.jpg": {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/5/5b/T-shirt%2C_playing_%28AM_2017.66.22-6%29.jpg",
+          "catalogue_photo": "https://commons.wikimedia.org/?curid=83524143",
+          "sha256": "bd7ecb97196fe1c95ab4acec7c13bb6f2ae3cecd501f7a2ef4c55c9031c03047"
+        },
+        "netball-08.jpg": {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/8/80/T-shirt%2C_playing_%28AM_2017.66.22-8%29.jpg",
+          "catalogue_photo": "https://commons.wikimedia.org/?curid=83524147",
+          "sha256": "82d20186e3eb1e0d3f9c55e0f1fba158672069d63ab4d107ac9f5779dc31d7f3"
+        },
+        "netball-17.jpg": {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/c/cb/T-shirt%2C_playing_%28AM_2017.66.22-17%29.jpg",
+          "catalogue_photo": "https://commons.wikimedia.org/?curid=83524168",
+          "sha256": "d3f2f7e4b371c3833efb3a089bb7eeda807c8508e9aedccec3810f393923a211"
+        },
+        "netball-18.jpg": {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/1/12/T-shirt%2C_playing_%28AM_2017.66.22-18%29.jpg",
+          "catalogue_photo": "https://commons.wikimedia.org/?curid=83524170",
+          "sha256": "0c511f5f3242120d5a9f46b303cae4f0d31f986bef123961d0f629a7a0babfa4"
+        }
+      },
+      "session": {
+        "schema_version": 1,
+        "item_id": "auckland-2017.66.22",
+        "kind": "physical",
+        "garment": "crew_neck_tee",
+        "views": {
+          "front": {
+            "file": "netball-06.jpg",
+            "scale": {
+              "points": [
+                [
+                  2745,
+                  404
+                ],
+                [
+                  2745,
+                  3257
+                ]
+              ],
+              "mm": 690,
+              "basis_field": "back_length_mm",
+              "source": "https://commons.wikimedia.org/wiki/File:T-shirt,_playing_(AM_2017.66.22-8).jpg"
+            }
+          },
+          "back": {
+            "file": "netball-08.jpg",
+            "scale": {
+              "points": [
+                [
+                  2358,
+                  373
+                ],
+                [
+                  2358,
+                  3162
+                ]
+              ],
+              "mm": 690,
+              "basis_field": "back_length_mm",
+              "source": "https://commons.wikimedia.org/wiki/File:T-shirt,_playing_(AM_2017.66.22-8).jpg"
+            }
+          },
+          "sleeve_outer": {
+            "file": "netball-17.jpg"
+          },
+          "sleeve_inner": {
+            "file": "netball-18.jpg"
+          }
+        },
+        "measurements": {
+          "back_length_mm": {
+            "value": 690,
+            "method": "catalogue_measurement",
+            "source": "https://commons.wikimedia.org/wiki/File:T-shirt,_playing_(AM_2017.66.22-8).jpg"
+          },
+          "flat_chest_mm": {
+            "value": 515,
+            "method": "catalogue_measurement",
+            "source": "https://commons.wikimedia.org/wiki/File:T-shirt,_playing_(AM_2017.66.22-8).jpg"
+          },
+          "garment_shoulder_width_mm": {
+            "value": 505,
+            "method": "catalogue_measurement",
+            "source": "https://commons.wikimedia.org/wiki/File:T-shirt,_playing_(AM_2017.66.22-8).jpg"
+          }
+        }
+      },
+      "alternate_neck_points_px": {
+        "front": [
+          2745,
+          292
+        ],
+        "back": [
+          2358,
+          273
+        ]
+      }
+    }
+  }
+}

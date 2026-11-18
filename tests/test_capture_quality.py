@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from PIL import Image, ImageDraw
 
-from superarchiveallclo.vision import paired_features, picture_features, unscaled_pair
+from superarchiveallclo.vision import paired_features, picture_features, picture_silhouette, unscaled_pair
 
 
 def photo(*, turn=0, card_height=40, body_width=140, circle=False, shirt_color=43):
@@ -30,6 +30,18 @@ def photo(*, turn=0, card_height=40, body_width=140, circle=False, shirt_color=4
 
 
 class CaptureQualityTest(TestCase):
+    def test_a_print_with_the_backdrop_color_does_not_cut_a_photographed_tee(self):
+        original = photo()
+        printed = original.copy()
+        ImageDraw.Draw(printed).ellipse((154, 164, 216, 224), fill=original.getpixel((3, 3)))
+        view = {"mm_per_pixel": 2.5}
+        _, solid, _, _, _ = picture_silhouette(original, view, outer_only=True)
+        _, with_print, _, _, _ = picture_silhouette(printed, view, outer_only=True)
+        self.assertTrue((solid == with_print).all())
+        scan = {**view, "calibration": {"source": "fixture", "type": "metric_orthographic_point_cloud"}}
+        _, with_opening, _, _, _ = picture_silhouette(printed, scan, outer_only=True)
+        self.assertLess(with_opening.sum(), solid.sum())
+
     def test_unscaled_reports_only_observable_proportions(self):
         front = photo().crop((100, 38, 320, 295))
         back = front.resize((440, 514))
