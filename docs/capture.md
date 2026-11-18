@@ -67,6 +67,8 @@ python -m superarchiveallclo.rgbd rgbd.json \
 
 如果设备直接输出逐像素三维坐标，可在同一清单用 `"pcd": "front.pcd"` 和 `"pcd_unit": "m"` 代替 `depth`、`depth_unit` 和 `intrinsics`。PCD 的 `WIDTH` 与 `HEIGHT` 必须对应 RGB 像素网格，XYZ 为相机坐标，Z 向前，单位可为 `m` 或 `mm`。支持 ASCII 和未压缩二进制。缺测值保留原来的像素位置。程序使用保存的三维坐标和台面校准毫米尺度，原始点云随归档保存。[真实 Kinect 数据的纸样和独立复扫](iri-pcd-study.md)
 
+衣服在台面上转向时，可以给 `superarchiveallclo.rgbd` 加 `--auto-upright`。程序根据可见双袖和下摆估计方向，在台面内刚性旋转毫米坐标。归档记录角度和数值评分。完整的袖子、衣身和下摆应留在取景范围。对明显折叠、裁切或无法确定方向的图像，入口会提示具体问题。[旋转实拍对照](iri-pcd-study.md#台面内自动摆正)
+
 ### 尺寸与材料
 
 尺寸键放在 `measurements` 下。卷尺实测可填 `{"value": 560}`。馆方实测可加 `"method": "catalogue_measurement"` 和 `"source"` 来记录原始目录。照片标注可填 `{"view": "front", "points": [[120, 300], [960, 301]], "axis": "x"}`。材料观察放在 `material`，随原始记录保留。每个字段的来源和推断项会写入输出档案。

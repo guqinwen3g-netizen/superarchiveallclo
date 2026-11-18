@@ -13,6 +13,7 @@ from PIL import Image, ImageOps
 from scipy import ndimage
 
 from .capture import archive
+from .orientation import orient_flat_points
 from .scan import project, read_pcd
 from .vision import garment_crop, picture_features
 
@@ -62,9 +63,13 @@ def registered_regions(mask, valid):
     return garment, ring, coverage
 
 
-def project_surface(points, support, coverage, mm_per_pixel):
+def project_surface(points, support, coverage, mm_per_pixel, *, auto_upright=False):
     origin, basis, residual = plane_basis(support)
     tabletop = (points - origin) @ basis
+    orientation = {}
+    if auto_upright:
+        tabletop, rotation, orientation = orient_flat_points(tabletop)
+        basis = basis @ rotation
     image, evidence = project(tabletop, "x", "y", mm_per_pixel)
     return image, {
         **evidence,
@@ -72,15 +77,16 @@ def project_surface(points, support, coverage, mm_per_pixel):
         "support_points": len(support), "support_plane_residual_p90_mm": round(residual * 1000, 3),
         "surface_distance_to_support_p95_mm": round(float(np.quantile(np.abs(tabletop[:, 2]), 0.95) * 1000), 3),
         "support_origin_camera_m": origin.tolist(), "support_basis_camera": basis.tolist(),
+        **orientation,
     }
 
 
-def metric_projection(depth, mask, intrinsics, mm_per_pixel):
+def metric_projection(depth, mask, intrinsics, mm_per_pixel, *, auto_upright=False):
     if depth.ndim != 2 or depth.shape != mask.shape:
         raise ValueError("The depth and foreground mask must share one registered pixel grid")
     garment, ring, coverage = registered_regions(mask, np.isfinite(depth) & (depth > 0))
     return project_surface(back_project(depth, garment, intrinsics),
-                           back_project(depth, ring, intrinsics), coverage, mm_per_pixel)
+                           back_project(depth, ring, intrinsics), coverage, mm_per_pixel, auto_upright=auto_upright)
 
 
 def read_depth(raw, extension):
@@ -95,7 +101,7 @@ def read_depth(raw, extension):
         return np.asarray(image)
 
 
-def prepare_view(root, view, name, directory, provenance, mm_per_pixel):
+def prepare_view(root, view, name, directory, provenance, mm_per_pixel, *, auto_upright=False):
     rgb_bytes = (root / view["rgb"]).read_bytes()
     with Image.open(BytesIO(rgb_bytes)) as encoded:
         extension = {"JPEG": ".jpg", "PNG": ".png"}.get(encoded.format)
@@ -133,11 +139,13 @@ def prepare_view(root, view, name, directory, provenance, mm_per_pixel):
         mask = np.zeros(rgb.shape[:2], dtype=bool)
         crop, (left, top, right, bottom) = garment_crop(rgb.astype(np.int16), mask)
         mask[top:bottom + 1, left:right + 1] = crop
+    if auto_upright and (mask[0].any() or mask[-1].any() or mask[:, 0].any() or mask[:, -1].any()):
+        raise ValueError(f"{name}: automatic orientation needs the full garment within the RGB frame")
     if geometry == "depth":
         depth = read_depth(data, path.suffix.lower()).astype(float) * metres
         if depth.shape != rgb.shape[:2]:
             raise ValueError(f"{name}: depth must align with the upright RGB image dimensions")
-        image, readings = metric_projection(depth, mask, view["intrinsics"], mm_per_pixel)
+        image, readings = metric_projection(depth, mask, view["intrinsics"], mm_per_pixel, auto_upright=auto_upright)
         sensor = {"origin_type": "registered_rgbd", "depth_unit": unit, "camera_intrinsics_px": view["intrinsics"]}
     else:
         points = read_pcd(data, organized=True) * metres
@@ -145,7 +153,7 @@ def prepare_view(root, view, name, directory, provenance, mm_per_pixel):
             raise ValueError(f"{name}: PCD must align with the upright RGB image dimensions")
         valid = np.isfinite(points).all(axis=2) & (points[:, :, 2] > 0)
         garment, ring, coverage = registered_regions(mask, valid)
-        image, readings = project_surface(points[garment], points[ring], coverage, mm_per_pixel)
+        image, readings = project_surface(points[garment], points[ring], coverage, mm_per_pixel, auto_upright=auto_upright)
         sensor = {"origin_type": "registered_pcd", "pcd_unit": unit, "cloud_sha256": sha256(data).hexdigest()}
     calibration = {
         **readings, "mm_per_pixel": mm_per_pixel, "source": provenance,
@@ -165,7 +173,7 @@ def prepare_view(root, view, name, directory, provenance, mm_per_pixel):
     return {"file": name, "calibration": calibration, "source_assets": evidence}, measurement
 
 
-def prepare(source, output, *, weights=None, blender="blender", mm_per_pixel=2.0):
+def prepare(source, output, *, weights=None, blender="blender", mm_per_pixel=2.0, auto_upright=False):
     if output.exists():
         raise ValueError(f"Output already exists: {output}")
     record = json.loads(source.read_bytes())
@@ -190,7 +198,9 @@ def prepare(source, output, *, weights=None, blender="blender", mm_per_pixel=2.0
         bundle = Path(temporary) / "rgbd"
         (bundle / "evidence").mkdir(parents=True)
         for name, view in views.items():
-            session["views"][name], result[name] = prepare_view(source.parent, view, name, bundle, provenance, mm_per_pixel)
+            session["views"][name], result[name] = prepare_view(
+                source.parent, view, name, bundle, provenance, mm_per_pixel, auto_upright=auto_upright,
+            )
         if "back" in views:
             hashes = [view["source_assets"]["rgb"]["sha256"] for view in session["views"].values()]
             if len(set(hashes)) != 2:
@@ -210,9 +220,11 @@ def main():
     parser.add_argument("--model", type=Path, help="Generate an archive with matching front-only or paired weights")
     parser.add_argument("--blender", default="blender")
     parser.add_argument("--mm-per-pixel", type=float, default=2.0)
+    parser.add_argument("--auto-upright", action="store_true", help="Recover the in-plane axis of a full flat-lay tee")
     args = parser.parse_args()
     try:
-        report = prepare(args.session, args.output, weights=args.model, blender=args.blender, mm_per_pixel=args.mm_per_pixel)
+        report = prepare(args.session, args.output, weights=args.model, blender=args.blender, mm_per_pixel=args.mm_per_pixel,
+                         auto_upright=args.auto_upright)
     except (KeyError, TypeError, ValueError, OSError, DXFError, np.linalg.LinAlgError) as error:
         parser.error(str(error))
     print(json.dumps(report, indent=2))

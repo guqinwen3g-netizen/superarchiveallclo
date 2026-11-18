@@ -80,5 +80,204 @@
     "comparison_alignment": "Translation of the top and horizontal midpoint, with median scan height at the upper layer",
     "sleeve_angle_from_input_deg": 6.365535089086022,
     "same_pattern_flat_glb_sha256": "84cfcde36a5816d0028bc70a9846aaabc80d1b975b3610616763c3dc80537b26"
+  },
+  "orientation": {
+    "sequence_frames_reviewed": 51,
+    "folded_or_occluded_views": [
+      "n00697",
+      "n00748"
+    ],
+    "clipped_view": "n00320",
+    "reference_frame": "n00764",
+    "repeat_capture_outline": {
+      "input_frame": "n00700",
+      "intersection_over_union": 0.9002,
+      "contour_distance_mm": {
+        "median": 5.66,
+        "p90": 40.45
+      }
+    },
+    "configurations": {
+      "turned_634": {
+        "frame": "n00634",
+        "original_asset_sha256": {
+          "rgb": "a1cf0ee50553ca1e7c2ed412d9bb106543d68038f14cb22d375577ceae9e4314",
+          "pcd": "91e4ea9b2996b7a7fbadf4c532899222a6bd883143ab13fbe95b1860e501af58",
+          "mask": "feaa730ba4deb987a30dbfa581e1a38cd27a4031800320026350599d64d7b5b4"
+        },
+        "upright_rotation_deg": 62.0,
+        "upright_outline_score": 0.21275,
+        "archive_audit": {
+          "capture_kind": "physical",
+          "pattern_sha256": "635b078e1d0857daee4716bb319e9d2dca865efb6d33d6325671afcbaadc8c1a",
+          "source_photos": 1,
+          "vision_estimates": 4,
+          "dxf_panels": 5,
+          "seams": 15,
+          "garment_openings": 4,
+          "glb": {
+            "meshes": 1,
+            "bounds_span_m": [
+              0.7078,
+              0.6996,
+              0.2788
+            ]
+          }
+        },
+        "flat_chest_mm": 484.0,
+        "back_center_length_mm": 669.613,
+        "sleeve_length_mm": 289.541,
+        "flat_glb_sha256": "938b1b7897df8562e98044f81f1f8e2ae97e8e9131c4e6ea9efb4045e3aab325",
+        "reference_comparison": {
+          "id": "scan-01",
+          "cloud_sha256": "3edb7b80cfea114a92b8063b14b856ad8758e6596cb2ca47faabd485e44ad12e",
+          "point_count": 110386,
+          "plane_distance_p95_mm": 10.286,
+          "intersection_over_union": 0.7835,
+          "contour_distance_mm": {
+            "median": 30.0,
+            "p90": 66.75
+          },
+          "model_minus_reference_width_height_mm": [
+            -19.43,
+            40.56
+          ],
+          "reference_to_glb_surface_distance_mm": {
+            "median": 2.24,
+            "p90": 14.37
+          },
+          "reference_translation_mm": [
+            26.39,
+            -291.63,
+            -4.9
+          ]
+        }
+      },
+      "turned_647": {
+        "frame": "n00647",
+        "original_asset_sha256": {
+          "rgb": "89fce2ffd9875aa383bf25d2b0a8a5a50da226c4264286fc8cc00aedfe41aa4c",
+          "pcd": "3f4cc60ee4175eb6610915c8ea481258e759034938b0203653091ee380bb2563",
+          "mask": "d9da01b3a48c9aec41fc9d58c8ae05889943a171665c16420e4cd68123f55941"
+        },
+        "upright_rotation_deg": -85.5,
+        "upright_outline_score": 0.18666,
+        "archive_audit": {
+          "capture_kind": "physical",
+          "pattern_sha256": "c86d61f79e01994edf43f9d1aa8e6ced9b8aca42f6306597e797cb9d21e5cba6",
+          "source_photos": 1,
+          "vision_estimates": 5,
+          "dxf_panels": 5,
+          "seams": 15,
+          "garment_openings": 4,
+          "glb": {
+            "meshes": 1,
+            "bounds_span_m": [
+              0.5758,
+              0.7026,
+              0.3112
+            ]
+          }
+        },
+        "flat_chest_mm": 478.0,
+        "back_center_length_mm": 675.613,
+        "sleeve_length_mm": 189.295,
+        "flat_glb_sha256": "9f6ed0ed62c2322b4bffb37d6a5143dc9dc35e4985ed6276dc06cfc91219addc",
+        "reference_comparison": {
+          "id": "scan-01",
+          "cloud_sha256": "3edb7b80cfea114a92b8063b14b856ad8758e6596cb2ca47faabd485e44ad12e",
+          "point_count": 110386,
+          "plane_distance_p95_mm": 10.286,
+          "intersection_over_union": 0.7339,
+          "contour_distance_mm": {
+            "median": 44.0,
+            "p90": 70.0
+          },
+          "model_minus_reference_width_height_mm": [
+            -120.67,
+            42.91
+          ],
+          "reference_to_glb_surface_distance_mm": {
+            "median": 2.4,
+            "p90": 19.99
+          },
+          "reference_translation_mm": [
+            26.39,
+            -295.33,
+            -4.9
+          ]
+        }
+      },
+      "raw_647": {
+        "frame": "n00647",
+        "original_asset_sha256": {
+          "rgb": "89fce2ffd9875aa383bf25d2b0a8a5a50da226c4264286fc8cc00aedfe41aa4c",
+          "pcd": "3f4cc60ee4175eb6610915c8ea481258e759034938b0203653091ee380bb2563",
+          "mask": "d9da01b3a48c9aec41fc9d58c8ae05889943a171665c16420e4cd68123f55941"
+        },
+        "upright_rotation_deg": null,
+        "upright_outline_score": null,
+        "archive_audit": {
+          "capture_kind": "physical",
+          "pattern_sha256": "07d1ffc43906333f764c2f1d4a8679a0f36b1b15a43a91cf46c1a1c5c958b72c",
+          "source_photos": 1,
+          "vision_estimates": 7,
+          "dxf_panels": 5,
+          "seams": 15,
+          "garment_openings": 4,
+          "glb": {
+            "meshes": 1,
+            "bounds_span_m": [
+              0.4709,
+              0.6444,
+              0.3952
+            ]
+          }
+        },
+        "flat_chest_mm": 666.0,
+        "back_center_length_mm": 619.613,
+        "sleeve_length_mm": 240.44,
+        "flat_glb_sha256": "43a6eaf2ad12e28c2a531595ef6309391611b91a6f89364ecf4ad39628870b84",
+        "reference_comparison": {
+          "id": "scan-01",
+          "cloud_sha256": "3edb7b80cfea114a92b8063b14b856ad8758e6596cb2ca47faabd485e44ad12e",
+          "point_count": 110386,
+          "plane_distance_p95_mm": 10.286,
+          "intersection_over_union": 0.7546,
+          "contour_distance_mm": {
+            "median": 28.0,
+            "p90": 109.04
+          },
+          "model_minus_reference_width_height_mm": [
+            -94.89,
+            -11.57
+          ],
+          "reference_to_glb_surface_distance_mm": {
+            "median": 1.92,
+            "p90": 10.28
+          },
+          "reference_translation_mm": [
+            26.39,
+            -293.81,
+            -4.9
+          ]
+        }
+      }
+    },
+    "raw_634_dimensions": {
+      "flat_chest_mm": 713.0,
+      "garment_chest_mm": 1426.0,
+      "chest_ease_mm": null,
+      "across_shoulders_mm": 347.652,
+      "back_center_length_mm": 701.613,
+      "sleeve_length_apex_to_hem_mm": 248.939,
+      "neck_seam_circumference_mm": 368.748
+    },
+    "already_upright": {
+      "frame": "n00700",
+      "estimated_rotation_deg": 2.0,
+      "applied_rotation_deg": 0.0,
+      "projection_unchanged": true
+    }
   }
 }
