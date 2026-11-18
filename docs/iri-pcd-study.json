@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "dataset": "IRI UPC-CSIC Clothing Part Dataset",
+  "dataset_url": "http://www.iri.upc.edu/groups/perception/clothingDataset/",
+  "citation_doi": "10.1016/j.patcog.2016.07.003",
+  "scope": "Single front reconstruction and an independent near-flat front recapture",
+  "capture_identity_basis": "Matching chest print and garment construction appearance in one source sequence. No physical item ID is included in the dataset labels.",
+  "execution": {
+    "blender": "4.3.2",
+    "weights_sha256": "a1a8e84125d3d55e0b1bdc1b51a5a56afceb33a3643bcc212e9a0da59e6d315e"
+  },
+  "input": {
+    "frame": "n00700",
+    "original_asset_sha256": {
+      "rgb": "49fca407f6a467be9c0cd2aed7aefd84a35781596737a9606c02f470401a3097",
+      "pcd": "5370d63f0356f80bac392849ce2502ffc7cd89b8e58f42e60c01045409bcd3e6",
+      "mask": "e0ee7cf8c03856faaebe2ca37d21b329c6a35621f8ad44b6425c74a1e37cf0ff"
+    },
+    "registered_coverage": 1.0,
+    "support_plane_residual_p90_mm": 4.527,
+    "raw_metric_view_span_mm": [
+      829.097,
+      694.537
+    ],
+    "point_count": 124049,
+    "projection_sha256": "67ddf96c17c2bd9eca617c34dcc459cb8fed42efe987ca4e0ce09b830e831241"
+  },
+  "archive_audit": {
+    "capture_kind": "physical",
+    "pattern_sha256": "ab47e2354d73758fdff4b455531fcbcee679ab83cceaf861f5499a5973796a6f",
+    "source_photos": 1,
+    "vision_estimates": 4,
+    "dxf_panels": 5,
+    "seams": 15,
+    "garment_openings": 4,
+    "glb": {
+      "meshes": 1,
+      "bounds_span_m": [
+        0.6435,
+        0.6944,
+        0.3262
+      ]
+    }
+  },
+  "drape_glb_sha256": "001fa7b77c032102196b9455fb1f801f9e5a3229682fcf1bd03309fb87655912",
+  "reference": {
+    "frame": "n00764",
+    "original_asset_sha256": {
+      "rgb": "52117afb1c6f6d921f4ff48579b31d35e3f1fbcd88b3943fd0d1a9cea091a808",
+      "pcd": "9525ff64c9cd211cff87f0101c29ddf33da74d561d8f92a4f2e69b00536ca15e",
+      "mask": "754a4b32b9379bc968033947789aa1f535dcfb53e96232f0a23547614a1447a6"
+    },
+    "support_plane_residual_p90_mm": 4.773,
+    "hem_rotation_deg": 20.6261,
+    "registered_coverage": 1.0,
+    "comparison": {
+      "id": "scan-01",
+      "cloud_sha256": "3edb7b80cfea114a92b8063b14b856ad8758e6596cb2ca47faabd485e44ad12e",
+      "point_count": 110386,
+      "plane_distance_p95_mm": 10.286,
+      "intersection_over_union": 0.8272,
+      "contour_distance_mm": {
+        "median": 15.62,
+        "p90": 70.43
+      },
+      "model_minus_reference_width_height_mm": [
+        -7.37,
+        33.59
+      ],
+      "reference_to_glb_surface_distance_mm": {
+        "median": 2.01,
+        "p90": 8.86
+      },
+      "reference_translation_mm": [
+        26.39,
+        -292.65,
+        -4.9
+      ]
+    },
+    "comparison_alignment": "Translation of the top and horizontal midpoint, with median scan height at the upper layer",
+    "sleeve_angle_from_input_deg": 6.365535089086022,
+    "same_pattern_flat_glb_sha256": "84cfcde36a5816d0028bc70a9846aaabc80d1b975b3610616763c3dc80537b26"
+  }
+}

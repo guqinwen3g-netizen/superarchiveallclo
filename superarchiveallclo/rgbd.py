@@ -13,7 +13,7 @@ from PIL import Image, ImageOps
 from scipy import ndimage
 
 from .capture import archive
-from .scan import project
+from .scan import project, read_pcd
 from .vision import garment_crop, picture_features
 
 
@@ -49,10 +49,7 @@ def plane_basis(support):
     return origin, np.column_stack((right, np.cross(normal, right), normal)), residual
 
 
-def metric_projection(depth, mask, intrinsics, mm_per_pixel):
-    if depth.ndim != 2 or depth.shape != mask.shape:
-        raise ValueError("The depth and foreground mask must share one registered pixel grid")
-    valid = np.isfinite(depth) & (depth > 0)
+def registered_regions(mask, valid):
     if mask.sum() < 100:
         raise ValueError("The foreground mask needs at least 100 pixels")
     garment = valid & mask
@@ -62,8 +59,10 @@ def metric_projection(depth, mask, intrinsics, mm_per_pixel):
     distance = ndimage.distance_transform_edt(~mask)
     margin = max(4.0, min(mask.shape) * 0.01)
     ring = valid & (distance >= margin) & (distance <= 4 * margin)
-    points = back_project(depth, garment, intrinsics)
-    support = back_project(depth, ring, intrinsics)
+    return garment, ring, coverage
+
+
+def project_surface(points, support, coverage, mm_per_pixel):
     origin, basis, residual = plane_basis(support)
     tabletop = (points - origin) @ basis
     image, evidence = project(tabletop, "x", "y", mm_per_pixel)
@@ -74,6 +73,14 @@ def metric_projection(depth, mask, intrinsics, mm_per_pixel):
         "surface_distance_to_support_p95_mm": round(float(np.quantile(np.abs(tabletop[:, 2]), 0.95) * 1000), 3),
         "support_origin_camera_m": origin.tolist(), "support_basis_camera": basis.tolist(),
     }
+
+
+def metric_projection(depth, mask, intrinsics, mm_per_pixel):
+    if depth.ndim != 2 or depth.shape != mask.shape:
+        raise ValueError("The depth and foreground mask must share one registered pixel grid")
+    garment, ring, coverage = registered_regions(mask, np.isfinite(depth) & (depth > 0))
+    return project_surface(back_project(depth, garment, intrinsics),
+                           back_project(depth, ring, intrinsics), coverage, mm_per_pixel)
 
 
 def read_depth(raw, extension):
@@ -89,21 +96,24 @@ def read_depth(raw, extension):
 
 
 def prepare_view(root, view, name, directory, provenance, mm_per_pixel):
-    rgb_path, depth_path = (root / view[key] for key in ("rgb", "depth"))
-    rgb_bytes, depth_bytes = rgb_path.read_bytes(), depth_path.read_bytes()
+    rgb_bytes = (root / view["rgb"]).read_bytes()
     with Image.open(BytesIO(rgb_bytes)) as encoded:
         extension = {"JPEG": ".jpg", "PNG": ".png"}.get(encoded.format)
         if extension is None:
             raise ValueError("Registered colour inputs must be JPEG or PNG")
         rgb = np.asarray(ImageOps.exif_transpose(encoded).convert("RGB"))
-    depth = read_depth(depth_bytes, depth_path.suffix.lower())
-    if depth.shape != rgb.shape[:2]:
-        raise ValueError(f"{name}: depth must align with the upright RGB image dimensions")
-    unit = view["depth_unit"]
+    assets = {"rgb": (extension, rgb_bytes)}
+    sources = {"depth", "pcd"} & view.keys()
+    if len(sources) != 1:
+        raise ValueError(f"{name}: supply one registered geometry source, depth or PCD")
+    geometry = sources.pop()
+    path = root / view[geometry]
+    unit = view[f"{geometry}_unit"]
     if unit not in ("m", "mm"):
-        raise ValueError("Depth unit must be m or mm")
-    depth = depth.astype(float) * (0.001 if unit == "mm" else 1.0)
-    assets = {"rgb": (extension, rgb_bytes), "depth": (depth_path.suffix.lower(), depth_bytes)}
+        raise ValueError(f"{name}: {geometry} unit must be m or mm")
+    metres = 0.001 if unit == "mm" else 1.0
+    data = path.read_bytes()
+    assets[geometry] = (path.suffix.lower(), data)
     mask_label = view.get("mask_label")
     if "mask" in view:
         mask_bytes = (root / view["mask"]).read_bytes()
@@ -120,13 +130,26 @@ def prepare_view(root, view, name, directory, provenance, mm_per_pixel):
     else:
         if mask_label is not None:
             raise ValueError("A mask label requires a source mask")
-        crop, (left, top, right, bottom) = garment_crop(rgb.astype(np.int16), np.zeros(depth.shape, dtype=bool))
-        mask = np.zeros(depth.shape, dtype=bool)
+        mask = np.zeros(rgb.shape[:2], dtype=bool)
+        crop, (left, top, right, bottom) = garment_crop(rgb.astype(np.int16), mask)
         mask[top:bottom + 1, left:right + 1] = crop
-    image, readings = metric_projection(depth, mask, view["intrinsics"], mm_per_pixel)
+    if geometry == "depth":
+        depth = read_depth(data, path.suffix.lower()).astype(float) * metres
+        if depth.shape != rgb.shape[:2]:
+            raise ValueError(f"{name}: depth must align with the upright RGB image dimensions")
+        image, readings = metric_projection(depth, mask, view["intrinsics"], mm_per_pixel)
+        sensor = {"origin_type": "registered_rgbd", "depth_unit": unit, "camera_intrinsics_px": view["intrinsics"]}
+    else:
+        points = read_pcd(data, organized=True) * metres
+        if points.shape[:2] != rgb.shape[:2]:
+            raise ValueError(f"{name}: PCD must align with the upright RGB image dimensions")
+        valid = np.isfinite(points).all(axis=2) & (points[:, :, 2] > 0)
+        garment, ring, coverage = registered_regions(mask, valid)
+        image, readings = project_surface(points[garment], points[ring], coverage, mm_per_pixel)
+        sensor = {"origin_type": "registered_pcd", "pcd_unit": unit, "cloud_sha256": sha256(data).hexdigest()}
     calibration = {
         **readings, "mm_per_pixel": mm_per_pixel, "source": provenance,
-        "origin_type": "registered_rgbd", "depth_unit": unit, "camera_intrinsics_px": view["intrinsics"],
+        **sensor,
         "mask_method": "source_labels" if "mask" in view else "rgb_segmentation",
     }
     if mask_label is not None:

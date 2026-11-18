@@ -65,6 +65,8 @@ python -m superarchiveallclo.rgbd rgbd.json \
   --model models/tee-vision-front.npz -o build/registered-tee
 ```
 
+如果设备直接输出逐像素三维坐标，可在同一清单用 `"pcd": "front.pcd"` 和 `"pcd_unit": "m"` 代替 `depth`、`depth_unit` 和 `intrinsics`。PCD 的 `WIDTH` 与 `HEIGHT` 必须对应 RGB 像素网格，XYZ 为相机坐标，Z 向前，单位可为 `m` 或 `mm`。支持 ASCII 和未压缩二进制。缺测值保留原来的像素位置。程序使用保存的三维坐标和台面校准毫米尺度，原始点云随归档保存。[真实 Kinect 数据的纸样和独立复扫](iri-pcd-study.md)
+
 ### 尺寸与材料
 
 尺寸键放在 `measurements` 下。卷尺实测可填 `{"value": 560}`。馆方实测可加 `"method": "catalogue_measurement"` 和 `"source"` 来记录原始目录。照片标注可填 `{"view": "front", "points": [[120, 300], [960, 301]], "axis": "x"}`。材料观察放在 `material`，随原始记录保留。每个字段的来源和推断项会写入输出档案。

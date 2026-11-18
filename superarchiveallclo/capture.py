@@ -72,8 +72,8 @@ def source_evidence(source, view, name, photo_dir):
     if "source_assets" not in view:
         return {}
     assets = view["source_assets"]
-    if not isinstance(assets, dict) or not {"rgb", "depth"} <= assets.keys() <= {"rgb", "depth", "mask"}:
-        raise ValueError(f"{name}: expected RGB and depth source evidence, optionally with a mask")
+    if not isinstance(assets, dict) or assets.keys() - {"mask"} not in ({"rgb", "depth"}, {"rgb", "pcd"}):
+        raise ValueError(f"{name}: expected RGB with either depth or a registered PCD, optionally with a mask")
     source_root = (source.parent / "evidence").resolve()
     for key, asset in assets.items():
         original = (source.parent / asset["file"]).resolve()

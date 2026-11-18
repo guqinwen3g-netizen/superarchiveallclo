@@ -28,6 +28,8 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 已注册的彩照与深度图可用 `superarchiveallclo.rgbd` 校正俯拍透视并生成归档。原始 RGB、深度和可选分割图随归档保存。[输入与标定说明](docs/capture.md#已注册的深度照片) · [真实 RGB-D 样本实验](docs/rgbd-study.md)
 
+同一入口也能读入与彩照逐像素对应的 XYZ 点云并恢复毫米纸样。已用另一帧实物 Kinect 点云核对同版平铺 3D。[IRI UPC-CSIC 实物复扫](docs/iri-pcd-study.md)
+
 真实正背照已用于候选纸样归档、留出的馆方尺寸评分及同版平铺 GLB 的投影对照。[两件奥克兰博物馆藏品实验](docs/paired-photo-study.md)
 
 归档时可以把实拍衣身的颜色、文字和图案映射到由纸样生成的 3D，并随 GLB 和 Blender 工程保存。[两件实物的正背印花和渲染对照](docs/photo-appearance-study.md)

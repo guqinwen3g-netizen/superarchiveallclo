@@ -19,7 +19,7 @@ AXES = ("x", "y", "z", "-x", "-y", "-z")
 PCD_TYPES = {"F": "f", "U": "u", "I": "i"}
 
 
-def read_pcd(encoded):
+def read_pcd(encoded, *, organized=False):
     with BytesIO(encoded) as stream:
         header = {}
         for _ in range(32):
@@ -57,6 +57,12 @@ def read_pcd(encoded):
                 raise ValueError("PCD text length differs from its declared point count")
         else:
             raise ValueError("PCD must use ASCII or uncompressed binary data")
+    if organized:
+        height = int(header["HEIGHT"][0])
+        width = int(header["WIDTH"][0])
+        if height < 2 or width < 2 or height * width != count:
+            raise ValueError("Registered PCD WIDTH and HEIGHT must describe an organized pixel grid")
+        return points.astype(float).reshape(height, width, 3)
     points = points[np.isfinite(points).all(axis=1)].astype(float)
     if len(points) < 100:
         raise ValueError("PCD needs at least 100 finite XYZ points")

@@ -86,3 +86,33 @@ class RegisteredDepthTest(TestCase):
             state, _ = load_capture(output / "session.json", model_path=weights, blind=True)
             self.assertEqual(state["inference"]["method"], "learned_paired_silhouette_ridge")
             self.assertEqual(set(state["views"]), {"front", "back"})
+
+    def test_organized_point_cloud_preserves_metric_scale_and_pixel_indices(self):
+        camera, depth, mask = oblique_flat_lay()
+        points = back_project(depth, np.ones_like(mask), camera).reshape(*mask.shape, 3)
+        points[0, 0] = np.nan
+        height, width = mask.shape
+        header = (
+            f"VERSION 0.7\nFIELDS x y z\nSIZE 4 4 4\nTYPE F F F\nCOUNT 1 1 1\n"
+            f"WIDTH {width}\nHEIGHT {height}\nPOINTS {width * height}\nDATA binary\n"
+        ).encode()
+        with TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "xyz.pcd").write_bytes(header + (points * 1000).astype("<f4").tobytes())
+            Image.fromarray(np.where(mask, 45, 225).astype(np.uint8)).save(root / "rgb.png")
+            Image.fromarray(mask.astype(np.uint8)).save(root / "mask.png")
+            source = root / "input.json"
+            source.write_text(json.dumps({
+                "schema_version": 1, "kind": "synthetic_fixture", "item_id": "registered-grid",
+                "source": "Analytical registered grid",
+                "views": {"front": {"rgb": "rgb.png", "pcd": "xyz.pcd", "pcd_unit": "mm", "mask": "mask.png"}},
+            }))
+            output = root / "projection"
+            prepare(source, output)
+            copied = root / "archive"
+            copied.mkdir()
+            capture, _ = capture_observations(output / "session.json", copied / "photos", allow_partial=True)
+            view = capture["views"]["front"]
+            self.assertEqual(view["calibration"]["origin_type"], "registered_pcd")
+            np.testing.assert_allclose(view["calibration"]["raw_point_span_p0_1_to_p99_9_mm"], [780, 630], atol=5)
+            self.assertEqual((copied / view["source_assets"]["pcd"]["file"]).read_bytes(), (root / "xyz.pcd").read_bytes())

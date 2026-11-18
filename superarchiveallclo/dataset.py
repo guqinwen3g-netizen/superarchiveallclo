@@ -47,7 +47,7 @@ def text_field(value, label):
 
 def original_sensor_hashes(views):
     return frozenset(asset["sha256"] for view in views.values()
-                     for kind, asset in view.get("source_assets", {}).items() if kind in ("rgb", "depth"))
+                     for kind, asset in view.get("source_assets", {}).items() if kind in ("rgb", "depth", "pcd"))
 
 
 def load_dataset(path: Path):
@@ -94,7 +94,7 @@ def load_dataset(path: Path):
         raw = original_sensor_hashes(capture["views"])
         for digest in raw.union(hashes.values()):
             if photos.setdefault(digest, split) != split:
-                raise ValueError(f"{item_id}: duplicate photo or raw depth capture across dataset splits")
+                raise ValueError(f"{item_id}: duplicate photo or raw depth/point-cloud capture across dataset splits")
         inputs.append((session, capture, item_id, group, split, rights, hashes, raw, known))
 
     samples = []
