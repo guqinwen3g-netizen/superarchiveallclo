@@ -9,6 +9,7 @@ from PIL import Image
 
 from superarchiveallclo.capture import load_capture
 from superarchiveallclo.dataset import arrays, evaluate, load_dataset
+from superarchiveallclo.review import verify_prediction
 from superarchiveallclo.train_vision import synthetic_view
 from superarchiveallclo.tee import TeeSpec
 from superarchiveallclo.vision import FIELDS, TeeVision
@@ -110,3 +111,32 @@ class LabelledDatasetTest(TestCase):
         self.assertTrue(inferred["inference"]["reference_measurements_withheld"])
         self.assertTrue(all(m["source"] == "vision_model" for name, m in inferred["measurements"].items()
                             if name in FIELDS))
+
+    def test_review_rejects_a_mismatched_photo_or_prediction(self):
+        samples, _ = load_dataset(self.manifest(self.entry("scored", "style-e", "test")))
+        sample = samples[0]
+        weights = ROOT / "models/tee-vision.npz"
+        vision = TeeVision(weights)
+        result = evaluate(samples, vision)[sample.kind]["items"][0]
+        archive, _ = load_capture(sample.session, model_path=weights, blind=True)
+        verify_prediction(archive, sample, vision, result)
+        old_hash = archive["views"]["front"]["sha256"]
+        archive["views"]["front"]["sha256"] = "different photograph"
+        with self.assertRaisesRegex(ValueError, "photographs changed"):
+            verify_prediction(archive, sample, vision, result)
+        archive["views"]["front"]["sha256"] = old_hash
+        archive["measurements"]["flat_chest_mm"]["value"] += 10
+        with self.assertRaisesRegex(ValueError, "differs from the scored prediction"):
+            verify_prediction(archive, sample, vision, result)
+
+    def test_test_item_cannot_reuse_a_photo_recorded_in_weights(self):
+        samples, _ = load_dataset(self.manifest(self.entry("cross-manifest", "holdout-group", "test")))
+        weights = self.root / "previous.npz"
+        with np.load(ROOT / "models/tee-vision.npz", allow_pickle=False) as original:
+            updated = dict(original)
+        updated["labelled_training_groups"] = np.array(["other-group"])
+        updated["labelled_training_photos"] = np.array([samples[0].photo_hashes["back"]])
+        np.savez_compressed(weights, **updated)
+        result = evaluate(samples, TeeVision(weights))["synthetic_fixture"]
+        self.assertEqual(result["status_counts"], {"training_overlap": 1})
+        self.assertEqual(result["measurement_error_mm"], {})

@@ -20,6 +20,7 @@ SPLITS = ("train", "validation", "test")
 
 @dataclass
 class Sample:
+    session: Path
     item_id: str
     group: str
     split: str
@@ -98,14 +99,18 @@ def load_dataset(path: Path):
             error = None
         truth = {name: observation["value"] for name, observation in known.items()}
         sources = {name: observation["source"] for name, observation in known.items()}
-        samples.append(Sample(item_id, group, split, capture["kind"], rights,
+        samples.append(Sample(session, item_id, group, split, capture["kind"], rights,
                               truth, sources, hashes, features, evidence, error))
     return samples, sha256(encoded).hexdigest()
 
 
+def usable_labels(samples, split):
+    return [item for item in samples if item.split == split and item.features is not None
+            and len(item.truth) == len(FIELDS)]
+
+
 def arrays(samples, split):
-    usable = [item for item in samples if item.split == split and item.features is not None
-              and len(item.truth) == len(FIELDS)]
+    usable = usable_labels(samples, split)
     if not usable:
         return None
     return (
@@ -126,6 +131,17 @@ def evaluate(samples, vision):
             "photo_sha256": item.photo_hashes,
         }
         results[item.kind].append(result)
+        groups, photos = vision.labelled_training_groups, vision.labelled_training_photos
+        if groups is not None and photos is not None:
+            if item.group in groups or photos.intersection(item.photo_hashes.values()):
+                result.update(
+                    status="training_overlap",
+                    reason="Garment group or photo was used to train or tune these weights",
+                )
+                continue
+            result["training_overlap_check"] = "no_declared_overlap"
+        else:
+            result["training_overlap_check"] = "training_fingerprints_unavailable"
         if item.capture_error is not None:
             result.update(status="capture_rejected", reason=item.capture_error)
             continue

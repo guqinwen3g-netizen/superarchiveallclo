@@ -12,7 +12,7 @@ from PIL import Image, ImageDraw
 from reportlab.lib.units import mm
 from reportlab.pdfgen.canvas import Canvas
 
-from .dataset import arrays, evaluate, load_dataset
+from .dataset import arrays, evaluate, load_dataset, usable_labels
 from .tee import TeeSpec, body_panel, draft
 from .vision import CARD_MM, FIELDS, MODEL_VERSION, TeeVision, paired_features
 
@@ -197,6 +197,11 @@ def main():
     if extra_validation is not None:
         validation = extra_validation
     weights, penalty = fit_ridge(train, validation)
+    used_labels = usable_labels(labelled, "train") + usable_labels(labelled, "validation")
+    weights["labelled_training_groups"] = np.array(sorted({item.group for item in used_labels}), dtype=str)
+    weights["labelled_training_photos"] = np.array(sorted({
+        digest for item in used_labels for digest in item.photo_hashes.values()
+    }), dtype=str)
     if extra_validation is not None:
         weights["validation_domain"] = np.array("labelled validation split; see evaluation report")
     args.weights.parent.mkdir(parents=True, exist_ok=True)

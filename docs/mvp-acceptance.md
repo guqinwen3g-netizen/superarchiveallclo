@@ -11,6 +11,20 @@
 
 当前仓库的照片样例和基准权重基于合成样本，可用于回归入口。实物验收需要一份单独的采集档案。最终报告记录归档版本、样衣标识、已核对部位和剩余误差。
 
+## 一次运行独立样衣验收
+
+将样衣登记到下节的数据清单和 `test` 集合。准备独立轮廓参考后，运行下面的命令。还没有轮廓参考时，可先省略 `--shape-reference`，生成尺寸和归档检查结果。
+
+```sh
+python -m superarchiveallclo.review data/dataset.json --item tee-01 \
+  --model models/tee-vision.npz --shape-reference data/tee-01/shape-reference.json \
+  -o build/tee-01-review
+```
+
+一次运行得到 `review.json`、`archive/` 和可用时的 `shape/`。程序对评分和重建使用同一份权重快照，核对照片哈希、预测尺寸和归档状态。`review.json` 记录已实测尺寸与误差、DXF 回读和 3D 轮廓证据。领条、袖窿和下摆的结构及面料仍需用实物核对。
+
+新生成的权重记录参与训练和调参的款式组与照片哈希，评分时会拦截重叠样本。旧权重若缺少这项记录，评分报告会标明，并需核对原始训练记录。
+
 含有实测标签的验收档案须用盲测模式生成候选归档。该模式让原始标签只参与后续评分。生成记录中的 `reference_measurements_withheld` 可核对此设置。
 
 ```sh
@@ -101,3 +115,4 @@ python -m superarchiveallclo.compare_shape build/tee-01 \
 - Cloth2Tex 提供把参数化网格配准到商品图并补全纹理的方法。其项目说明提供外观对照方向，尚未核实可用于本项目实物验收的同件实测尺寸和对应版片。[Cloth2Tex 官方实现](https://github.com/HumanAIGC/Cloth2Tex)
 - Kitanesque 的旧衣数据提供 558 件商品的卷尺记录和商品链接，表格许可为 CC BY 4.0。实测表没有配套的标定正背照，商品照片的使用范围也需单独查证。[实测数据表](https://www.kaggle.com/datasets/andradalcaran/vintage-clothing-sizing-label-vs-tape)
 - Trossen Robotics 的 T 恤折叠数据提供 Apache-2.0 许可的机器人拍摄视频，数据卡未列出同件成衣的毫米实测、纸样或标准正背面采集。[数据卡](https://huggingface.co/datasets/TrossenRoboticsCommunity/aloha_fold_tshirt)
+- V&A 馆藏抽查有单件 T 恤的毫米可换算尺寸。O1782036 记录高 66 cm、肩宽 35.7 cm。三张馆藏图为正面和印花细节，未见背照和可用标尺。馆藏元数据与图像用途依馆方条款核对。[馆藏对象记录](https://api.vam.ac.uk/v2/object/O1782036) · [馆方使用条款](https://www.vam.ac.uk/info/va-websites-terms-conditions)

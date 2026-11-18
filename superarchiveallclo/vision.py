@@ -178,6 +178,12 @@ class TeeVision:
             self.validation_domain = str(data["validation_domain"]) if "validation_domain" in data else (
                 "synthetic flat-lay views"
             )
+            self.labelled_training_groups = (
+                frozenset(data["labelled_training_groups"]) if "labelled_training_groups" in data else None
+            )
+            self.labelled_training_photos = (
+                frozenset(data["labelled_training_photos"]) if "labelled_training_photos" in data else None
+            )
 
     def estimate(self, front, back):
         features, scale = paired_features(front, back)

@@ -18,7 +18,7 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 归档包括原图、比例尺识别记录、预测尺寸及来源、DXF / SVG / A4 纸样、GLB 和 Blender 场景。替换照片可处理新的标准采集档案。训练和评估采用不同的合成样本。实物误差需要独立样衣测量。[图像模型与可复现训练](docs/vision-model.md) · [实物采集与验收](docs/capture.md)
 
-运行 `python -m superarchiveallclo.check_archive build/archive` 可回读 DXF 毫米轮廓，核对原图和纸样哈希，并检查 GLB 容器。带实测标签的样本可单独盲测或加入训练。[实物 MVP 目标与数据格式](docs/mvp-acceptance.md)
+运行 `python -m superarchiveallclo.check_archive build/archive` 可回读 DXF 毫米轮廓，核对原图和纸样哈希，并检查 GLB 容器。独立盲测样本可用 `superarchiveallclo.review` 一次生成归档、尺寸和轮廓报告。[实物 MVP 目标与数据格式](docs/mvp-acceptance.md)
 
 ## 生成首款 T 恤纸样
 
