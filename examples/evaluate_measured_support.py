@@ -12,7 +12,7 @@ from examples.evaluate_auckland_tees import write_json
 from examples.evaluate_iri_tee import FRAMES, ITEM, WEIGHTS, checked, download, level_reference
 from superarchiveallclo.check_archive import check_archive
 from superarchiveallclo.compare_flat import compare_flat
-from superarchiveallclo.compare_rgbd import compare as compare_depth
+from superarchiveallclo.compare_rgbd import camera_from_flat_pose, compare as compare_depth
 from superarchiveallclo.rgbd import plane_basis, prepare, registered_regions
 from superarchiveallclo.scan import read_pcd
 
@@ -32,17 +32,11 @@ def frame_data(root, frame):
 def ray_reference(data, frame, cloud, mask, valid, evidence, flat, intrinsics):
     depth = data / "held-out-raw-depth.npz"
     np.savez_compressed(depth, depth=np.where(mask & valid, cloud[:, :, 2], np.nan))
-    # Undo the same rigid alignment used by compare_flat. Its Blender axes
-    # are X-right, Y-up and Z toward the visible cloth. Kinect is Y-down.
-    axes = np.asarray(evidence["leveled_basis_camera"]) @ np.diag([1, -1, -1])
-    origin = np.asarray(evidence["leveled_origin_camera_m"])
-    shift = np.asarray(flat["references"][0]["reference_translation_mm"]) / 1000
-    transform = np.eye(4)
-    transform[:3, :3] = axes
-    transform[:3, 3] = origin - axes @ shift
+    transform = camera_from_flat_pose(evidence["leveled_origin_camera_m"], evidence["leveled_basis_camera"],
+                                     flat["references"][0]["reference_translation_mm"])
     return write_json(data / "independent-depth.json", {"schema_version": 1, "item_id": ITEM, "views": {frame: {
         "depth": depth.name, "depth_unit": "m", "depth_sha256": sha256(depth.read_bytes()).hexdigest(),
-        "source_pcd_sha256": FRAMES[frame]["pcd"][2], "intrinsics": intrinsics, "model_to_camera_m": transform.tolist(),
+        "source_pcd_sha256": FRAMES[frame]["pcd"][2], "intrinsics": intrinsics, "model_to_camera_m": transform,
         "pose_source": "Table and hem rotation from the reference plus translation aligned to the flat view. Scale unchanged.",
     }}})
 

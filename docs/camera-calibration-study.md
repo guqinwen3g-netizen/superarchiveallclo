@@ -49,7 +49,7 @@ python -m examples.inspect_epfl_tee textureless_deformable_surfaces.zip -o build
 
 也可以直接指定解压后的数据根目录。报告保留实际抽样帧名、每个文件的哈希以及深度单位假设。
 
-随后分序列扩大到 177 个深度帧，按布面距自身拟合平面的 P95 排查。35 mm 是现有平铺预检采用的限值。`Ld_front/0582` 和 `Ld_back/0216` 分别得到 30.11 mm 与 33.55 mm，原彩照和注册深度已通过保持尺度的投影。正背投影外框分别为 678 × 662 mm 和 644 × 738 mm。背面的横跨仍超出当前双面模型训练覆盖的输入范围，候选制板被入口拒绝。两帧是不同变形姿态，已保留投影和拒绝依据。[模型的实测深度评测入口](registered-depth-review.md)
+随后分序列扩大到 177 个深度帧，按布面距自身拟合平面的 P95 排查。35 mm 是现有平铺预检采用的限值。`Ld_front/0582` 和 `Ld_back/0216` 分别得到 30.11 mm 与 33.55 mm，原彩照和注册深度已通过保持尺度的投影。正背投影外框分别为 678 × 662 mm 和 644 × 738 mm。原双面权重拒绝该组较窄输入，新增的窄身权重已通过同版归档和两帧留出深度评测。[窄身模型的归档和量化结果](varied-tee-model.md)
 
 ```sh
 python -m examples.inspect_epfl_tee textureless_deformable_surfaces.zip --screen -o build/epfl-screen.json

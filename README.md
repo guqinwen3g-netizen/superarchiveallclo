@@ -48,6 +48,8 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 双面采集可分别恢复腋下胸宽与下摆宽，把侧缝收窄或放宽的幅度写入毫米纸样及同版仿真。不同宽松度的实物已用馆方胸宽和肩宽做盲测。[衣身宽度对照](docs/body-profile-study.md) · [馆藏正背照与尺寸](docs/paired-photo-study.md)
 
+窄身和较短袖口横跨的采集可选新训练的双面权重。EPFL 正背实拍已生成毫米纸样和同版 3D，并用两帧实测深度复核。[窄身模型和留出评测](docs/varied-tee-model.md)
+
 展台仿真可以使用无臂人台的接触支撑。对照报告记录模型随高度变化的前后深度，以及导出时布料的位移。[同版垂坠对照](docs/drape-support-study.md)
 
 成衣仿真归档可读取领口、两只袖口和下摆的三维周长。带部件标注的实物扫描也可以执行同样的开口检查。[两件短袖实物扫描的构造核对](docs/garmentlab-opening-study.md)

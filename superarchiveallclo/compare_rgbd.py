@@ -20,6 +20,17 @@ from .rgbd import back_project, read_depth
 from .scan import in_world
 
 
+def camera_from_flat_pose(leveled_origin_camera_m, leveled_basis_camera, reference_translation_mm):
+    """Undo default flat comparison's translation, then map its axes to camera space."""
+    axes = np.asarray(leveled_basis_camera) @ np.diag([1, -1, -1])
+    origin = np.asarray(leveled_origin_camera_m)
+    shift = np.asarray(reference_translation_mm) / 1000
+    transform = np.eye(4)
+    transform[:3, :3] = axes
+    transform[:3, 3] = origin - axes @ shift
+    return transform.tolist()
+
+
 def reference_rays(base, record):
     path = base / record["depth"]
     raw = path.read_bytes()

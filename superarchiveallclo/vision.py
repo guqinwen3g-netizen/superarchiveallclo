@@ -22,6 +22,27 @@ FIELDS = (
     "armhole_depth_mm", "sleeve_length_mm", "sleeve_bicep_flat_mm", "sleeve_opening_flat_mm",
     "neck_width_mm", "front_neck_depth_mm", "back_neck_depth_mm",
 )
+SLEEVE_RATIOS = "armhole_drop_and_cuff_ratios"
+BICEP, OPENING = (FIELDS.index(field) for field in ("sleeve_bicep_flat_mm", "sleeve_opening_flat_mm"))
+ARMHOLE, SHOULDER_DROP = (FIELDS.index(field) for field in ("armhole_depth_mm", "shoulder_slope_mm"))
+
+
+def encode_sleeve_ratios(values):
+    encoded = np.array(values, dtype=float, copy=True)
+    depth = encoded[..., ARMHOLE] - encoded[..., SHOULDER_DROP]
+    if (not np.isfinite(encoded).all() or np.any(depth <= 0) or np.any(encoded[..., OPENING] <= 0)
+            or np.any(encoded[..., OPENING] > encoded[..., BICEP])):
+        raise ValueError("Sleeve labels need a positive armhole drop and a cuff no wider than the bicep")
+    encoded[..., OPENING] /= encoded[..., BICEP]
+    encoded[..., BICEP] /= 2 * depth
+    return encoded
+
+
+def decode_sleeve_ratios(values):
+    decoded = np.array(values, dtype=float, copy=True)
+    decoded[..., BICEP] *= 2 * (decoded[..., ARMHOLE] - decoded[..., SHOULDER_DROP])
+    decoded[..., OPENING] *= decoded[..., BICEP]
+    return decoded
 
 
 def regions(mask):
@@ -268,6 +289,9 @@ class TeeVision:
             self.coefficients = data["coefficients"]
             self.target_min = data["target_min"]
             self.target_max = data["target_max"]
+            self.sleeve_target_encoding = str(data["sleeve_target_encoding"]) if "sleeve_target_encoding" in data else None
+            if self.sleeve_target_encoding not in (None, SLEEVE_RATIOS):
+                raise ValueError("Unsupported sleeve target encoding")
             self.box_min = data["box_min"]
             self.box_max = data["box_max"]
             self.validation_domain = str(data["validation_domain"]) if "validation_domain" in data else (
@@ -300,6 +324,8 @@ class TeeVision:
         }
         if profile is not None:
             inference["body_profile"] = profile
+        if self.sleeve_target_encoding is not None:
+            inference["sleeve_target_encoding"] = self.sleeve_target_encoding
         if measure_sleeve:
             inference["bounded_fields"], inference["sleeve_profile"] = apply_sleeve_profile(measures, bounded, scale)
         if self.view_mode == "front" and "shoulder_level_to_hem_mm" in scale["front"]:
@@ -329,8 +355,9 @@ class TeeVision:
         if np.any(boxes < self.box_min * 0.89) or np.any(boxes > self.box_max * 1.11):
             raise ValueError("Garment dimensions fall outside the current tee model's capture range")
         clipped = np.clip(values, self.target_min, self.target_max)
-        measures = {key: round(float(value), 3) for key, value in zip(FIELDS, clipped, strict=True)}
         bounded = [field for field, raw, used in zip(FIELDS, values, clipped) if raw != used]
+        fitted = decode_sleeve_ratios(clipped) if self.sleeve_target_encoding == SLEEVE_RATIOS else clipped
+        measures = {key: round(float(value), 3) for key, value in zip(FIELDS, fitted, strict=True)}
         profile = None
         if self.view_mode == "paired" and "torso_profile" in scale["front"]:
             overrides, profile = body_profile.constrain(measures, scale)

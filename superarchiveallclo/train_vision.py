@@ -16,7 +16,8 @@ from reportlab.pdfgen.canvas import Canvas
 from .dataset import arrays, evaluate, load_dataset, usable_labels
 from .flat_measurements import compatible_scan_sleeve_length
 from .tee import TeeSpec, body_panel, draft
-from .vision import CARD_MM, FIELDS, MODEL_VERSION, TeeVision, paired_features
+from .vision import (CARD_MM, FIELDS, MODEL_VERSION, SLEEVE_RATIOS, TeeVision, decode_sleeve_ratios,
+                     encode_sleeve_ratios, paired_features)
 
 SEED = 481516
 
@@ -53,7 +54,30 @@ def sample_spec(rng, *, compact=False):
     )
 
 
-def synthetic_view(spec, front, rng):
+def narrow_spec(rng):
+    chest = rng.uniform(355, 465)
+    shoulder = chest - rng.uniform(20, 70)
+    slope = rng.uniform(19, 43)
+    armhole = rng.uniform(177, 226)
+    bicep = min(rng.uniform(239, 317), 2 * (armhole - slope) - 12)
+    return TeeSpec(
+        body_chest_mm=None, body_shoulder_width_mm=None, shoulder_extension_mm=None,
+        flat_chest_mm=chest, back_length_mm=rng.uniform(535, 725),
+        garment_shoulder_width_mm=shoulder, shoulder_slope_mm=slope, armhole_depth_mm=armhole,
+        sleeve_length_mm=rng.uniform(119, 192), sleeve_bicep_flat_mm=bicep,
+        sleeve_opening_flat_mm=bicep - rng.uniform(20, 60),
+        neck_width_mm=rng.uniform(132, 176), front_neck_depth_mm=rng.uniform(54, 97),
+        back_neck_depth_mm=rng.uniform(13, 29),
+    )
+
+
+def varied_spec(rng):
+    style = rng.random()
+    spec = narrow_spec(rng) if style < 0.32 else sample_spec(rng, compact=style < 0.57)
+    return replace(spec, flat_hem_mm=spec.flat_chest_mm * rng.uniform(0.90, 1.18))
+
+
+def synthetic_view(spec, front, rng, *, varied_layouts=False):
     """Project a stylized flat lay from template geometry with capture variation."""
     width, height = 412, 352
     pixels_per_mm = rng.uniform(0.29, 0.35)
@@ -81,15 +105,17 @@ def synthetic_view(spec, front, rng):
     opening = spec.sleeve_opening_flat_mm / 2
     shoulder = spec.shoulder_width_mm / 2
     underarm = spec.flat_chest_mm / 2
+    limits = (9, 47) if varied_layouts else (19, 27)
     for side in (-1, 1):
-        pose = radians(rng.uniform(19, 27))
+        pose = radians(rng.uniform(*limits))
         c, s = cos(pose), sin(pose)
-        sill_x, sill_y = shoulder + size * c, spec.shoulder_slope_mm + size * s
+        visible_length = size * rng.uniform(0.88, 1) if varied_layouts else size
+        sill_x, sill_y = shoulder + visible_length * c, spec.shoulder_slope_mm + visible_length * s
         sleeve = (
             (shoulder - 11, spec.shoulder_slope_mm - 3),
             (sill_x, sill_y),
             (sill_x - opening * s, sill_y + opening * c),
-            (shoulder + 0.37 * size * c - upper * s, spec.shoulder_slope_mm + 0.37 * size * s + upper * c),
+            (shoulder + 0.37 * visible_length * c - upper * s, spec.shoulder_slope_mm + 0.37 * visible_length * s + upper * c),
             (underarm - 12, spec.armhole_depth_mm),
         )
         paint.polygon([pixel((side * x, y)) for x, y in sleeve], fill=fabric)
@@ -102,16 +128,17 @@ def synthetic_view(spec, front, rng):
     return Image.fromarray(rgb)
 
 
-def sample_set(size, seed, front_only=False, compact_sleeves=False):
+def sample_set(size, seed, front_only=False, compact_sleeves=False, varied_layouts=False):
     rng = np.random.default_rng(seed)
     features, targets, boxes = [], [], []
     for _ in range(size):
-        spec = sample_spec(rng, compact=compact_sleeves and rng.random() < 0.45)
-        if compact_sleeves:
+        spec = varied_spec(rng) if varied_layouts else sample_spec(rng, compact=compact_sleeves and rng.random() < 0.45)
+        if compact_sleeves or varied_layouts:
             length = compatible_scan_sleeve_length({field: getattr(spec, field) for field in FIELDS}, {})
             if length is not None:
                 spec = replace(spec, sleeve_length_mm=length)
-        front, back = synthetic_view(spec, True, rng), synthetic_view(spec, False, rng)
+        front = synthetic_view(spec, True, rng, varied_layouts=varied_layouts)
+        back = synthetic_view(spec, False, rng, varied_layouts=varied_layouts)
         if rng.random() < 0.75:
             front = jpeg_view(front, int(rng.integers(83, 97)))
             back = jpeg_view(back, int(rng.integers(83, 97)))
@@ -129,8 +156,11 @@ def jpeg_view(image, quality):
         return encoded.copy()
 
 
-def fit_ridge(train, validate, front_only=False):
+def fit_ridge(train, validate, front_only=False, *, sleeve_ratios=False):
     x, y, boxes = train
+    x_val, y_val, _ = validate
+    if sleeve_ratios:
+        y, y_val = encode_sleeve_ratios(y), encode_sleeve_ratios(y_val)
     center, scale = x.mean(axis=0), np.maximum(x.std(axis=0), 0.08)
     labels = y.mean(axis=0)
     normalized = (x - center) / scale
@@ -138,7 +168,6 @@ def fit_ridge(train, validate, front_only=False):
     rhs = normalized.T @ (y - labels)
     if front_only:
         rhs[:, FIELDS.index("back_neck_depth_mm")] = 0
-    x_val, y_val, _ = validate
     scores = []
     for penalty in (12.0, 40.0, 140.0):
         coefficients = np.linalg.solve(cov + penalty * np.eye(cov.shape[0]), rhs)
@@ -151,6 +180,42 @@ def fit_ridge(train, validate, front_only=False):
         target_min=y.min(axis=0), target_max=y.max(axis=0),
         box_min=boxes.min(axis=0), box_max=boxes.max(axis=0),
     ), penalty
+
+
+def score_geometry(model, data):
+    """Apply the production capture range, regressor and sewing checks to labelled held-out layouts."""
+    vectors, truths, boxes = data
+    names = ("front",) if model.view_mode == "front" else ("front", "back")
+    chest = truths[:, FIELDS.index("flat_chest_mm")]
+    report = {}
+    for group, subset in (("chest_under_425_mm", chest < 425), ("chest_425_to_484_mm", (chest >= 425) & (chest < 485)),
+                          ("chest_485_mm_and_above", chest >= 485)):
+        counts = Counter()
+        errors = []
+        for features, target, reads in zip(vectors[subset], truths[subset], boxes[subset], strict=True):
+            evidence = {name: {"garment_box_mm": bounds} for name, bounds in zip(names, reads, strict=True)}
+            try:
+                fitted, _ = model.estimate_features(features, evidence)
+            except ValueError:
+                counts["capture_rejected"] += 1
+                continue
+            try:
+                draft(TeeSpec(body_chest_mm=None, body_shoulder_width_mm=None, shoulder_extension_mm=None, **fitted))
+            except ValueError:
+                counts["pattern_rejected"] += 1
+            else:
+                counts["pattern_passed"] += 1
+            predicted = np.array([fitted[field] for field in FIELDS])
+            errors.append(np.abs(predicted - target))
+        row = {"samples": int(subset.sum()), "outcomes": dict(counts)}
+        if errors:
+            med, p90 = np.quantile(np.asarray(errors), [0.5, 0.90], axis=0)
+            row["accepted_measurement_error_mm"] = {
+                field: {"median": round(float(a), 2), "p90": round(float(b), 2)}
+                for field, a, b in zip(FIELDS, med, p90, strict=True)
+            }
+        report[group] = row
+    return report
 
 
 def save_card(path):
@@ -200,22 +265,24 @@ def main():
     parser.add_argument("--compare-model", type=Path, help="Score incumbent weights on the same labelled test rows")
     parser.add_argument("--front-only", action="store_true", help="Train on front views with a prior for back neck depth")
     parser.add_argument("--compact-sleeves", action="store_true", help="Include narrower, shorter-sleeved tees in the synthetic set")
+    parser.add_argument("--varied-layouts", action="store_true", help="Train on narrow and tapered tees with a wider range of sleeve placement")
     args = parser.parse_args()
     if args.weights.suffix != ".npz":
         parser.error("--weights must have an .npz extension")
-    if args.compare_model is not None and args.dataset is None:
-        parser.error("--compare-model requires --dataset")
+    if args.compare_model is not None and args.dataset is None and not args.varied_layouts:
+        parser.error("--compare-model requires --dataset or --varied-layouts")
     if args.front_only and (args.dataset or args.demo):
         parser.error("--dataset and --demo currently support paired weights")
     try:
         labelled, dataset_checksum = load_dataset(args.dataset) if args.dataset else ([], None)
-        incumbent = TeeVision(args.compare_model) if args.compare_model else None
+        incumbent = TeeVision(args.compare_model, "front" if args.front_only else "paired") if args.compare_model else None
     except (KeyError, TypeError, ValueError, OSError) as error:
         parser.error(str(error))
 
     sizes = (960, 160, 200)
     train, validation, test = (
-        sample_set(size, SEED + split, args.front_only, args.compact_sleeves) for split, size in enumerate(sizes)
+        sample_set(size, SEED + split, args.front_only, args.compact_sleeves, args.varied_layouts)
+        for split, size in enumerate(sizes)
     )
     extra_train = arrays(labelled, "train")
     extra_validation = arrays(labelled, "validation")
@@ -223,9 +290,11 @@ def main():
         train = tuple(np.concatenate((a, b)) for a, b in zip(train, extra_train, strict=True))
     if extra_validation is not None:
         validation = extra_validation
-    weights, penalty = fit_ridge(train, validation, args.front_only)
+    weights, penalty = fit_ridge(train, validation, args.front_only, sleeve_ratios=args.varied_layouts)
     if args.front_only:
         weights["view_mode"] = np.array("front")
+    if args.varied_layouts:
+        weights["sleeve_target_encoding"] = np.array(SLEEVE_RATIOS)
     used_labels = usable_labels(labelled, "train") + usable_labels(labelled, "validation")
     weights["labelled_training_groups"] = np.array(sorted({item.group for item in used_labels}), dtype=str)
     weights["labelled_training_photos"] = np.array(sorted({
@@ -233,6 +302,8 @@ def main():
     }), dtype=str)
     if extra_validation is not None:
         weights["validation_domain"] = np.array("labelled validation split; see evaluation report")
+    elif args.varied_layouts:
+        weights["validation_domain"] = np.array("synthetic tees with narrower and tapered torsos and varied sleeve orientations")
     args.weights.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(args.weights, **weights)
     x, y, _ = test
@@ -240,6 +311,8 @@ def main():
         (x - weights["center"]) / weights["scale"] @ weights["coefficients"] + weights["intercept"],
         weights["target_min"], weights["target_max"],
     )
+    if args.varied_layouts:
+        prediction = decode_sleeve_ratios(prediction)
     errors = np.abs(prediction - y)
     naive = np.abs(np.median(train[1], axis=0) - y)
     geometry_checks = []
@@ -277,6 +350,16 @@ def main():
                                         "compact_sleeve_length_prior_mm": [120, 197],
                                         "sleeve_length_adjusted_to_allow_a_sewable_cap": True}
     model = TeeVision(args.weights, "front" if args.front_only else "paired")
+    if args.varied_layouts:
+        report["synthetic_sampling"] = {"narrow_probability": 0.32, "compact_probability": 0.25,
+                                        "narrow_chest_mm": [355, 465], "sleeve_angle_deg": [9, 47],
+                                        "visible_sleeve_length_fraction": [0.88, 1], "hem_chest_ratio": [0.90, 1.18],
+                                        "sleeve_target_encoding": SLEEVE_RATIOS}
+        report["held_out_geometry"] = {"weights_sha256": model.checksum, "by_chest_range": score_geometry(model, test)}
+        if incumbent is not None:
+            report["held_out_geometry"]["incumbent"] = {
+                "weights_sha256": incumbent.checksum, "by_chest_range": score_geometry(incumbent, test),
+            }
     if args.dataset:
         report["labelled_dataset"] = {
             "manifest_sha256": dataset_checksum,
