@@ -121,6 +121,8 @@ python -m superarchiveallclo.rgbd rgbd.json \
 
 两张平铺照均拍到完整的左右袖口时，可填 `"sleeve_profile": "paired_cuff_span"`。模型从每张照的两个袖口方向和横跨估算袖长，两面的估算接近且能配缝时用于制板。归档保留每面估算值和原回归值。遮挡、两面不一致或几何不相容时沿用回归。[袖长与实拍对照](stellenbosch-drape-study.md#用双面袖口约束袖长)
 
+标定后的平铺正面视图记录了两个袖口时，可在 `superarchiveallclo.capture` 加 `--fit-sleeve-span`。程序按各自的方向摆放袖片，比较同版网格和输入的毫米跨度，再调整推断袖长。归档记录每次拟合的跨度和最终采用的纸样值。已有袖长实测时沿用实测值。平铺扫描评测会自动复用拟合时的各侧摆放方向，也可用 `--sleeve-angle-deg` 比较指定的对称摆放。[两帧独立扫描结果](hifiai-tee-study.md#用实物袖端跨度修正袖长)
+
 ## 交付与验收
 
 - **原件证据**存放在 `photos/` 和 `capture.json`。包括原图 SHA-256、标定点、尺寸证据及参考值。

@@ -27,3 +27,26 @@ python -m superarchiveallclo.check_archive build/hifiai-tee/archive
 ```
 
 可用 `--source` 指向已有的实验一文件目录。输出保存输入和两帧参考的原始 JPG、PLY、转换网格和相机参数，`study.json` 保留纸样、平铺网格、射线对照和来源校验。留出平铺 GLB 位于 `flat-comparison/`，与 `archive/` 里的带支撑工程使用同一纸样。
+
+## 用实物袖端跨度修正袖长
+
+输入 `000031` 的左右袖口方向分别向下 23.72° 和 39.29°。先用原纸样分别摆放两袖，再用同一帧袖端跨度 782.00 mm 求袖长。每个候选袖长都重新制板、核对配缝并缝合网格。求解只读取输入帧，其他纸样参数沿用原估计。袖长从 181.993 mm 调为 207.675 mm，拟合网格的横跨为 783.924 mm。候选归档重新通过 5 片 DXF、15 条配缝和 4 个成衣开口的回读。
+
+| 留出帧 | 方法 | 网格横跨减实拍 | 轮廓交并比 | 轮廓距离 P90 | 观测点到网格 P90 |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 000034 | 原纸样，共用平均角 | −65.10 mm | 90.20% | 42.52 mm | 4.19 mm |
+| 000034 | 原纸样，各用实拍角 | −66.29 mm | 90.88% | 42.43 mm | 4.14 mm |
+| 000034 | 修正袖长，各用实拍角 | −10.08 mm | 92.30% | 28.64 mm | 3.41 mm |
+| 000040 | 原纸样，共用平均角 | −59.10 mm | 88.45% | 39.60 mm | 4.41 mm |
+| 000040 | 原纸样，各用实拍角 | −60.29 mm | 87.50% | 42.05 mm | 4.71 mm |
+| 000040 | 修正袖长，各用实拍角 | −4.08 mm | 89.03% | 30.46 mm | 3.79 mm |
+
+修正后，留出深度射线覆盖率为 93.73% 和 92.00%，命中射线的绝对误差 P90 为 3.37 mm 和 3.31 mm。这个结果量化了同件实物的可见外形。为核对肩部，程序也把三张高清原照投到实测台面，用照片里的缝迹求两侧肩点。两帧留出的肩宽投影候选为 481.62 mm 和 504.75 mm，均大于纸样候选的 374.71 mm。衣褶可能干扰缝迹，两帧间也有 23.13 mm 的差异。袖长调整仍需与肩袖接缝及拆片净线一起复核。[拟合输入、三组对照及缝迹记录](hifiai-sleeve-fit.json)
+
+```sh
+python -m examples.evaluate_hifiai_tee --fit-sleeve-span -o build/hifiai-sleeve-fit
+python -m superarchiveallclo.compare_flat build/hifiai-tee/archive \
+  build/hifiai-tee/source/held-out-000034.pcd build/hifiai-tee/source/held-out-000040.pcd \
+  --item-id hifiai-exp1-green-crew-tee --setup "Separate iPad flat-lay captures" \
+  --asymmetric-cuffs -o build/hifiai-sleeves-angle-only
+```

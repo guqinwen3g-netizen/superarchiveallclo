@@ -33,7 +33,7 @@ def body_border(pattern, name, edge, fraction):
     return point
 
 
-def place_flat(pattern, name, edges, point, angle, sleeve_fold=True):
+def place_flat(pattern, name, edges, point, angles, sleeve_fold=True):
     x, y = point
     if name in ("front", "back"):
         return body_point(name, x, y)
@@ -50,6 +50,7 @@ def place_flat(pattern, name, edges, point, angle, sleeve_fold=True):
         return anchor + toward_neck * (y / 1000)
 
     side = 1 if name == "sleeve_right" else -1
+    angle = angles[1 if side > 0 else 0]
     shoulder = pattern["measurements"]["across_shoulders_mm"] / 2
     p = pattern["parameters"]
     along = Vector((side * cos(angle), -sin(angle), 0))
@@ -71,7 +72,8 @@ def place_flat(pattern, name, edges, point, angle, sleeve_fold=True):
 
 
 def flat_assembly(pattern, angle, seam_edges, *, sleeve_fold=True):
-    position = partial(place_flat, angle=radians(angle), sleeve_fold=sleeve_fold)
+    left, right = angle if isinstance(angle, (list, tuple)) else (angle, angle)
+    position = partial(place_flat, angles=(radians(left), radians(right)), sleeve_fold=sleeve_fold)
 
     def relax(points, edges, lengths, pins, faces):
         weights = np.ones(len(edges))
@@ -96,7 +98,7 @@ def main():
     sleeve_fold = solver == "relaxed"
     seam_edges = {}
     points, welded, faces, uv, _, edges, lengths, panels = flat_assembly(
-        pattern, float(angle), seam_edges, sleeve_fold=sleeve_fold,
+        pattern, json.loads(angle), seam_edges, sleeve_fold=sleeve_fold,
     )
     model, loops = sewn_mesh(points, welded, faces, uv, panels)
     model.select_set(True)

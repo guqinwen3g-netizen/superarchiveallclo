@@ -266,7 +266,7 @@ def load_capture(source, photo_dir=None, model_path=None, *, blind=False, landma
 
 
 def archive(source, output, blender, model_path=None, *, blind=False, form="torso_with_arms", drape_frames=None,
-            photo_appearance=False, arm_angle_deg=None, landmark_model_path=None):
+            photo_appearance=False, arm_angle_deg=None, landmark_model_path=None, fit_sleeve_span=False):
     if output.exists():
         raise ValueError(f"Output already exists: {output}")
     if drape_frames is not None and (type(drape_frames) is not int or drape_frames < 2):
@@ -279,8 +279,14 @@ def archive(source, output, blender, model_path=None, *, blind=False, form="tors
         bundle.mkdir()
         manifest, spec = load_capture(source, bundle / "photos", model_path, blind=blind,
                                       landmark_model_path=landmark_model_path)
-        (bundle / "capture.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf8")
         pattern = draft(spec)
+        if fit_sleeve_span:
+            from .sleeve_span import refine as refine_sleeve_span
+
+            pattern, manifest["sleeve_span_fit"] = refine_sleeve_span(
+                spec, pattern, manifest, Path(temporary) / "sleeve-fit", blender,
+            )
+        (bundle / "capture.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf8")
         write_exports(pattern, bundle / "pattern")
         export_dxf(pattern, bundle / "pattern" / "pattern.dxf")
         model = bundle / "model"
@@ -316,6 +322,7 @@ def main():
     parser.add_argument("--blender", default="blender", help="Blender executable")
     parser.add_argument("--model", type=Path, help="Use trained weights to infer dimensions from the photos")
     parser.add_argument("--landmarks-model", type=Path, help="Archive learned image landmark candidates for review")
+    parser.add_argument("--fit-sleeve-span", action="store_true", help="Fit inferred sleeve length to the input cuff span")
     parser.add_argument("--blind", action="store_true", help="Withhold all recorded measurements from reconstruction")
     parser.add_argument("--form", choices=("torso_with_arms", "torso_only", "display_torso"), default="torso_with_arms",
                         help="Collision support used for the draped GLB and Blender scene")
@@ -326,7 +333,7 @@ def main():
     try:
         archive(args.session, args.output, args.blender, args.model, blind=args.blind, form=args.form,
                 drape_frames=args.drape_frames, photo_appearance=args.photo_appearance, arm_angle_deg=args.arm_angle,
-                landmark_model_path=args.landmarks_model)
+                landmark_model_path=args.landmarks_model, fit_sleeve_span=args.fit_sleeve_span)
     except (ValueError, TypeError, KeyError, OSError, UnidentifiedImageError, DXFError) as error:
         parser.error(str(error))
     print(f"Wrote {args.output}")

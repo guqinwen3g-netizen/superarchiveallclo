@@ -2,6 +2,7 @@
 
 from argparse import ArgumentParser
 from hashlib import sha256
+import json
 from pathlib import Path
 from urllib.request import Request, urlopen
 
@@ -10,10 +11,11 @@ from PIL import Image, ImageOps
 from scipy import ndimage
 
 from examples.evaluate_auckland_tees import write_json
-from superarchiveallclo.capture import archive, load_capture
+from superarchiveallclo.capture import archive
 from superarchiveallclo.check_archive import check_archive
 from superarchiveallclo.compare_flat import compare_flat
 from superarchiveallclo.compare_rgbd import camera_from_flat_pose, compare as compare_rays
+from superarchiveallclo.rectify import rectify_camera_plane
 from superarchiveallclo.registered_ply import registered_depth
 from superarchiveallclo.rgbd import back_project, metric_projection, prepare
 from superarchiveallclo.vision import picture_features
@@ -52,6 +54,33 @@ def pinned_assets(directory, source):
             target.write_bytes(raw)
 
 
+def color_seam_evidence(rgb, mask, intrinsics, origin, basis, points):
+    # Map the high-resolution photograph onto the measured support plane so
+    # the texture is available even where the small depth grid blurs seams.
+    scale = rgb.width / mask.shape[1]
+    camera = {key: value * scale if key.startswith("f") else (value + .5) * scale - .5
+              for key, value in intrinsics.items()}
+    xy = points[:, :2] * 1000
+    padding = 20
+    field = np.r_[xy.min(axis=0) - padding, xy.max(axis=0) + padding]
+    plane = {
+        "image_size_px": list(rgb.size), "intrinsics": camera, "origin_camera_m": origin.tolist(),
+        "basis_camera": basis.tolist(), "field_mm": field.tolist(), "source": "Measured iPad LiDAR tabletop",
+    }
+    source_mask = np.asarray(Image.fromarray(mask).resize(rgb.size, Image.Resampling.NEAREST))
+    step = .75
+    rectified, mapping = rectify_camera_plane(rgb, plane, step, source_mask)
+    _, evidence = picture_features(rectified, {"mm_per_pixel": step, "calibration": {"source": plane["source"]}},
+                                   measure_body=True)
+    return {
+        "scope": "Visible image seam traces projected onto the tabletop",
+        "output_to_source_px": mapping["output_to_source_px"],
+        "processed_image_px": evidence["processed_image_px"], "garment_crop_px": evidence["garment_crop_px"],
+        "processed_mm_per_pixel": evidence["processed_mm_per_pixel"],
+        "projected_shoulder_seams": evidence.get("projected_shoulder_seams"),
+    }
+
+
 def prepare_frame(root, frame):
     encoded = (root / f"{frame}.ply").read_bytes()
     with Image.open(root / f"{frame}.jpg") as photo:
@@ -81,6 +110,7 @@ def prepare_frame(root, frame):
     profile = silhouette.get("torso_profile")
     measured = {
         "outline_mm": silhouette["garment_box_mm"], "recognized_underarm_and_hem": profile,
+        "color_seam_evidence": color_seam_evidence(rgb, mask, depth.intrinsics, origin, basis, points),
         "surface_height_relative_to_support_p05_p50_p95_mm": (-np.quantile(points[:, 2], [.95, .50, .05]) * 1000).round(3).tolist(),
         "support_plane_residual_p90_mm": calibration["support_plane_residual_p90_mm"],
         "foreground_points": len(points), "foreground_mask_sha256": sha256(mask_path.read_bytes()).hexdigest(),
@@ -102,7 +132,7 @@ def write_cloud(path, points):
     return path
 
 
-def evaluate(output, source, blender):
+def evaluate(output, source, blender, *, fit_sleeve_span=False):
     data = output / "source"
     data.mkdir(parents=True)
     pinned_assets(data, source)
@@ -114,9 +144,10 @@ def evaluate(output, source, blender):
     prepared = output / "registered"
     prepare(capture, prepared, auto_upright=True)
     session = prepared / "session.json"
-    _, spec = load_capture(session, model_path=MODEL, blind=True)
     target = output / "archive"
-    archive(session, target, blender, MODEL, blind=True, form="display_torso")
+    archive(session, target, blender, MODEL, blind=True, form="display_torso", fit_sleeve_span=fit_sleeve_span)
+    pattern = json.loads((target / "pattern/pattern.json").read_bytes())["parameters"]
+    fit = json.loads((target / "capture.json").read_bytes()).get("sleeve_span_fit")
     clouds = [write_cloud(data / f"held-out-{number}.pcd", frames[number]["points"]) for number in HOLDOUT]
     flat_path = output / "flat-comparison"
     flat = compare_flat(target, clouds, flat_path, item_id=ITEM, blender=blender,
@@ -142,15 +173,16 @@ def evaluate(output, source, blender):
         if profile is not None:
             observed = profile["chest_width_mm"]
             chest_checks[number] = {"measured_scan_projection_mm": observed,
-                                    "pattern_minus_scan_mm": round(spec.flat_chest_mm - observed, 3)}
+                                    "pattern_minus_scan_mm": round(pattern["flat_chest_mm"] - observed, 3)}
     return write_json(output / "study.json", {
         "source": SOURCE, "item_id": ITEM, "input_frame": INPUT, "independent_frames": list(HOLDOUT),
         "input_model_sha256": sha256(MODEL.read_bytes()).hexdigest(),
         "pixel_and_metric_evidence": {key: value["measurements"] for key, value in frames.items()},
         "source_sha256": {key: value[1] for key, value in ASSETS.items()},
-        "pattern_candidate_mm": {field: getattr(spec, field) for field in (
+        "pattern_candidate_mm": {field: pattern[field] for field in (
             "flat_chest_mm", "back_length_mm", "garment_shoulder_width_mm", "sleeve_length_mm",
         )},
+        **({"sleeve_span_fit": fit} if fit is not None else {}),
         "held_out_flat_chest_projection": chest_checks,
         "archive": check_archive(target), "flat_mesh": flat, "depth_rays": depth,
     })
@@ -161,8 +193,9 @@ def main():
     parser.add_argument("-o", "--output", type=Path, required=True)
     parser.add_argument("--source", type=Path, help="Optional local HifiAI experiment 1 source folder")
     parser.add_argument("--blender", default="blender")
+    parser.add_argument("--fit-sleeve-span", action="store_true", help="Fit both input cuff tips before comparing held-out scans")
     args = parser.parse_args()
-    print(evaluate(args.output, args.source, args.blender))
+    print(evaluate(args.output, args.source, args.blender, fit_sleeve_span=args.fit_sleeve_span))
 
 
 if __name__ == "__main__":

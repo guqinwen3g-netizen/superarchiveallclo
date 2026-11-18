@@ -36,7 +36,7 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 深度入口也能读入与彩照逐像素对应的 XYZ 点云并恢复毫米纸样。已用另一帧实物 Kinect 点云核对同版平铺 3D。[IRI UPC-CSIC 实物复扫](docs/iri-pcd-study.md)
 
-iPad LiDAR 的实物归档可读取 PLY 中的原始逐像素深度，并恢复与深度网格匹配的内参。已用同件圆领 T 恤的两帧留出扫描核对胸宽和同版平铺 GLB 的布面深度。[iPad LiDAR 实物评测](docs/hifiai-tee-study.md)
+iPad LiDAR 的实物归档可读取 PLY 中的原始逐像素深度，并恢复与深度网格匹配的内参。已用同件圆领 T 恤的两帧留出扫描核对胸宽和同版平铺 GLB 的布面深度。可按输入的袖端跨度修正袖长。[iPad LiDAR 实物评测](docs/hifiai-tee-study.md)
 
 设备只保留衣物深度时，可以用同一相机的外部实测平面生成毫米俯视图。留出的深度帧可直接按相机射线核对同版 GLB。[表面深度评测与复现](docs/registered-depth-review.md)
 

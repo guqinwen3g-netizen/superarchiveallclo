@@ -28,15 +28,20 @@ def flat_coordinates(points, right, down):
     return points @ np.column_stack((horizontal, vertical, normal))
 
 
-def sleeve_angle_from_cuffs(cuffs):
+def sleeve_angles_from_cuffs(cuffs):
     if "image_left" in cuffs and "image_right" in cuffs:
         angles = []
         for side, tag in ((-1, "image_left"), (1, "image_right")):
             _, _, outward = cuff_axes(cuffs[tag], side)
             angles.append(degrees(atan2(outward[1], abs(outward[0]))))
         if min(angles) >= 0 and max(angles) <= 50:
-            return sum(angles) / 2
+            return tuple(angles)
     return None
+
+
+def sleeve_angle_from_cuffs(cuffs):
+    angles = sleeve_angles_from_cuffs(cuffs)
+    return sum(angles) / 2 if angles is not None else None
 
 
 def capture_sleeve_angle(capture):
@@ -54,7 +59,7 @@ def run_flat_pose(pattern, working, points, sleeve_angle, blender, *, legacy_sol
     np.savez_compressed(working / "reference-points.npz", **points)
     process = run([
         blender, "-b", "--factory-startup", "--python-exit-code", "1", "--python", str(script),
-        "--", str(snapshot), str(working), str(sleeve_angle), "legacy" if legacy_solver else "relaxed",
+        "--", str(snapshot), str(working), json.dumps(sleeve_angle), "legacy" if legacy_solver else "relaxed",
     ], capture_output=True, text=True, check=False)
     result = working / "metrics.npz"
     if process.returncode or not result.is_file():
@@ -63,17 +68,27 @@ def run_flat_pose(pattern, working, points, sleeve_angle, blender, *, legacy_sol
 
 
 def compare_flat(archive, clouds, output, *, item_id, setup, transform=None, right="x", down="y",
-                 sleeve_angle=None, blender="blender", legacy_solver=False):
+                 sleeve_angle=None, asymmetric_cuffs=False, blender="blender", legacy_solver=False):
     if output.exists():
         raise ValueError(f"Output already exists: {output}")
     if sleeve_angle is not None and not 0 <= sleeve_angle <= 50:
         raise ValueError("Flat sleeve angle must be between 0 and 50 degrees below horizontal")
+    if sleeve_angle is not None and asymmetric_cuffs:
+        raise ValueError("Choose a shared angle or the separate directions observed in the input")
     if not setup.strip() or not clouds:
         raise ValueError("Provide reference scans and record the flat-lay capture setup")
     integrity = check_archive(archive)
     capture = json.loads((archive / "capture.json").read_text())
+    if sleeve_angle is None and "cuff_angles_below_horizontal_deg" in capture.get("sleeve_span_fit", {}):
+        asymmetric_cuffs = True
     angle_source = "Provided sleeve angle"
-    if sleeve_angle is None:
+    if asymmetric_cuffs:
+        evidence = capture.get("inference", {}).get("scale_evidence", {}).get("front", {})
+        sleeve_angle = sleeve_angles_from_cuffs(evidence.get("flat_landmarks", {}).get("cuffs", {}))
+        if sleeve_angle is None:
+            raise ValueError("Separate sleeve placement requires both valid cuff directions in the archived front input")
+        angle_source = "Separate left and right cuff directions from the reconstruction input"
+    elif sleeve_angle is None:
         sleeve_angle, angle_source = capture_sleeve_angle(capture)
     if capture["kind"] != "physical" or not item_id.strip() or item_id != capture["item_id"]:
         raise ValueError("Reference scans must identify the same physical garment as the archive")
@@ -93,13 +108,15 @@ def compare_flat(archive, clouds, output, *, item_id, setup, transform=None, rig
             if legacy_solver else "Sewn panels with meshed sleeve folds and planar edge-length relaxation above a flat support"
         ),
         "solver": "legacy_edge_iterations" if legacy_solver else "projected_edges_global_relaxation",
-        "sleeve_angle_below_horizontal_deg": sleeve_angle,
+        "sleeve_angle_below_horizontal_deg": sum(sleeve_angle) / 2 if asymmetric_cuffs else sleeve_angle,
         "sleeve_angle_source": angle_source,
         "alignment": "Translation of the top and horizontal midpoint, with median scan height at the upper layer",
         "scope": "Overhead silhouette and one-way observed-point-to-mesh distances in flat pose",
         "reference_axes": {"right": right, "down": down},
         "references": [],
     }
+    if asymmetric_cuffs:
+        report["sleeve_angles_below_horizontal_deg"] = dict(zip(("image_left", "image_right"), sleeve_angle, strict=True))
     if calibration is not None:
         report["world_to_camera_sha256"] = sha256(calibration).hexdigest()
 
@@ -179,13 +196,16 @@ def main():
     parser.add_argument("--world-to-camera", type=Path)
     parser.add_argument("--right", choices=AXES, default="x")
     parser.add_argument("--down", choices=AXES, default="y")
-    parser.add_argument("--sleeve-angle-deg", type=float, help="Override the angle recovered from the input cuffs")
+    placement = parser.add_mutually_exclusive_group()
+    placement.add_argument("--sleeve-angle-deg", type=float, help="Use the same supplied angle for both sleeves")
+    placement.add_argument("--asymmetric-cuffs", action="store_true", help="Use both cuff directions from the front input")
     parser.add_argument("--blender", default="blender")
     args = parser.parse_args()
     try:
         report = compare_flat(args.archive, args.clouds, args.output, item_id=args.item_id, setup=args.setup,
                               transform=args.world_to_camera, right=args.right, down=args.down,
-                              sleeve_angle=args.sleeve_angle_deg, blender=args.blender)
+                              sleeve_angle=args.sleeve_angle_deg, asymmetric_cuffs=args.asymmetric_cuffs,
+                              blender=args.blender)
     except (ValueError, KeyError, TypeError, OSError, DXFError) as error:
         parser.error(str(error))
     for entry in report["references"]:
