@@ -3,7 +3,7 @@
 import numpy as np
 from scipy import ndimage
 
-from .tee import TeeSpec, body_panel, cap_dimensions, sleeve_panels
+from .tee import MIN_SLEEVE_BELOW_CAP_MM, TeeSpec, body_panel, cap_dimensions, half_cap, sleeve_panels
 
 
 def sleeve_cuff(outline, raw, torso_x, torso_width, mm_per_pixel):
@@ -246,3 +246,30 @@ def draft_constraints(measures, evidence):
         updates.update(proposed)
         methods.update(dict.fromkeys(proposed, "scan_with_prior"))
     return updates, methods, None
+
+
+def compatible_scan_sleeve_length(measures, updates):
+    """Extend a regressed sleeve only when its cap cannot meet the drafted armholes."""
+    if "sleeve_length_mm" in updates:
+        return None
+    spec = TeeSpec(**{**measures, **updates})
+    try:
+        spec.check()
+        front, back = (body_panel(spec, side).edge("armhole_right").length() for side in (True, False))
+        available = spec.sleeve_length_mm - MIN_SLEEVE_BELOW_CAP_MM
+        if available >= min(front, back):
+            return None
+        # A proportional split is enough to establish feasibility without
+        # solving the entire cap if each curve could already span its armhole.
+        if available > 0 and all(
+            half_cap("cap", spec.sleeve_bicep_flat_mm * length / (front + back), available).length() > length
+            for length in (front, back)
+        ):
+            return None
+        _, height = cap_dimensions(spec.sleeve_bicep_flat_mm, min(front, back), front, back)
+    except ValueError:
+        return None
+    minimum = height + MIN_SLEEVE_BELOW_CAP_MM
+    if spec.sleeve_length_mm <= minimum:
+        return minimum + 1
+    return None

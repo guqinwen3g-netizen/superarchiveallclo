@@ -24,6 +24,8 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 同一套纸样也已用于双点悬挂的重力仿真。六帧实物扫描用于核查正视轮廓及三维距离。[悬挂对照与复现](docs/suspension-study.md)
 
+已注册的彩照与深度图可用 `superarchiveallclo.rgbd` 校正俯拍透视并生成归档。原始 RGB、深度和可选分割图随归档保存。[输入与标定说明](docs/capture.md#已注册的深度照片) · [真实 RGB-D 样本实验](docs/rgbd-study.md)
+
 ## 生成首款 T 恤纸样
 
 在仓库目录使用 Python 3.10+ 和 ReportLab。样例为虚构的 960 mm 净胸围体型，配 560 mm 成衣半胸宽和 680 mm 后中衣长。

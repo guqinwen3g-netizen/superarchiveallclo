@@ -29,15 +29,25 @@ class Sample:
     truth: dict
     sources: dict
     photo_hashes: dict
+    source_hashes: frozenset
     features: np.ndarray | None
     evidence: dict | None
     capture_error: str | None = None
+
+    @property
+    def fingerprints(self):
+        return self.source_hashes.union(self.photo_hashes.values())
 
 
 def text_field(value, label):
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"{label}: expected nonempty text")
     return value.strip()
+
+
+def original_sensor_hashes(views):
+    return frozenset(asset["sha256"] for view in views.values()
+                     for kind, asset in view.get("source_assets", {}).items() if kind in ("rgb", "depth"))
 
 
 def load_dataset(path: Path):
@@ -79,13 +89,14 @@ def load_dataset(path: Path):
             raise ValueError(f"{item_id}: paired evaluation requires a front and back capture")
         if hashes["front"] == hashes["back"]:
             raise ValueError(f"{item_id}: front and back must be different captures")
-        for digest in hashes.values():
+        raw = original_sensor_hashes(capture["views"])
+        for digest in raw.union(hashes.values()):
             if photos.setdefault(digest, split) != split:
-                raise ValueError(f"{item_id}: duplicate photo across dataset splits")
-        inputs.append((session, capture, item_id, group, split, rights, hashes, known))
+                raise ValueError(f"{item_id}: duplicate photo or raw depth capture across dataset splits")
+        inputs.append((session, capture, item_id, group, split, rights, hashes, raw, known))
 
     samples = []
-    for session, capture, item_id, group, split, rights, hashes, known in inputs:
+    for session, capture, item_id, group, split, rights, hashes, raw, known in inputs:
         photographs = []
         for name in ("front", "back"):
             photo = (session.parent / capture["views"][name]["file"]).read_bytes()
@@ -102,7 +113,7 @@ def load_dataset(path: Path):
         truth = {name: observation["value"] for name, observation in known.items()}
         sources = {name: observation["source"] for name, observation in known.items()}
         samples.append(Sample(session, item_id, group, split, capture["kind"], rights,
-                              truth, sources, hashes, features, evidence, error))
+                              truth, sources, hashes, raw, features, evidence, error))
     return samples, sha256(encoded).hexdigest()
 
 
@@ -132,10 +143,12 @@ def evaluate(samples, vision):
             "reference_mm": item.truth, "reference_sources": item.sources,
             "photo_sha256": item.photo_hashes,
         }
+        if item.source_hashes:
+            result["source_asset_sha256"] = sorted(item.source_hashes)
         results[item.kind].append(result)
         groups, photos = vision.labelled_training_groups, vision.labelled_training_photos
         if groups is not None and photos is not None:
-            if item.group in groups or photos.intersection(item.photo_hashes.values()):
+            if item.group in groups or photos.intersection(item.fingerprints):
                 result.update(
                     status="training_overlap",
                     reason="Garment group or photo was used to train or tune these weights",

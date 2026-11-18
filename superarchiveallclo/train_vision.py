@@ -2,6 +2,7 @@
 
 from argparse import ArgumentParser
 from collections import Counter
+from dataclasses import replace
 from io import BytesIO
 import json
 from math import cos, radians, sin
@@ -13,13 +14,29 @@ from reportlab.lib.units import mm
 from reportlab.pdfgen.canvas import Canvas
 
 from .dataset import arrays, evaluate, load_dataset, usable_labels
+from .flat_measurements import compatible_scan_sleeve_length
 from .tee import TeeSpec, body_panel, draft
 from .vision import CARD_MM, FIELDS, MODEL_VERSION, TeeVision, paired_features
 
 SEED = 481516
 
 
-def sample_spec(rng):
+def sample_spec(rng, *, compact=False):
+    if compact:
+        chest = rng.uniform(425, 560)
+        shoulder = chest - rng.uniform(42, 83)
+        slope = rng.uniform(19, 47)
+        armhole = rng.uniform(174, 225)
+        bicep = min(rng.uniform(262, 336), 2 * (armhole - slope) - 12)
+        return TeeSpec(
+            body_chest_mm=None, body_shoulder_width_mm=None, shoulder_extension_mm=None,
+            flat_chest_mm=chest, back_length_mm=rng.uniform(560, 730),
+            garment_shoulder_width_mm=shoulder, shoulder_slope_mm=slope, armhole_depth_mm=armhole,
+            sleeve_length_mm=rng.uniform(120, 197), sleeve_bicep_flat_mm=bicep,
+            sleeve_opening_flat_mm=bicep - rng.uniform(20, 58),
+            neck_width_mm=rng.uniform(146, 190), front_neck_depth_mm=rng.uniform(60, 104),
+            back_neck_depth_mm=rng.uniform(15, 32),
+        )
     chest = rng.uniform(485, 635)
     shoulder = chest - rng.uniform(45, 92)
     slope = rng.uniform(22, 51)
@@ -85,11 +102,15 @@ def synthetic_view(spec, front, rng):
     return Image.fromarray(rgb)
 
 
-def sample_set(size, seed, front_only=False):
+def sample_set(size, seed, front_only=False, compact_sleeves=False):
     rng = np.random.default_rng(seed)
     features, targets, boxes = [], [], []
     for _ in range(size):
-        spec = sample_spec(rng)
+        spec = sample_spec(rng, compact=compact_sleeves and rng.random() < 0.45)
+        if compact_sleeves:
+            length = compatible_scan_sleeve_length({field: getattr(spec, field) for field in FIELDS}, {})
+            if length is not None:
+                spec = replace(spec, sleeve_length_mm=length)
         front, back = synthetic_view(spec, True, rng), synthetic_view(spec, False, rng)
         if rng.random() < 0.75:
             front = jpeg_view(front, int(rng.integers(83, 97)))
@@ -178,6 +199,7 @@ def main():
     parser.add_argument("--dataset", type=Path, help="Optional manifest of independently labelled photo pairs")
     parser.add_argument("--compare-model", type=Path, help="Score incumbent weights on the same labelled test rows")
     parser.add_argument("--front-only", action="store_true", help="Train on front views with a prior for back neck depth")
+    parser.add_argument("--compact-sleeves", action="store_true", help="Include narrower, shorter-sleeved tees in the synthetic set")
     args = parser.parse_args()
     if args.weights.suffix != ".npz":
         parser.error("--weights must have an .npz extension")
@@ -193,7 +215,7 @@ def main():
 
     sizes = (960, 160, 200)
     train, validation, test = (
-        sample_set(size, SEED + split, args.front_only) for split, size in enumerate(sizes)
+        sample_set(size, SEED + split, args.front_only, args.compact_sleeves) for split, size in enumerate(sizes)
     )
     extra_train = arrays(labelled, "train")
     extra_validation = arrays(labelled, "validation")
@@ -207,7 +229,7 @@ def main():
     used_labels = usable_labels(labelled, "train") + usable_labels(labelled, "validation")
     weights["labelled_training_groups"] = np.array(sorted({item.group for item in used_labels}), dtype=str)
     weights["labelled_training_photos"] = np.array(sorted({
-        digest for item in used_labels for digest in item.photo_hashes.values()
+        digest for item in used_labels for digest in item.fingerprints
     }), dtype=str)
     if extra_validation is not None:
         weights["validation_domain"] = np.array("labelled validation split; see evaluation report")
@@ -250,6 +272,10 @@ def main():
     if args.front_only:
         report["model_input"] = "front"
         report["prior_fields"] = ["back_neck_depth_mm"]
+    if args.compact_sleeves:
+        report["synthetic_sampling"] = {"compact_probability": 0.45, "compact_chest_mm": [425, 560],
+                                        "compact_sleeve_length_prior_mm": [120, 197],
+                                        "sleeve_length_adjusted_to_allow_a_sewable_cap": True}
     model = TeeVision(args.weights, "front" if args.front_only else "paired")
     if args.dataset:
         report["labelled_dataset"] = {

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "kind": "physical",
+  "item_id": "clopema-02",
+  "source": "CloPeMa Clothes by L. Sun and G. Aragon-Camarasa, University of Glasgow, https://researchdata.gla.ac.uk/270/, CC BY 4.0. Capture 0 of item 02. Nominal ASUS Xtion field of view; sensor-specific intrinsics were unavailable.",
+  "views": {
+    "front": {
+      "rgb": "clothes_2_capture_0_rgb.png",
+      "depth": "clothes_2_capture_0_depth.png",
+      "mask": "clothes_2_capture_0_mask.png",
+      "mask_label": 2,
+      "depth_unit": "mm",
+      "intrinsics": {"fx": 577.2952816868556, "fy": 579.4112549695428, "cx": 319.5, "cy": 239.5}
+    }
+  }
+}

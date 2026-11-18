@@ -1,0 +1,490 @@
+{
+  "schema_version": 1,
+  "dataset": {
+    "authors": [
+      "Li Sun",
+      "Gerardo Aragon-Camarasa"
+    ],
+    "publisher": "University of Glasgow",
+    "archive_url": "https://researchdata.gla.ac.uk/270/6/clothes_dataset_kinect.7z",
+    "doi": "10.5525/gla.researchdata.270",
+    "license": "CC BY 4.0",
+    "archive_sha256": "c1dee26711c911c18c2337edb4e24cec3e9167055a83873ab834ad8ba0a37f61"
+  },
+  "scope": "Real single front RGB-D per garment with assumed camera intrinsics. Reproduction of projection and archive checks. Tape, calibrated camera intrinsics, sewing patterns and matching posed 3D references unavailable.",
+  "runtime": {
+    "python": "3.12.14",
+    "blender": "4.3.2"
+  },
+  "weights_sha256": "a1a8e84125d3d55e0b1bdc1b51a5a56afceb33a3643bcc212e9a0da59e6d315e",
+  "cases": {
+    "02": {
+      "capture_id": "clopema-02_capture-0",
+      "source_assets": {
+        "rgb": {
+          "file": "evidence/front-rgb.png",
+          "sha256": "bf414cade585ff249709fd450d1e916098cd887fc0a51f48939e0457056f3080"
+        },
+        "depth": {
+          "file": "evidence/front-depth.png",
+          "sha256": "9c2496b5c7b49880b5b0b3373899dad341ff687add9c6785d2e8ea50c4d19248"
+        },
+        "mask": {
+          "file": "evidence/front-mask.png",
+          "sha256": "1f79eb07d953241217453fc497d5e0ec8662cad8c8f7ae5b35e01baba62b6654"
+        }
+      },
+      "camera_calibration": {
+        "type": "metric_orthographic_point_cloud",
+        "right_axis": "x",
+        "down_axis": "y",
+        "point_count": 95686,
+        "plane_distance_p95_mm": 21.486,
+        "raw_point_span_p0_1_to_p99_9_mm": [
+          621.331,
+          665.54
+        ],
+        "registered_depth_coverage": 1.0,
+        "support_points": 21060,
+        "support_plane_residual_p90_mm": 3.62,
+        "surface_distance_to_support_p95_mm": 26.889,
+        "support_origin_camera_m": [
+          -0.008614822942258515,
+          -0.03701257861638101,
+          1.06092486171643
+        ],
+        "support_basis_camera": [
+          [
+            0.9999985039433018,
+            0.0,
+            -0.0017297719959911409
+          ],
+          [
+            8.501900282940848e-05,
+            0.9987913882266403,
+            0.049150336479719066
+          ],
+          [
+            0.001727681373191558,
+            -0.04915041001151917,
+            0.9987898939780939
+          ]
+        ],
+        "mm_per_pixel": 2.0,
+        "source": "CloPeMa Clothes by L. Sun and G. Aragon-Camarasa, University of Glasgow, https://researchdata.gla.ac.uk/270/, CC BY 4.0. Capture 0 of item 02. Nominal ASUS Xtion field of view; sensor-specific intrinsics were unavailable.",
+        "origin_type": "registered_rgbd",
+        "depth_unit": "mm",
+        "camera_intrinsics_px": {
+          "fx": 577.2952816868556,
+          "fy": 579.4112549695428,
+          "cx": 319.5,
+          "cy": 239.5
+        },
+        "mask_method": "source_labels",
+        "mask_label": 2
+      },
+      "projection": {
+        "method": "metric_calibration",
+        "source": "CloPeMa Clothes by L. Sun and G. Aragon-Camarasa, University of Glasgow, https://researchdata.gla.ac.uk/270/, CC BY 4.0. Capture 0 of item 02. Nominal ASUS Xtion field of view; sensor-specific intrinsics were unavailable.",
+        "processed_mm_per_pixel": 2.0,
+        "processed_image_px": [
+          336,
+          358
+        ],
+        "processed_image_sha256": "52ed8b8181b726d0b160e0c0942796c5b623fd8e81d9fce095d108c7a231b92e",
+        "garment_crop_px": [
+          10,
+          10,
+          325,
+          347
+        ],
+        "garment_box_mm": [
+          632.0,
+          676.0
+        ],
+        "lower_torso_width_mm": 467.0,
+        "shoulder_level_to_hem_mm": 674.0,
+        "shoulder_line_y_mm": 0.0,
+        "flat_landmarks": {
+          "torso_center_x_mm": 324.82
+        }
+      },
+      "measurements": {
+        "flat_chest_mm": {
+          "source": "scan_silhouette",
+          "value": 467.0
+        },
+        "back_length_mm": {
+          "source": "scan_with_prior",
+          "value": 649.613
+        },
+        "garment_shoulder_width_mm": {
+          "source": "vision_model",
+          "value": 422.613
+        },
+        "shoulder_slope_mm": {
+          "source": "vision_model",
+          "value": 50.996
+        },
+        "armhole_depth_mm": {
+          "source": "vision_model",
+          "value": 212.293
+        },
+        "sleeve_length_mm": {
+          "source": "geometry_constrained_prior",
+          "value": 133.421
+        },
+        "sleeve_bicep_flat_mm": {
+          "source": "vision_model",
+          "value": 247.717
+        },
+        "sleeve_opening_flat_mm": {
+          "source": "vision_model",
+          "value": 240.435
+        },
+        "neck_width_mm": {
+          "source": "vision_model",
+          "value": 146.145
+        },
+        "front_neck_depth_mm": {
+          "source": "vision_model",
+          "value": 60.034
+        },
+        "back_neck_depth_mm": {
+          "source": "learned_prior",
+          "value": 24.387
+        },
+        "collar_finished_width_mm": {
+          "source": "assumed",
+          "value": 18
+        },
+        "collar_length_ratio": {
+          "source": "assumed",
+          "value": 0.85
+        }
+      },
+      "regression_before_scan_constraints_mm": {
+        "flat_chest_mm": 448.103,
+        "back_length_mm": 561.133,
+        "sleeve_length_mm": 120.087
+      },
+      "sleeve_constraint_rejected": null,
+      "archive_check": {
+        "capture_kind": "physical",
+        "pattern_sha256": "43934093d678639d3c229e3f547f74442eaecffaca2346b7d67eec79d968e901",
+        "source_photos": 1,
+        "vision_estimates": 7,
+        "dxf_panels": 5,
+        "seams": 15,
+        "garment_openings": 4,
+        "glb": {
+          "meshes": 1,
+          "bounds_span_m": [
+            0.5064,
+            0.6794,
+            0.2914
+          ]
+        }
+      },
+      "dxf_sha256": "1454023e634bea548c2d33219565f963741e0f88037592fff66fc686fba461f8",
+      "glb_sha256": "e1c22b15a7cd8e2c97dd167f0fa2b7a76473806fcf147d2b10679dfeefa33ae2"
+    },
+    "05": {
+      "capture_id": "clopema-05_capture-0",
+      "source_assets": {
+        "rgb": {
+          "file": "evidence/front-rgb.png",
+          "sha256": "33f357d1cbeffa75cde85f28b9be07ec0974d06c556580a0993888d72c02815b"
+        },
+        "depth": {
+          "file": "evidence/front-depth.png",
+          "sha256": "f32f77296e8b7d45f863347aeaa301c4557b35f8618bc1261cc26f01845256e7"
+        },
+        "mask": {
+          "file": "evidence/front-mask.png",
+          "sha256": "d761a7dfa2de0ee81f588f5e07ab8dff6e7df1df6aa26e5ece646052f1060e10"
+        }
+      },
+      "camera_calibration": {
+        "type": "metric_orthographic_point_cloud",
+        "right_axis": "x",
+        "down_axis": "y",
+        "point_count": 79004,
+        "plane_distance_p95_mm": 15.754,
+        "raw_point_span_p0_1_to_p99_9_mm": [
+          582.03,
+          597.899
+        ],
+        "registered_depth_coverage": 1.0,
+        "support_points": 18459,
+        "support_plane_residual_p90_mm": 3.242,
+        "surface_distance_to_support_p95_mm": 22.461,
+        "support_origin_camera_m": [
+          0.011225861152158699,
+          -0.04982467474328988,
+          1.0649201715320489
+        ],
+        "support_basis_camera": [
+          [
+            0.9999772388173689,
+            0.0,
+            -0.006746988008774698
+          ],
+          [
+            0.00032387245764805883,
+            0.9988472143602058,
+            0.0480014319733047
+          ],
+          [
+            0.006739210177886319,
+            -0.04800252456753312,
+            0.9988244794163395
+          ]
+        ],
+        "mm_per_pixel": 2.0,
+        "source": "CloPeMa Clothes by L. Sun and G. Aragon-Camarasa, University of Glasgow, https://researchdata.gla.ac.uk/270/, CC BY 4.0. Capture 0 of item 05. Nominal ASUS Xtion field of view; sensor-specific intrinsics were unavailable.",
+        "origin_type": "registered_rgbd",
+        "depth_unit": "mm",
+        "camera_intrinsics_px": {
+          "fx": 577.2952816868556,
+          "fy": 579.4112549695428,
+          "cx": 319.5,
+          "cy": 239.5
+        },
+        "mask_method": "source_labels",
+        "mask_label": 2
+      },
+      "projection": {
+        "method": "metric_calibration",
+        "source": "CloPeMa Clothes by L. Sun and G. Aragon-Camarasa, University of Glasgow, https://researchdata.gla.ac.uk/270/, CC BY 4.0. Capture 0 of item 05. Nominal ASUS Xtion field of view; sensor-specific intrinsics were unavailable.",
+        "processed_mm_per_pixel": 2.0,
+        "processed_image_px": [
+          317,
+          324
+        ],
+        "processed_image_sha256": "b4e0d3b2c32cf0ebcbfaf18b0a3fa1ab2450f837df4abd272e8b709275e37cef",
+        "garment_crop_px": [
+          10,
+          10,
+          305,
+          313
+        ],
+        "garment_box_mm": [
+          592.0,
+          608.0
+        ],
+        "lower_torso_width_mm": 418.0,
+        "shoulder_level_to_hem_mm": 604.0,
+        "shoulder_line_y_mm": 0.0,
+        "flat_landmarks": {
+          "torso_center_x_mm": 289.28,
+          "cuffs": {
+            "image_right": {
+              "outer_mm": [
+                588.07,
+                92.0
+              ],
+              "inner_mm": [
+                554.16,
+                232.0
+              ],
+              "folded_opening_mm": 144.05,
+              "edge_fit_p90_mm": 14.9,
+              "underarm_join_y_mm": 296.0
+            },
+            "image_left": {
+              "outer_mm": [
+                2.0,
+                98.0
+              ],
+              "inner_mm": [
+                26.0,
+                228.0
+              ],
+              "folded_opening_mm": 132.2,
+              "edge_fit_p90_mm": 5.68,
+              "underarm_join_y_mm": 282.0
+            }
+          },
+          "sleeve_layout": {
+            "image_left": {
+              "underarm_mm": [
+                80.28,
+                282.0
+              ],
+              "folded_width_at_join_mm": 195.15,
+              "join_to_cuff_run_mm": 43.58
+            },
+            "image_right": {
+              "underarm_mm": [
+                498.28,
+                296.0
+              ],
+              "folded_width_at_join_mm": 219.4,
+              "join_to_cuff_run_mm": 39.24
+            }
+          }
+        }
+      },
+      "measurements": {
+        "flat_chest_mm": {
+          "source": "scan_silhouette",
+          "value": 418.0
+        },
+        "back_length_mm": {
+          "source": "scan_with_prior",
+          "value": 579.613
+        },
+        "garment_shoulder_width_mm": {
+          "source": "vision_model",
+          "value": 357.506
+        },
+        "shoulder_slope_mm": {
+          "source": "vision_model",
+          "value": 48.208
+        },
+        "armhole_depth_mm": {
+          "source": "scan_with_prior",
+          "value": 192.333
+        },
+        "sleeve_length_mm": {
+          "source": "scan_with_prior",
+          "value": 121.368
+        },
+        "sleeve_bicep_flat_mm": {
+          "source": "scan_with_prior",
+          "value": 276.25
+        },
+        "sleeve_opening_flat_mm": {
+          "source": "scan_with_prior",
+          "value": 276.25
+        },
+        "neck_width_mm": {
+          "source": "vision_model",
+          "value": 146.145
+        },
+        "front_neck_depth_mm": {
+          "source": "vision_model",
+          "value": 60.034
+        },
+        "back_neck_depth_mm": {
+          "source": "learned_prior",
+          "value": 24.387
+        },
+        "collar_finished_width_mm": {
+          "source": "assumed",
+          "value": 18
+        },
+        "collar_length_ratio": {
+          "source": "assumed",
+          "value": 0.85
+        }
+      },
+      "regression_before_scan_constraints_mm": {
+        "flat_chest_mm": 425.384,
+        "back_length_mm": 561.133,
+        "sleeve_opening_flat_mm": 304.472,
+        "sleeve_bicep_flat_mm": 251.733,
+        "armhole_depth_mm": 174.175,
+        "sleeve_length_mm": 124.174
+      },
+      "sleeve_constraint_rejected": null,
+      "archive_check": {
+        "capture_kind": "physical",
+        "pattern_sha256": "71c7d51b50d3c42d148f194286b8a535a2da3c2727ca1e2ddccb194c792ac9e1",
+        "source_photos": 1,
+        "vision_estimates": 4,
+        "dxf_panels": 5,
+        "seams": 15,
+        "garment_openings": 4,
+        "glb": {
+          "meshes": 1,
+          "bounds_span_m": [
+            0.4668,
+            0.6057,
+            0.2714
+          ]
+        }
+      },
+      "dxf_sha256": "fd8959ce2f7bcdddf21cce795aab144fa3ce2d17703fc46957b5432b53028fba",
+      "glb_sha256": "5768e2ecb40f5c5b0c7ddcc96d8271236079cf4b16a2a4f3e3a6a778160ba18f"
+    }
+  },
+  "focal_length_sensitivity_02": {
+    "camera_calibration": {
+      "type": "metric_orthographic_point_cloud",
+      "right_axis": "x",
+      "down_axis": "y",
+      "point_count": 95686,
+      "plane_distance_p95_mm": 21.49,
+      "raw_point_span_p0_1_to_p99_9_mm": [
+        683.232,
+        734.333
+      ],
+      "registered_depth_coverage": 1.0,
+      "support_points": 21060,
+      "support_plane_residual_p90_mm": 3.62,
+      "surface_distance_to_support_p95_mm": 26.894,
+      "support_origin_camera_m": [
+        -0.009472945975492326,
+        -0.04084858023958673,
+        1.06092486171643
+      ],
+      "support_basis_camera": [
+        [
+          0.999998762238193,
+          1.3552527156068805e-20,
+          -0.0015733791920403929
+        ],
+        [
+          7.008452015322765e-05,
+          0.9990074257680369,
+          0.04454389238133898
+        ],
+        [
+          0.001571817496397267,
+          -0.04454394751613595,
+          0.9990061892348004
+        ]
+      ],
+      "mm_per_pixel": 2.0,
+      "source": "University of Glasgow CloPeMa Clothes at https://researchdata.gla.ac.uk/270/ (CC BY 4.0), ASUS Xtion sensitivity intrinsics assumed, no per-camera calibration published in Kinect archive",
+      "origin_type": "registered_rgbd",
+      "depth_unit": "mm",
+      "camera_intrinsics_px": {
+        "fx": 525,
+        "fy": 525,
+        "cx": 319.5,
+        "cy": 239.5
+      },
+      "mask_method": "source_labels",
+      "mask_label": 2
+    },
+    "projection": {
+      "method": "metric_calibration",
+      "source": "University of Glasgow CloPeMa Clothes at https://researchdata.gla.ac.uk/270/ (CC BY 4.0), ASUS Xtion sensitivity intrinsics assumed, no per-camera calibration published in Kinect archive",
+      "processed_mm_per_pixel": 2.0,
+      "processed_image_px": [
+        367,
+        393
+      ],
+      "processed_image_sha256": "6d52881e62c13a6478711ac9edcb2776305ac1a262b17818fc5ad0b31328541d",
+      "garment_crop_px": [
+        10,
+        10,
+        356,
+        381
+      ],
+      "garment_box_mm": [
+        694.0,
+        744.0
+      ],
+      "lower_torso_width_mm": 512.0,
+      "shoulder_level_to_hem_mm": 744.0,
+      "shoulder_line_y_mm": 0.0,
+      "flat_landmarks": {
+        "torso_center_x_mm": 356.99
+      }
+    }
+  }
+}

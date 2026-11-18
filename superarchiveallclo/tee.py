@@ -5,6 +5,8 @@ from math import isfinite
 
 from .pattern import Edge, Panel, Seam, validate_pattern
 
+MIN_SLEEVE_BELOW_CAP_MM = 25
+
 
 @dataclass(frozen=True)
 class TeeSpec:
@@ -118,7 +120,7 @@ def sleeve_panels(spec: TeeSpec, front: Panel, back: Panel) -> tuple[Panel, Pane
     width = spec.sleeve_bicep_flat_mm
     length = spec.sleeve_length_mm
     front_span, height = cap_dimensions(
-        width, length - 25, front.edge("armhole_right").length(), back.edge("armhole_right").length(),
+        width, length - MIN_SLEEVE_BELOW_CAP_MM, front.edge("armhole_right").length(), back.edge("armhole_right").length(),
     )
     back_span = width - front_span
     taper = (width - spec.sleeve_opening_flat_mm) / 2

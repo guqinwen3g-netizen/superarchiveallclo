@@ -4,7 +4,7 @@ from unittest import TestCase
 import numpy as np
 
 from examples.evaluate_flat_landmarks import fixture
-from superarchiveallclo.flat_measurements import draft_constraints, flat_landmarks, sleeve_layout
+from superarchiveallclo.flat_measurements import compatible_scan_sleeve_length, draft_constraints, flat_landmarks, sleeve_layout
 from superarchiveallclo.tee import TeeSpec, body_panel, cap_dimensions, draft
 from superarchiveallclo.vision import FIELDS
 
@@ -60,6 +60,19 @@ class FlatLandmarkTest(TestCase):
         updates, sources, _ = draft_constraints(measures, evidence)
         self.assertEqual(set(sources), {"flat_chest_mm", "back_length_mm"})
         draft(TeeSpec(**{**measures, **updates}))
+        self.assertIsNone(compatible_scan_sleeve_length(measures, updates))
+
+    def test_hidden_sleeve_can_be_adjusted_to_match_the_armholes(self):
+        prior = TeeSpec(armhole_depth_mm=223, sleeve_bicep_flat_mm=248, sleeve_opening_flat_mm=244,
+                        sleeve_length_mm=120, shoulder_slope_mm=51, garment_shoulder_width_mm=420)
+        measures = {field: getattr(prior, field) for field in FIELDS}
+        scan = {"flat_chest_mm": 467}
+        with self.assertRaisesRegex(ValueError, "incompatible with the armholes"):
+            draft(TeeSpec(**{**measures, **scan}))
+        corrected = compatible_scan_sleeve_length(measures, scan)
+        self.assertGreater(corrected, prior.sleeve_length_mm)
+        draft(TeeSpec(**{**measures, **scan, "sleeve_length_mm": corrected}))
+        self.assertIsNone(compatible_scan_sleeve_length(measures, {**scan, "sleeve_length_mm": 155}))
 
     def test_incompatible_cuff_is_reported_without_overriding_a_valid_draft(self):
         learned = TeeSpec(garment_shoulder_width_mm=495)

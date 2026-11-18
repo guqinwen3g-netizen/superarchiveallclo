@@ -34,6 +34,36 @@
 
 正投影可以直接填写 `"calibration": {"mm_per_pixel": 2, "source": "记录相机、深度或校准方法"}`。同一图选择一种标定方式，像素尺度以按 EXIF 扶正的原图为准。直尺必须与衣服同平面，长度独立于待估计的衣服尺寸。斜拍、有透视变化的图像需要先校正。已有分割好的平铺点云时可以用 `superarchiveallclo.scan` 生成带比例的正投影和采集记录。[真实点云输入与复现](real-scan-study.md)
 
+### 已注册的深度照片
+
+记录在 `rgbd.json`。每个视角的颜色、深度和可选分割图须在同一个像素网格上，与扶正后的颜色图和输入内参对应。内参以实际标定记录为准。先用设备校正畸变和注册，深度值采用相机光轴方向的距离，单位可为 `mm` 或 `m`。支持 16 位 PNG 和数值 NPY。提供多标签 PNG 时可以用 `mask_label` 选中服装。
+
+```json
+{
+  "schema_version": 1,
+  "item_id": "tee-001",
+  "source": "采集设备、标定日期及内参来源",
+  "views": {
+    "front": {
+      "rgb": "front.jpg",
+      "depth": "front-depth.png",
+      "depth_unit": "mm",
+      "intrinsics": {"fx": 600, "fy": 600, "cx": 319.5, "cy": 239.5},
+      "mask": "front-mask.png"
+    }
+  }
+}
+```
+
+示例中的内参仅用于展示字段。拍摄时让衣物朝上摆正并保留四周可见台面，程序用背景深度确定台面方向，再按毫米生成俯视投影。拍到同件背面时，在 `views` 下加 `back`，使用双面模型。只有单面时使用单面模型。省略 `--model` 可先生成投影及采集记录。启用模型时，原始彩照、深度图和分割证据会随候选归档保存，校验命令可复核哈希。
+
+```sh
+python -m superarchiveallclo.rgbd rgbd.json \
+  --model models/tee-vision-front.npz -o build/registered-tee
+```
+
+### 尺寸与材料
+
 尺寸键放在 `measurements` 下。卷尺实测可填 `{"value": 560}`。照片标注可填 `{"view": "front", "points": [[120, 300], [960, 301]], "axis": "x"}`。材料观察放在 `material`，随原始记录保留。每个字段的来源和推断项会写入输出档案。
 
 ## 交付与验收

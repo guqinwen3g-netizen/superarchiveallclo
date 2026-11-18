@@ -70,10 +70,15 @@ def glb_inventory(path):
 def check_archive(root: Path):
     capture = json.loads((root / "capture.json").read_text(encoding="utf8"))
     photos = (root / "photos").resolve()
+    evidence = (root / "evidence").resolve()
     for name, view in capture["views"].items():
         original = (root / view["file"]).resolve()
         if not original.is_relative_to(photos) or sha256(original.read_bytes()).hexdigest() != view["sha256"]:
             raise ValueError(f"{name}: archived photo does not match its source checksum")
+        for key, asset in view.get("source_assets", {}).items():
+            path = (root / asset["file"]).resolve()
+            if not path.is_relative_to(evidence) or sha256(path.read_bytes()).hexdigest() != asset["sha256"]:
+                raise ValueError(f"{name}: archived {key} does not match its source checksum")
     pattern_bytes = (root / "pattern/pattern.json").read_bytes()
     pattern = json.loads(pattern_bytes)
     simulation = json.loads((root / "model/simulation.json").read_text(encoding="utf8"))

@@ -64,6 +64,28 @@ def view_calibration(view, size, name):
     return {}
 
 
+def source_evidence(source, view, name, photo_dir):
+    if "source_assets" not in view:
+        return {}
+    assets = view["source_assets"]
+    if not isinstance(assets, dict) or not {"rgb", "depth"} <= assets.keys() <= {"rgb", "depth", "mask"}:
+        raise ValueError(f"{name}: expected RGB and depth source evidence, optionally with a mask")
+    source_root = (source.parent / "evidence").resolve()
+    for key, asset in assets.items():
+        original = (source.parent / asset["file"]).resolve()
+        filename = f"{name}-{key}{original.suffix}"
+        if original != source_root / filename or asset["file"] != f"evidence/{filename}":
+            raise ValueError(f"{name}: invalid source evidence path for {key}")
+        raw = original.read_bytes()
+        if sha256(raw).hexdigest() != asset["sha256"]:
+            raise ValueError(f"{name}: {key} source evidence changed")
+        if photo_dir is not None:
+            target = photo_dir.parent / "evidence" / original.name
+            target.parent.mkdir(exist_ok=True)
+            target.write_bytes(raw)
+    return {"source_assets": assets}
+
+
 def capture_observations(source, photo_dir=None, model_path=None, *, allow_partial=False, blind=False):
     if blind and model_path is None:
         raise ValueError("Blind reconstruction requires trained --model weights")
@@ -108,6 +130,7 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
             "file": output_name, "upright_px": list(size),
             "sha256": sha256(target.read_bytes()).hexdigest(),
             **view_calibration(view, size, name),
+            **source_evidence(source, view, name, photo_dir),
         }
         archived[name] = info
 

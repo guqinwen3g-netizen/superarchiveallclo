@@ -90,6 +90,24 @@ class LabelledDatasetTest(TestCase):
                 self.entry("duplicate", "style-b", "test", photo_from="first"),
             ))
 
+    def test_reprojected_depth_cannot_cross_splits(self):
+        training = self.entry("first", "style-a", "train")
+        testing = self.entry("reprojection", "style-b", "test")
+        for entry in (training, testing):
+            session = self.root / entry["session"]
+            data = json.loads(session.read_text())
+            evidence = session.parent / "evidence"
+            evidence.mkdir()
+            rgb = (session.parent / "front.png").read_bytes()
+            assets = {}
+            for key, name, payload in (("rgb", "front-rgb.png", rgb), ("depth", "front-depth.npy", b"same depth")):
+                (evidence / name).write_bytes(payload)
+                assets[key] = {"file": f"evidence/{name}", "sha256": sha256(payload).hexdigest()}
+            data["views"]["front"]["source_assets"] = assets
+            session.write_text(json.dumps(data))
+        with self.assertRaisesRegex(ValueError, "duplicate photo or raw depth"):
+            load_dataset(self.manifest(training, testing))
+
     def test_existing_photo_only_inference_and_archival_copy(self):
         capture, _ = load_capture(ROOT / "examples/vision-demo/session.json", self.root / "photos",
                                   ROOT / "models/tee-vision.npz")

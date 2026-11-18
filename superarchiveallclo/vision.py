@@ -11,7 +11,7 @@ from PIL import Image, ImageOps
 from scipy import ndimage
 from scipy.spatial import ConvexHull, QhullError
 
-from .flat_measurements import draft_constraints, flat_landmarks
+from .flat_measurements import compatible_scan_sleeve_length, draft_constraints, flat_landmarks
 
 # The card is a 100 mm square of solid magenta printed at actual size.
 CARD_MM = 100.0
@@ -270,6 +270,10 @@ class TeeVision:
         }
         if self.view_mode == "front" and "shoulder_level_to_hem_mm" in scale["front"]:
             constrained, methods, reason = draft_constraints(measures, scale["front"])
+            length = compatible_scan_sleeve_length(measures, constrained)
+            if length is not None:
+                constrained["sleeve_length_mm"] = length
+                methods["sleeve_length_mm"] = "geometry_constrained_prior"
             inference["regression_before_scan_constraints_mm"] = {key: measures[key] for key in constrained}
             inference["scan_constraint_sources"] = methods
             if reason is not None:

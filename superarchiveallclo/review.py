@@ -10,7 +10,7 @@ import ezdxf
 from .capture import archive
 from .check_archive import check_archive
 from .compare_shape import compare
-from .dataset import evaluate, load_dataset
+from .dataset import evaluate, load_dataset, original_sensor_hashes
 from .vision import TeeVision
 
 
@@ -19,6 +19,8 @@ def verify_prediction(capture, sample, model, result):
         raise ValueError("Archive item does not match the labelled test garment")
     if {name: view["sha256"] for name, view in capture["views"].items()} != sample.photo_hashes:
         raise ValueError("Source photographs changed between scoring and reconstruction")
+    if original_sensor_hashes(capture["views"]) != sample.source_hashes:
+        raise ValueError("The raw RGB-D evidence changed between scoring and reconstruction")
     inference = capture["inference"]
     if inference["weights_sha256"] != model.checksum or not inference["reference_measurements_withheld"]:
         raise ValueError("Archive used different weights or received the reference measurements")

@@ -1,0 +1,91 @@
+{
+  "training_domain": "synthetic flat-lay silhouettes with varied framing, lighting, sleeve pose and JPEG compression",
+  "seeds_train_validation_test": [
+    481516,
+    481517,
+    481518
+  ],
+  "sample_counts_train_validation_test": [
+    960,
+    160,
+    200
+  ],
+  "ridge_penalty": 12.0,
+  "test_valid_pattern_subset": {
+    "passed": 24,
+    "checked": 24
+  },
+  "test_metrics_mm": {
+    "flat_chest_mm": {
+      "median_absolute_error": 4.17,
+      "p90_absolute_error": 9.5,
+      "typical_size_baseline_p90": 92.64
+    },
+    "back_length_mm": {
+      "median_absolute_error": 6.16,
+      "p90_absolute_error": 14.83,
+      "typical_size_baseline_p90": 75.95
+    },
+    "garment_shoulder_width_mm": {
+      "median_absolute_error": 4.35,
+      "p90_absolute_error": 10.23,
+      "typical_size_baseline_p90": 93.46
+    },
+    "shoulder_slope_mm": {
+      "median_absolute_error": 1.05,
+      "p90_absolute_error": 2.73,
+      "typical_size_baseline_p90": 14.38
+    },
+    "armhole_depth_mm": {
+      "median_absolute_error": 5.71,
+      "p90_absolute_error": 14.62,
+      "typical_size_baseline_p90": 40.26
+    },
+    "sleeve_length_mm": {
+      "median_absolute_error": 1.92,
+      "p90_absolute_error": 4.97,
+      "typical_size_baseline_p90": 54.81
+    },
+    "sleeve_bicep_flat_mm": {
+      "median_absolute_error": 6.17,
+      "p90_absolute_error": 16.75,
+      "typical_size_baseline_p90": 52.74
+    },
+    "sleeve_opening_flat_mm": {
+      "median_absolute_error": 4.01,
+      "p90_absolute_error": 9.28,
+      "typical_size_baseline_p90": 51.18
+    },
+    "neck_width_mm": {
+      "median_absolute_error": 1.82,
+      "p90_absolute_error": 4.58,
+      "typical_size_baseline_p90": 22.17
+    },
+    "front_neck_depth_mm": {
+      "median_absolute_error": 1.04,
+      "p90_absolute_error": 2.22,
+      "typical_size_baseline_p90": 17.49
+    },
+    "back_neck_depth_mm": {
+      "median_absolute_error": 3.13,
+      "p90_absolute_error": 6.44,
+      "typical_size_baseline_p90": 6.38
+    }
+  },
+  "model_input": "front",
+  "prior_fields": [
+    "back_neck_depth_mm"
+  ],
+  "synthetic_sampling": {
+    "compact_probability": 0.45,
+    "compact_chest_mm": [
+      425,
+      560
+    ],
+    "compact_sleeve_length_prior_mm": [
+      120,
+      197
+    ],
+    "sleeve_length_adjusted_to_allow_a_sewable_cap": true
+  }
+}
