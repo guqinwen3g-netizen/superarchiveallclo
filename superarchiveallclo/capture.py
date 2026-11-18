@@ -77,7 +77,7 @@ def source_evidence(source, view, name, photo_dir):
     error = f"{name}: expected original planar RGB, RGB-D or registered PCD evidence"
     if not isinstance(assets, dict):
         raise ValueError(error)
-    accepted = ({"rgb"},) if planar else ({"rgb", "depth"}, {"rgb", "pcd"},
+    accepted = ({"rgb"}, {"rgb", "mask"}) if planar else ({"rgb", "depth"}, {"rgb", "pcd"},
                                            {"rgb", "depth", "mask"}, {"rgb", "pcd", "mask"})
     if assets.keys() not in accepted:
         raise ValueError(error)
@@ -180,6 +180,8 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
                 values[name] = predicted[name]
                 if name in inference.get("scan_constraint_sources", {}):
                     method = inference["scan_constraint_sources"][name]
+                elif name in inference.get("rectified_photo_constraint_sources", {}):
+                    method = inference["rectified_photo_constraint_sources"][name]
                 elif name in inference.get("body_profile", {}).get("sources", {}):
                     method = inference["body_profile"]["sources"][name]
                 elif name in inference.get("sleeve_profile", {}).get("sources", {}):

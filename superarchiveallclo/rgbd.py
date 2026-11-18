@@ -18,10 +18,15 @@ from .scan import project, read_pcd
 from .vision import garment_crop, picture_features
 
 
-def back_project(depth, coordinates, intrinsics):
+def camera_intrinsics(intrinsics):
     fx, fy, cx, cy = [float(intrinsics[name]) for name in ("fx", "fy", "cx", "cy")]
     if not np.isfinite((fx, fy, cx, cy)).all() or min(fx, fy) <= 0:
         raise ValueError("Provide finite camera intrinsics with positive focal lengths in pixels")
+    return fx, fy, cx, cy
+
+
+def back_project(depth, coordinates, intrinsics):
+    fx, fy, cx, cy = camera_intrinsics(intrinsics)
     y, x = np.where(coordinates)
     z = depth[y, x]
     return np.column_stack(((x - cx) * z / fx, (y - cy) * z / fy, z))

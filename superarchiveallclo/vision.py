@@ -12,7 +12,9 @@ from scipy import ndimage
 from scipy.spatial import ConvexHull, QhullError
 
 from . import body_profile, shoulder_seams
-from .flat_measurements import compatible_scan_sleeve_length, draft_constraints, flat_landmarks, paired_cuff_span
+from .flat_measurements import (
+    compatible_photo_sleeve_width, compatible_scan_sleeve_length, draft_constraints, flat_landmarks, paired_cuff_span,
+)
 
 # The card is a 100 mm square of solid magenta printed at actual size.
 CARD_MM = 100.0
@@ -199,16 +201,20 @@ def picture_features(image, view=None, *, measure_body=False, measure_sleeve=Fal
                 evidence["projected_shoulder_seams"] = shoulder_seams.observe(gray, outer, mm_per_px, torso_profile)
         if measure_sleeve:
             evidence["cuff_span_landmarks"] = flat_landmarks(outer, mm_per_px, torso)
-    if view and view.get("calibration", {}).get("type") == "metric_orthographic_point_cloud":
+    calibration = (view or {}).get("calibration", {})
+    camera_plane = "camera_plane" in calibration
+    if camera_plane or calibration.get("type") == "metric_orthographic_point_cloud":
         center = crop[:, w // 3:2 * w // 3]
         center = center[:, center.any(axis=0)]
         if center.shape[1] < w // 4:
-            raise ValueError("Scan has insufficient points across the garment center")
+            raise ValueError("Projected view has insufficient foreground across the garment center")
         upper = np.quantile(center.argmax(axis=0), 0.10)
         lower = h - np.median(center[::-1].argmax(axis=0))
         evidence["shoulder_level_to_hem_mm"] = round(float((lower - upper) * mm_per_px), 2)
         evidence["shoulder_line_y_mm"] = round(float(upper * mm_per_px), 2)
         evidence["flat_landmarks"] = flat_landmarks(crop, mm_per_px, torso)
+        if camera_plane:
+            evidence["flat_projection_source"] = "rectified_photo"
     return descriptor, evidence
 
 
@@ -339,8 +345,16 @@ class TeeVision:
             if length is not None:
                 constrained["sleeve_length_mm"] = length
                 methods["sleeve_length_mm"] = "geometry_constrained_prior"
-            inference["regression_before_scan_constraints_mm"] = {key: measures[key] for key in constrained}
-            inference["scan_constraint_sources"] = methods
+            if scale["front"].get("flat_projection_source") == "rectified_photo":
+                sleeve = compatible_photo_sleeve_width(measures, constrained)
+                constrained.update(sleeve)
+                methods = {name: method.replace("scan_", "rectified_photo_") for name, method in methods.items()}
+                methods.update(dict.fromkeys(sleeve, "sewability_constrained_prior"))
+                source = "rectified_photo"
+            else:
+                source = "scan"
+            inference[f"regression_before_{source}_constraints_mm"] = {key: measures[key] for key in constrained}
+            inference[f"{source}_constraint_sources"] = methods
             if reason is not None:
                 inference["sleeve_constraint_rejected"] = reason
             inference["bounded_fields"] = [key for key in bounded if key not in constrained]

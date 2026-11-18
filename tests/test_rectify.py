@@ -5,10 +5,10 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
 
 from superarchiveallclo.capture import capture_observations, capture_photo_hashes
-from superarchiveallclo.rectify import prepare, project, rectangle, rectify
+from superarchiveallclo.rectify import prepare, project, rectangle, rectify, rectify_camera_plane
 
 
 class RectifyTest(TestCase):
@@ -37,6 +37,46 @@ class RectifyTest(TestCase):
             rectify(image, crossed, 1)
         with self.assertRaisesRegex(ValueError, "outside the source photograph"):
             rectify(image, dict(reference, field_mm=[-15, 0, 100, 80]), 1)
+
+    def test_measured_camera_plane_can_pad_background_within_a_visible_garment(self):
+        image = Image.new("RGB", (120, 100), "gray")
+        color = (10, 60, 160)
+        ImageDraw.Draw(image).rectangle([20, 30, 65, 63], fill=color)
+        mask = np.zeros((100, 120), dtype=bool)
+        mask[30:64, 20:66] = True
+        camera = {
+            "source": "surveyed table", "image_size_px": [120, 100],
+            "origin_camera_m": [0, 0, 1], "basis_camera": np.eye(3).tolist(),
+            "intrinsics": {"fx": 1000, "fy": 1000, "cx": 60, "cy": 50},
+            "field_mm": [-70, -60, 54, 45],
+        }
+        rectified, evidence = rectify_camera_plane(image, camera, 1, mask)
+        self.assertTrue(evidence["padded_outside_source"])
+        self.assertEqual(rectified.getpixel((30, 40)), color)
+        self.assertEqual(rectified.getpixel((29, 40)), (255, 255, 255))
+        self.assertEqual(rectified.getpixel((2, 2)), (255, 255, 255))
+        with self.assertRaisesRegex(ValueError, "whole garment"):
+            rectify_camera_plane(image, dict(camera, field_mm=[-30, -30, 54, 45]), 1, mask)
+        with self.assertRaisesRegex(ValueError, "match the upright"):
+            rectify_camera_plane(image, dict(camera, image_size_px=[119, 100]), 1, mask)
+        with self.assertRaisesRegex(ValueError, "in front of the camera"):
+            rectify_camera_plane(image, dict(camera, origin_camera_m=[0, 0, -1]), 1, mask)
+
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            image.save(root / "rgb.png")
+            Image.fromarray(mask).save(root / "mask.png")
+            source = root / "input.json"
+            source.write_text(json.dumps({"schema_version": 1, "item_id": "camera-fixture", "source": "test",
+                                          "views": {"front": {"rgb": "rgb.png", "mask": "mask.png",
+                                                              "camera_plane": camera}}}))
+            prepare(source, root / "rectified")
+            paths = root / "rectified/session.json"
+            capture, _ = capture_observations(paths, allow_partial=True)
+            self.assertEqual(capture["views"]["front"]["source_assets"].keys(), {"rgb", "mask"})
+            (root / "rectified/evidence/front-mask.png").write_bytes(b"changed")
+            with self.assertRaisesRegex(ValueError, "mask source evidence changed"):
+                capture_observations(paths, allow_partial=True)
 
     def test_raw_photo_is_preserved_and_reuse_is_detected(self):
         with TemporaryDirectory() as temporary:

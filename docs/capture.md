@@ -69,6 +69,12 @@ python -m superarchiveallclo.rectify planar.json \
 
 有同件背照时，在 `views` 加 `back` 并换用 `models/tee-vision.npz`。双面可加 `--photo-appearance`。先检查校正效果时省略 `--model`。归档的 `photos/` 存放校正图，`evidence/` 保留未经转换的原照。`capture.json` 包含两者的哈希。模型仍使用现有照片制板及同版仿真流程。[馆藏照片上的倾斜复现实验](planar-rectification-study.md)
 
+### 固定相机与已测台面
+
+固定机位一次标定后，可继续用 `superarchiveallclo.rectify` 采集。每面的 `camera_plane` 提供毫米视野 `field_mm`、标定对应的原始图像尺寸 `image_size_px`、像素内参 `intrinsics`、米制台面原点 `origin_camera_m` 和 `basis_camera`。基矩阵三列分别为台面向右、向下、朝法向的单位向量。`source` 记录独立标定来源。相机位置、焦距或像素裁切变化时应重标。每件衣服只需彩照，衣物应放在已测台面。
+
+`camera_plane` 与同一面的四点 `reference_plane` 可任选一种。背景难以分离时，`mask` 可提供与原彩照对齐的单通道 PNG，非零为衣物。给定有效掩码时，固定机位允许用背景色填充台面视野的取景外区域，程序检查衣物本身在原图和输出中都完整。原彩图、掩码、台面数据和投影矩阵随档可复核。突起、褶皱或多层布面会带来台面投影误差。[固定机位的实拍复测](registered-depth-review.md#固定机位只拍彩照)
+
 ### 已注册的深度照片
 
 记录在 `rgbd.json`。每个视角的颜色、深度和可选分割图须在同一个像素网格上，与扶正后的颜色图和输入内参对应。内参以实际标定记录为准。先用设备校正畸变和注册，深度值采用相机光轴方向的距离，单位可为 `mm` 或 `m`。彩照支持 JPEG、PNG 和 TIFF，深度支持 16 位 PNG、数值 NPY 或包含 `depth` 数组的 NPZ。归档保留原文件字节。提供多标签 PNG 时可以用 `mask_label` 选中服装。

@@ -29,3 +29,25 @@ python -m superarchiveallclo.compare_rgbd \
 可用 `--source build/iri-tee/source` 重用原始数据。`study.json` 记录输入点云、相机基准和输出哈希。`ray-comparison/` 保存测量摘要和每条射线的有符号误差。`compare_rgbd` 默认核对归档里的悬挂 GLB。对平铺实验，`--flat-comparison` 指向同版平铺评测的目录，工具会核对纸样和 GLB 哈希。
 
 独立深度清单顶层包含 `schema_version`、`item_id` 和 `views`。每个视角包含原深度的 `depth`、`depth_sha256`、`depth_unit`、`intrinsics`，以及以米记录、保持尺度的 `model_to_camera_m` 4 × 4 刚性变换和 `pose_source`。若深度还有背景，可附 `mask` 和 `mask_sha256`。首交点在实测点后方时，输出为正。有效深度缺失的位置保留为未观察区域。
+
+## 固定机位只拍彩照
+
+从 `n00764` 的桌面 XYZ 估计同一 Kinect 机位的台面，保留此前从设备注册数据核对的像素内参。用 `n00700` 的原始彩照和从彩照自动提取的蓝色衣物掩码生成毫米俯视图。该帧的衣物深度在归档完成后才用于评分。另一帧的桌面参与标定，其衣物部分保留作复扫对照。衣面投影按台面高度处理，褶皱和台面之间的距离会影响尺度。[原数据](https://www.iri.upc.edu/groups/perception/clothingDataset/) · [相机内参的检查](camera-calibration-study.md#已知三维标记的直接标定)
+
+纯彩照投影为 **864 × 734 mm**，同帧实测 XYZ 的轮廓为 **840 × 704 mm**。保留尺度、仅在二维对照时平移，两者的轮廓交并比为 **88.41%**，轮廓距离 P90 为 **28.28 mm**。原图中自动划分的衣物掩码与发布方掩码的交并比为 **99.24%**。桌面点到拟合平面的 P90 为 **4.34 mm**。这组结果分开记录了从彩照恢复的平面几何、与深度的差值和制板的尺寸来源。
+
+单面模型从台面投影估计下部衣身宽 511.0 mm，并以领深先验估计后中衣长 681.61 mm。回归的袖肥与袖窿不相容。程序把无法在图上确认的袖肥和袖口收至可配缝范围，保留原回归值及受约束的先验来源。候选归档回读 5 片毫米 DXF、15 条配缝和同版 GLB 上的 4 个开口。独立卷尺量法、背面及实际裁片仍待检查。
+
+| 同版平铺 GLB 对照 | 有效射线命中率 | 命中射线绝对深度 P90 | 轮廓交并比 |
+| --- | ---: | ---: | ---: |
+| `n00700` 同帧留出深度 | 92.20% | 8.21 mm | 85.85% |
+| `n00764` 另一帧衣物深度 | 91.06% | 9.06 mm | 79.46% |
+
+平铺袖方向使用预设，单张彩照未能稳定定位两袖外缘。每帧各自用台面和下摆定方向，按轮廓及布面高度平移，尺度固定。射线误差衡量可见布面的深度，轮廓指标同时反映袖部和下摆缺失。
+
+```sh
+python -m examples.evaluate_camera_plane -o build/iri-camera-plane
+python -m superarchiveallclo.check_archive build/iri-camera-plane/rectified/archive
+```
+
+下载过两帧时可添加 `--source` 复用原文件。`source/photograph.json` 保存可直接输入 `superarchiveallclo.rectify` 的清单。`rectified/archive/` 保存原始 RGB、由 RGB 得到的掩码、台面参数、毫米 DXF 及同版 GLB、Blender。`flat-comparison/` 和 `ray-comparison/` 保存用于评分的平铺网格、独立测量和哈希。

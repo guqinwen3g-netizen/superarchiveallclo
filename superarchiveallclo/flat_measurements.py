@@ -331,3 +331,23 @@ def compatible_scan_sleeve_length(measures, updates):
     if spec.sleeve_length_mm <= minimum:
         return minimum + 1
     return None
+
+
+def compatible_photo_sleeve_width(measures, updates):
+    """Constrain an unobserved sleeve width that exceeds both armhole lengths."""
+    if "sleeve_bicep_flat_mm" in updates or "sleeve_opening_flat_mm" in updates:
+        return {}
+    spec = TeeSpec(**{**measures, **updates})
+    try:
+        spec.check()
+        front, back = (body_panel(spec, side) for side in (True, False))
+        armscye = front.edge("armhole_right").length() + back.edge("armhole_right").length()
+        if spec.sleeve_bicep_flat_mm < armscye:
+            return {}
+        bicep = 0.97 * armscye
+        opening = spec.sleeve_opening_flat_mm * bicep / spec.sleeve_bicep_flat_mm
+        candidate = {"sleeve_bicep_flat_mm": bicep, "sleeve_opening_flat_mm": opening}
+        sleeve_panels(TeeSpec(**{**measures, **updates, **candidate}), front, back)
+    except ValueError:
+        return {}
+    return candidate

@@ -5,13 +5,26 @@ import numpy as np
 
 from examples.evaluate_flat_landmarks import fixture
 from superarchiveallclo.flat_measurements import (
-    compatible_scan_sleeve_length, draft_constraints, flat_landmarks, paired_cuff_span, sleeve_layout,
+    compatible_photo_sleeve_width, compatible_scan_sleeve_length, draft_constraints, flat_landmarks,
+    paired_cuff_span, sleeve_layout,
 )
 from superarchiveallclo.tee import TeeSpec, body_panel, cap_dimensions, draft
 from superarchiveallclo.vision import FIELDS
 
 
 class FlatLandmarkTest(TestCase):
+    def test_hidden_photo_width_can_be_constrained_without_changing_measured_cuffs(self):
+        spec = TeeSpec(flat_chest_mm=511, garment_shoulder_width_mm=465, shoulder_slope_mm=51,
+                       armhole_depth_mm=193, sleeve_bicep_flat_mm=368, sleeve_opening_flat_mm=337,
+                       sleeve_length_mm=187)
+        prior = {name: getattr(spec, name) for name in FIELDS}
+        with self.assertRaisesRegex(ValueError, "incompatible with the armholes"):
+            draft(spec)
+        updates = compatible_photo_sleeve_width(prior, {})
+        self.assertAlmostEqual(updates["sleeve_opening_flat_mm"] / updates["sleeve_bicep_flat_mm"], 337 / 368)
+        self.assertEqual(len(draft(TeeSpec(**{**prior, **updates}))["panels"]), 5)
+        self.assertEqual(compatible_photo_sleeve_width(prior, {"sleeve_opening_flat_mm": 280}), {})
+
     def test_join_projection_recovers_a_known_folded_sleeve_in_different_poses(self):
         part = TeeSpec(flat_chest_mm=610, garment_shoulder_width_mm=526, shoulder_slope_mm=43,
                        armhole_depth_mm=303, sleeve_bicep_flat_mm=458, sleeve_opening_flat_mm=365,

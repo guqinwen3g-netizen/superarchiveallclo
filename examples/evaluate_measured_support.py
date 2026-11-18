@@ -29,16 +29,20 @@ def frame_data(root, frame):
     return cloud, mask, valid
 
 
-def ray_reference(data, frame, cloud, mask, valid, evidence, flat, intrinsics):
-    depth = data / "held-out-raw-depth.npz"
+def ray_view(depth, frame, cloud, mask, valid, evidence, flat_reference, intrinsics):
     np.savez_compressed(depth, depth=np.where(mask & valid, cloud[:, :, 2], np.nan))
     transform = camera_from_flat_pose(evidence["leveled_origin_camera_m"], evidence["leveled_basis_camera"],
-                                     flat["references"][0]["reference_translation_mm"])
-    return write_json(data / "independent-depth.json", {"schema_version": 1, "item_id": ITEM, "views": {frame: {
+                                     flat_reference["reference_translation_mm"])
+    return {
         "depth": depth.name, "depth_unit": "m", "depth_sha256": sha256(depth.read_bytes()).hexdigest(),
         "source_pcd_sha256": FRAMES[frame]["pcd"][2], "intrinsics": intrinsics, "model_to_camera_m": transform,
         "pose_source": "Table and hem rotation from the reference plus translation aligned to the flat view. Scale unchanged.",
-    }}})
+    }
+
+
+def ray_reference(data, frame, cloud, mask, valid, evidence, flat, intrinsics):
+    view = ray_view(data / "held-out-raw-depth.npz", frame, cloud, mask, valid, evidence, flat["references"][0], intrinsics)
+    return write_json(data / "independent-depth.json", {"schema_version": 1, "item_id": ITEM, "views": {frame: view}})
 
 
 def evaluate(output, source, blender):
