@@ -17,7 +17,10 @@ from scipy import ndimage
 from .check_archive import check_archive
 
 GRID_MM = 2.0
-VIEWS = {"front": (0, 1), "back": (0, -1), "left": (1, 1), "right": (1, -1)}
+VIEWS = {
+    "front": (0, 1, 2), "back": (0, -1, 2), "left": (1, 1, 2), "right": (1, -1, 2),
+    "top": (0, 1, 1),
+}
 # Keep accidental misreported units from allocating an unbounded image.
 MAX_PIXELS = 16_000_000
 
@@ -52,8 +55,8 @@ def crop_surface(mask):
 
 
 def project(vertices, triangles, view):
-    axis, direction = VIEWS[view]
-    plane = np.column_stack((vertices[:, axis] * direction, -vertices[:, 2])) * 1000
+    axis, direction, vertical_axis = VIEWS[view]
+    plane = np.column_stack((vertices[:, axis] * direction, -vertices[:, vertical_axis])) * 1000
     span = np.ptp(plane, axis=0)
     width, height = (ceil(axis_span / GRID_MM) + 3 for axis_span in span)
     check_frame(width, height)
@@ -132,7 +135,7 @@ def compare(archive, reference, output, blender):
     if not isinstance(source.get("setup"), str) or not source["setup"].strip():
         raise ValueError("Record the pose and camera calibration setup used for the reference")
     views = source.get("views")
-    if not isinstance(views, dict) or not views or not views.keys() <= VIEWS.keys():
+    if not isinstance(views, dict) or not views or not views.keys() <= (VIEWS.keys() - {"top"}):
         raise ValueError("Provide one or more front, back, left or right reference views")
 
     model = archive / "model/garment.glb"

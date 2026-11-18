@@ -7,8 +7,7 @@ import bpy
 import numpy as np
 
 
-def main():
-    source, target = map(Path, sys.argv[sys.argv.index("--") + 1:])
+def mesh_geometry(source):
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete(use_global=False)
     bpy.ops.import_scene.gltf(filepath=str(source))
@@ -23,7 +22,13 @@ def main():
         triangles.extend(tuple(start + i for i in face.vertices) for face in mesh.loop_triangles)
     if not vertices or not triangles:
         raise ValueError("Garment GLB contains no triangle mesh")
-    np.savez_compressed(target, vertices=np.asarray(vertices), triangles=np.asarray(triangles))
+    return np.asarray(vertices), np.asarray(triangles)
+
+
+def main():
+    source, target = map(Path, sys.argv[sys.argv.index("--") + 1:])
+    vertices, triangles = mesh_geometry(source)
+    np.savez_compressed(target, vertices=vertices, triangles=triangles)
 
 
 if __name__ == "__main__":

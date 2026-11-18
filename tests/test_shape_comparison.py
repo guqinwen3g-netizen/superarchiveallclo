@@ -5,6 +5,7 @@ from unittest import TestCase
 import numpy as np
 from PIL import Image
 
+from superarchiveallclo.compare_flat import flat_coordinates
 from superarchiveallclo.compare_shape import GRID_MM, compare_masks, project, reference_mask
 
 
@@ -31,8 +32,18 @@ class ShapeComparisonTest(TestCase):
         )])
         _, front = project(vertices, triangles, "front")
         _, left = project(vertices, triangles, "left")
+        _, top = project(vertices, triangles, "top")
         np.testing.assert_allclose(front, [400, 600])
         np.testing.assert_allclose(left, [120, 600])
+        np.testing.assert_allclose(top, [400, 120])
+
+    def test_flat_scan_axes_are_a_rigid_reorientation(self):
+        points = np.array([[0, 0, 0], [.75, .6, .02]])
+        flat = flat_coordinates(points, "y", "x")
+        np.testing.assert_allclose(flat, [[0, 0, 0], [.6, -.75, .02]])
+        self.assertAlmostEqual(np.linalg.norm(flat[1]), np.linalg.norm(points[1]))
+        with self.assertRaisesRegex(ValueError, "distinct axes"):
+            flat_coordinates(points, "x", "-x")
 
     def test_reference_scale_and_cropped_mask(self):
         with TemporaryDirectory() as directory:

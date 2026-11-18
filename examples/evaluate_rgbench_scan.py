@@ -8,6 +8,8 @@ from urllib.request import urlopen
 
 from superarchiveallclo.capture import load_capture
 from superarchiveallclo.check_archive import check_archive
+from superarchiveallclo.compare_flat import compare_flat
+from superarchiveallclo.compare_pattern import compare_pattern
 from superarchiveallclo.scan import reconstruct
 from superarchiveallclo.tee import draft
 
@@ -20,6 +22,7 @@ CAPTURES = {
 }
 FRAME_IDS = ("start", "start-2", "middle")
 INPUT = "18-21-20-start"
+REFERENCE_OBJ = "meshes/Green_Tshirt/green_tshirt_5k.obj"
 
 
 def download(directory, filename, remote):
@@ -47,8 +50,10 @@ def main():
     parser.add_argument("-o", "--output", type=Path, required=True)
     parser.add_argument("--model", type=Path, default=Path("models/tee-vision-front.npz"))
     parser.add_argument("--archive", action="store_true", help="Also generate the input frame's DXF and GLB")
+    parser.add_argument("--compare-references", action="store_true", help="Generate the archive and compare net panels and the flat-pose GLB")
     parser.add_argument("--blender", default="blender")
     args = parser.parse_args()
+    generate_archive = args.archive or args.compare_references
     args.output.mkdir(parents=True, exist_ok=True)
     if (args.output / "frames").exists():
         parser.error("Choose a fresh output directory to reproduce all frames")
@@ -62,7 +67,7 @@ def main():
             cloud = download(args.output, f"{key}.pcd", remote)
             output = args.output / "frames" / key
             reconstruct(cloud, output, source=DATASET, item_id="rgbench-green-tshirt", transform=transform,
-                        right="y", down="x", weights=args.model if args.archive and key == INPUT else None,
+                        right="y", down="x", weights=args.model if generate_archive and key == INPUT else None,
                         blender=args.blender)
             metadata = json.loads((output / "projection.json").read_text())
             rows.append({
@@ -100,8 +105,20 @@ def main():
         "comparison_mm": {name: summarize(holdout, values) for name, values in variants.items()},
         "frames": rows,
     }
-    if args.archive:
-        report["archive"] = check_archive(args.output / "frames" / INPUT / "archive")
+    if generate_archive:
+        candidate = args.output / "frames" / INPUT / "archive"
+        report["archive"] = check_archive(candidate)
+    if args.compare_references:
+        if len({row["world_to_camera_sha256"] for row in rows}) != 1:
+            raise ValueError("The reproduction expects the same calibration across these scans")
+        compare_flat(candidate, [args.output / f'{row["frame"]}.pcd' for row in holdout],
+                     args.output / "flat-comparison", item_id="rgbench-green-tshirt",
+                     setup="RGBench green_tshirt, three RealSense D455 recordings, CC BY 4.0, flat visible side",
+                     transform=args.output / "18-21-20-transform.json", right="y", down="x", blender=args.blender)
+        reference = download(args.output, "green_tshirt_5k.obj", REFERENCE_OBJ)
+        compare_pattern(candidate, reference, args.output / "pattern-comparison", item_id="rgbench-green-tshirt",
+                        source="RGBench green_tshirt_5k Style3D simulation mesh, CC BY 4.0, Sim2Real-v1",
+                        order=("front", "back", "sleeve_right", "sleeve_left", "collar"))
     (args.output / "study.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report["comparison_mm"], indent=2))
 

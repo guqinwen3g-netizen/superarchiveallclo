@@ -182,7 +182,7 @@ def spread_border_adjustments(positions, rest, faces, anchors):
     return original + delta
 
 
-def build_assembly(pattern):
+def build_assembly(pattern, place_vertex=place, place_body_border=body_border, *, lock_height=False):
     edges = {panel["id"]: panel_edges(panel) for panel in pattern["panels"]}
     steps = {
         (name, edge.id): max(1, ceil(edge.length() / STEP_MM))
@@ -199,7 +199,7 @@ def build_assembly(pattern):
     for name, panel in edges.items():
         verts, triangles, local_refs = flat_mesh(panel, {edge.id: steps[name, edge.id] for edge in panel})
         offset = len(positions)
-        positions.extend(place(pattern, name, panel, v) for v in verts)
+        positions.extend(place_vertex(pattern, name, panel, v) for v in verts)
         uv.extend(tuple(v / 1000) for v in verts)
         faces.extend(tuple(i + offset for i in face) for face in triangles)
         refs.update({(name, edge): [i + offset for i in values] for edge, values in local_refs.items()})
@@ -211,7 +211,7 @@ def build_assembly(pattern):
                 indices = refs[name, edge.id]
                 for i, index in enumerate(indices):
                     fraction = i / (len(indices) - 1)
-                    candidates[index].append(body_border(pattern, name, edge, fraction))
+                    candidates[index].append(place_body_border(pattern, name, edge, fraction))
                     if edge.id.startswith("shoulder") and 0.18 < fraction < 0.82:
                         shoulder_points.add(index)
 
@@ -252,11 +252,11 @@ def build_assembly(pattern):
     source_edges = np.array(sorted({tuple(sorted((a, b))) for f in faces for a, b in zip(f, (*f[1:], f[0]))}))
     basis = np.asarray(uv)
     target_lengths = np.linalg.norm(basis[source_edges[:, 0]] - basis[source_edges[:, 1]], axis=1)
-    fit_metric(vertices, transform[source_edges], target_lengths, pins)
+    fit_metric(vertices, transform[source_edges], target_lengths, pins, lock_height=lock_height)
     return vertices, welded_faces, faces, uv, pins, transform[source_edges], target_lengths, panels
 
 
-def fit_metric(vertices, edges, target_lengths, pins):
+def fit_metric(vertices, edges, target_lengths, pins, *, lock_height=False):
     """Fit stitched rest geometry to the flat edge lengths without removing ease."""
     a, b = edges.T
     n = len(vertices)
@@ -267,6 +267,8 @@ def fit_metric(vertices, edges, target_lengths, pins):
         along = vertices[b] - vertices[a]
         length = np.linalg.norm(along, axis=1)
         correction = along * ((length - target_lengths) / np.maximum(length, 1e-9))[:, None]
+        if lock_height:
+            correction[:, 2] = 0
         gradient = weighted_sum(correction, a, weight, n) - weighted_sum(correction, b, weight, n)
         vertices += 0.68 * gradient / degree[:, None]
         vertices += 0.008 * (original - vertices)
