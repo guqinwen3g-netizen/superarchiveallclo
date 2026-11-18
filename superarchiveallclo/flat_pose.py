@@ -98,7 +98,7 @@ def main():
     points, welded, faces, uv, _, edges, lengths, panels = flat_assembly(
         pattern, float(angle), seam_edges, sleeve_fold=sleeve_fold,
     )
-    model, openings = sewn_mesh(points, welded, faces, uv, panels)
+    model, loops = sewn_mesh(points, welded, faces, uv, panels)
     model.select_set(True)
     bpy.context.view_layer.objects.active = model
     mesh_path = target / "flat-pose.glb"
@@ -108,7 +108,7 @@ def main():
     surface = BVHTree.FromPolygons(vertices.tolist(), triangles.tolist(), all_triangles=True)
     actual = np.linalg.norm(points[edges[:, 0]] - points[edges[:, 1]], axis=1)
     strain = np.abs(actual / lengths - 1)
-    results = {"vertices": vertices, "triangles": triangles, "openings": openings,
+    results = {"vertices": vertices, "triangles": triangles, "openings": len(loops),
                "sleeve_underarm_solver_weight": SLEEVE_UNDERARM_WEIGHT if sleeve_fold else 1.0,
                "mesh_edge_strain_quantiles_percent": np.quantile(strain, [0.5, 0.95, 0.99]) * 100}
     source_edges = triangle_edges(faces)

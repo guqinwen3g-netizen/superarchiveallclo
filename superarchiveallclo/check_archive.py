@@ -118,6 +118,14 @@ def check_archive(root: Path):
     checksum = sha256(pattern_bytes).hexdigest()
     if checksum != simulation["pattern_sha256"]:
         raise ValueError("3D simulation refers to a different source pattern")
+    if "opening_perimeters_mm" in simulation:
+        openings = simulation["opening_perimeters_mm"]
+        if not isinstance(openings, dict) or openings.keys() != {"neck", "sleeve_left", "sleeve_right", "hem"}:
+            raise ValueError("Simulation opening measurements must name the neck, cuffs and hem")
+        for loop in openings.values():
+            perimeter, sampled = loop["perimeter"], loop["perimeter_64_chords"]
+            if not isfinite(perimeter) or not 0 < sampled <= perimeter:
+                raise ValueError("Simulation opening perimeters must be positive and consistent")
     if pattern["units"] != "mm":
         raise ValueError("Pattern must declare millimetres")
     if not (root / "model/garment.blend").stat().st_size:

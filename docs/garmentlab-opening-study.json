@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "source": {
+    "benchmark": "GarmentLab RealWorldBench",
+    "paper": "https://proceedings.neurips.cc/paper_files/paper/2024/hash/15f80ec0fed53885d2ca6272edb96ede-Abstract-Conference.html",
+    "download_documentation": "https://garmentlab.readthedocs.io/en/latest/tutorial/realworldbenchmark/index.html",
+    "scope": "Released laser/light-scan meshes and part annotations; optical input photos of the same items and independently confirmed units are still unverified"
+  },
+  "samples": {
+    "tee10": {
+      "source_folder": "https://drive.google.com/drive/folders/1PkRu4IEoCJBzQH8r23pfh2z2N5S9GA-w",
+      "assets": {
+        "scan": {
+          "name": "tee10.obj",
+          "drive_id": "1sCy8EcG0VotXAzV1NfrOEpzkYPofaHmD",
+          "sha256": "2c60dd5b28f3f573ae928772da879adaeec68285e2708ffb389f528f073e337c"
+        },
+        "collar": {
+          "name": "tee10-collar.asc",
+          "drive_id": "1Hw3zNoLVrRNszTldMTLH5uYfciAoGopD",
+          "sha256": "cf44dce213196e67a0ca0f981cff02a32f03b585ead32455f06a2608fc05b1bb"
+        },
+        "body": {
+          "name": "tee10-main.asc",
+          "drive_id": "1u8CF8obj5nis5Bdl8Z8rCA2t8duO8xL-",
+          "sha256": "0a86f683e6cb8497ec0c52fcccf5a102ac41aaa3fe46fc8eb0036cc3981289ef"
+        },
+        "sleeves": {
+          "name": "tee10-sleeves.asc",
+          "drive_id": "14kFn8upki2z4PkQ6JB-S8-bqjUckWdXm",
+          "sha256": "42289ce96fd64b3a3cf75e65f17001dc114e761448a3e7071f4e67c566f26bac"
+        }
+      },
+      "measurement": {
+        "scan_sha256": "2c60dd5b28f3f573ae928772da879adaeec68285e2708ffb389f528f073e337c",
+        "source_unit": "native",
+        "reported_unit": "native",
+        "vertices": 6435,
+        "triangles": 9219,
+        "bounds_span_native": [
+          221.221,
+          404.813,
+          378.328
+        ],
+        "part_registration_tolerance_native": 11.93221,
+        "part_registration": {
+          "collar": {
+            "sha256": "cf44dce213196e67a0ca0f981cff02a32f03b585ead32455f06a2608fc05b1bb",
+            "points": 260,
+            "registered_points": 260,
+            "part_to_scan_vertex_p90_native": 0.0
+          },
+          "sleeves": {
+            "sha256": "42289ce96fd64b3a3cf75e65f17001dc114e761448a3e7071f4e67c566f26bac",
+            "points": 963,
+            "registered_points": 963,
+            "part_to_scan_vertex_p90_native": 0.0
+          },
+          "body": {
+            "sha256": "0a86f683e6cb8497ec0c52fcccf5a102ac41aaa3fe46fc8eb0036cc3981289ef",
+            "points": 3667,
+            "registered_points": 3667,
+            "part_to_scan_vertex_p90_native": 0.0
+          }
+        },
+        "openings": [
+          {
+            "part": "cuff",
+            "vertices": 62,
+            "perimeter": 208.556,
+            "perimeter_64_chords": 196.144,
+            "part_support": 1.0,
+            "center_native": [
+              78.8345,
+              -39.5158,
+              358.2733
+            ]
+          },
+          {
+            "part": "cuff",
+            "vertices": 94,
+            "perimeter": 296.916,
+            "perimeter_64_chords": 218.749,
+            "part_support": 1.0,
+            "center_native": [
+              -83.0169,
+              114.5882,
+              73.1565
+            ]
+          },
+          {
+            "part": "hem",
+            "vertices": 245,
+            "perimeter": 848.437,
+            "perimeter_64_chords": 670.845,
+            "part_support": 1.0,
+            "center_native": [
+              -16.805,
+              -145.1317,
+              105.3945
+            ]
+          },
+          {
+            "part": "neck",
+            "vertices": 184,
+            "perimeter": 451.731,
+            "perimeter_64_chords": 364.769,
+            "part_support": 1.0,
+            "center_native": [
+              -1.8891,
+              161.0842,
+              280.2884
+            ]
+          }
+        ]
+      }
+    },
+    "tee47": {
+      "source_folder": "https://drive.google.com/drive/folders/1Xxyd_NPRClH3pffKvr3M3UItFHe8Hph1",
+      "assets": {
+        "scan": {
+          "name": "tee47.obj",
+          "drive_id": "1811Y3Qcy3QqNuHNvKwNh5OSxC2X8D1td",
+          "sha256": "81e3a2efc890753bd7d979a5420bfb81dee930165e6dfadab7462b59c27d4900"
+        },
+        "collar": {
+          "name": "tee47-collar.asc",
+          "drive_id": "1yg8HgjBHnl7xPZfBfjC7dfg06qoJ4j3X",
+          "sha256": "757d6ed1fca4492b7b2cdda25d338cafce3c4bd58482d37f3c0b9e24cc00f792"
+        },
+        "body": {
+          "name": "tee47-main.asc",
+          "drive_id": "1DilJP0Xb4Y1znCjZGP47HN_UGRj9z1C9",
+          "sha256": "d23bbba7dc256326b27ccb8d6ff26c7c818b330d327c1640e1fc65cc740feecb"
+        },
+        "sleeves": {
+          "name": "tee47-sleeves.asc",
+          "drive_id": "1OHKBy08Cqc3p5R1ntLmz9kN5lJdEOFkO",
+          "sha256": "93dc81f724ba1b9a03c44ae98072632ed9ebaf88cf2df99f86d637ad4f2bb14a"
+        }
+      },
+      "measurement": {
+        "scan_sha256": "81e3a2efc890753bd7d979a5420bfb81dee930165e6dfadab7462b59c27d4900",
+        "source_unit": "native",
+        "reported_unit": "native",
+        "vertices": 1398,
+        "triangles": 1999,
+        "bounds_span_native": [
+          212.46,
+          420.854,
+          411.422
+        ],
+        "part_registration_tolerance_native": 12.5144,
+        "part_registration": {
+          "collar": {
+            "sha256": "757d6ed1fca4492b7b2cdda25d338cafce3c4bd58482d37f3c0b9e24cc00f792",
+            "points": 268,
+            "registered_points": 268,
+            "part_to_scan_vertex_p90_native": 0.0
+          },
+          "sleeves": {
+            "sha256": "93dc81f724ba1b9a03c44ae98072632ed9ebaf88cf2df99f86d637ad4f2bb14a",
+            "points": 452,
+            "registered_points": 446,
+            "part_to_scan_vertex_p90_native": 0.0
+          },
+          "body": {
+            "sha256": "d23bbba7dc256326b27ccb8d6ff26c7c818b330d327c1640e1fc65cc740feecb",
+            "points": 798,
+            "registered_points": 708,
+            "part_to_scan_vertex_p90_native": 13.97005
+          }
+        },
+        "openings": [
+          {
+            "part": "cuff",
+            "vertices": 101,
+            "perimeter": 277.336,
+            "perimeter_64_chords": 248.328,
+            "part_support": 1.0,
+            "center_native": [
+              74.1664,
+              -57.9412,
+              377.8993
+            ]
+          },
+          {
+            "part": "cuff",
+            "vertices": 175,
+            "perimeter": 409.79,
+            "perimeter_64_chords": 306.572,
+            "part_support": 1.0,
+            "center_native": [
+              -84.6909,
+              143.0177,
+              72.6603
+            ]
+          },
+          {
+            "part": "hem",
+            "vertices": 261,
+            "perimeter": 927.749,
+            "perimeter_64_chords": 775.551,
+            "part_support": 1.0,
+            "center_native": [
+              -22.6552,
+              -141.7053,
+              107.4718
+            ]
+          },
+          {
+            "part": "neck",
+            "vertices": 264,
+            "perimeter": 578.026,
+            "perimeter_64_chords": 500.182,
+            "part_support": 1.0,
+            "center_native": [
+              18.2847,
+              164.4045,
+              305.7073
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "same_pattern_archive": {
+    "item_id": "auckland-2017.66.22",
+    "scope": "Same-pattern simulated opening measurements. This item has no matching direct scan in the GarmentLab comparison.",
+    "reference_form": "display_torso",
+    "drape_frames": 38,
+    "archive_audit": {
+      "capture_kind": "physical",
+      "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+      "source_photos": 4,
+      "vision_estimates": 10,
+      "dxf_panels": 5,
+      "seams": 15,
+      "garment_openings": 4,
+      "glb": {
+        "meshes": 1,
+        "bounds_span_m": [
+          0.57,
+          0.7058,
+          0.3227
+        ]
+      }
+    },
+    "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+    "garment_glb_sha256": "296ec2ecc1ab8be84e78b67865427cfe1b307b9fe30c89b618ac6ec7ded2f772",
+    "opening_perimeters_mm": {
+      "hem": {
+        "perimeter": 1255.763,
+        "perimeter_64_chords": 1224.997
+      },
+      "sleeve_right": {
+        "perimeter": 327.861,
+        "perimeter_64_chords": 319.716
+      },
+      "sleeve_left": {
+        "perimeter": 327.714,
+        "perimeter_64_chords": 323.473
+      },
+      "neck": {
+        "perimeter": 421.748,
+        "perimeter_64_chords": 419.837
+      }
+    }
+  }
+}

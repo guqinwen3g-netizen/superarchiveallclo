@@ -1,7 +1,7 @@
 """Blender entry point for sewing and draping a captured tee on a reference form."""
 
 from argparse import ArgumentParser
-from collections import Counter, defaultdict
+from collections import defaultdict
 from functools import partial
 from hashlib import sha256
 import json
@@ -17,6 +17,7 @@ from mathutils.bvhtree import BVHTree
 from mathutils.geometry import delaunay_2d_cdt
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from superarchiveallclo.mesh_openings import boundary_loops, sewn_opening_perimeters
 from superarchiveallclo.pattern import Edge
 
 STEP_MM = 13
@@ -474,32 +475,9 @@ def texture_coordinates(uv, panels, appearance):
 
 
 def sewn_mesh(vertices, welded_faces, faces, uv, panels, *, photo_uv=None):
-    boundary = Counter()
-    for face in welded_faces:
-        if len(set(face)) != 3:
-            raise ValueError("Degenerate triangle after joining seams")
-        for a, b in zip(face, (*face[1:], face[0])):
-            boundary[tuple(sorted((a, b)))] += 1
-    if any(count > 2 for count in boundary.values()):
-        raise ValueError("Non-manifold sewing junction after joining seams")
-    neighbors = defaultdict(set)
-    for (a, b), count in boundary.items():
-        if count == 1:
-            neighbors[a].add(b)
-            neighbors[b].add(a)
-    if any(len(adjacent) != 2 for adjacent in neighbors.values()):
-        raise ValueError("Expected closed boundary curves at neck, cuffs and hem")
-    openings = 0
-    unseen = set(neighbors)
-    while unseen:
-        openings += 1
-        pending = [unseen.pop()]
-        for point in pending:
-            for adjacent in neighbors[point] & unseen:
-                unseen.remove(adjacent)
-                pending.append(adjacent)
-    if openings != 4:
-        raise ValueError(f"Expected four garment openings, found {openings}")
+    loops = boundary_loops(welded_faces)
+    if len(loops) != 4:
+        raise ValueError(f"Expected four garment openings, found {len(loops)}")
     mesh = bpy.data.meshes.new("Sewn surface")
     mesh.from_pydata(vertices, [], welded_faces)
     mesh.update()
@@ -522,7 +500,7 @@ def sewn_mesh(vertices, welded_faces, faces, uv, panels, *, photo_uv=None):
     bm.free()
     model = bpy.data.objects.new("Sewn tee", mesh)
     bpy.context.collection.objects.link(model)
-    return model, openings
+    return model, loops
 
 
 def freeze_drape(source, positions):
@@ -649,7 +627,7 @@ def main():
     points, welded_faces, faces, uv, pins, edges, rest, panels = build_assembly(pattern, place_vertex=placement)
     appearance = json.loads((output / "appearance.json").read_bytes()) if args.photo_appearance else None
     photo_uv = texture_coordinates(uv, panels, appearance) if appearance is not None else None
-    garment, openings = sewn_mesh(points, welded_faces, faces, uv, panels, photo_uv=photo_uv)
+    garment, opening_loops = sewn_mesh(points, welded_faces, faces, uv, panels, photo_uv=photo_uv)
     configure_cloth(garment, [] if contact_only else pins, frame_end=args.frames)
     earlier_frame = max(1, args.frames - 5)
     for frame in range(1, args.frames + 1):
@@ -686,7 +664,8 @@ def main():
             "median": round(float(np.median(strain)) * 100, 2),
             "p95": round(float(np.quantile(strain, 0.95)) * 100, 2),
         },
-        "welded_opening_count": openings,
+        "welded_opening_count": len(opening_loops),
+        "opening_perimeters_mm": sewn_opening_perimeters(positions, opening_loops, welded_faces, faces, panels),
         "max_reference_form_vertex_penetration_mm": {
             "cloth_solve": raw_penetration,
             "exported_surface": visible_penetration,

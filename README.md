@@ -40,6 +40,8 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 展台仿真可以使用无臂人台的接触支撑。对照报告记录模型随高度变化的前后深度，以及导出时布料的位移。[同版垂坠对照](docs/drape-support-study.md)
 
+成衣仿真归档可读取领口、两只袖口和下摆的三维周长。带部件标注的实物扫描也可以执行同样的开口检查。[两件短袖实物扫描的构造核对](docs/garmentlab-opening-study.md)
+
 ## 生成首款 T 恤纸样
 
 在仓库目录使用 Python 3.10+ 和 ReportLab。样例为虚构的 960 mm 净胸围体型，配 560 mm 成衣半胸宽和 680 mm 后中衣长。
