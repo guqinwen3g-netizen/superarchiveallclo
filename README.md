@@ -28,6 +28,8 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 真实正背照已用于候选纸样归档、留出的馆方尺寸评分及同版平铺 GLB 的投影对照。[两件奥克兰博物馆藏品实验](docs/paired-photo-study.md)
 
+同一件馆藏圆领 T 恤另用标定挂拍构造三维外包络，在留出照片及三维体素上评估同版 GLB，并量化人台手臂支撑的影响。[人台三维对照与复现](docs/mannequin-study.md)
+
 ## 生成首款 T 恤纸样
 
 在仓库目录使用 Python 3.10+ 和 ReportLab。样例为虚构的 960 mm 净胸围体型，配 560 mm 成衣半胸宽和 680 mm 后中衣长。

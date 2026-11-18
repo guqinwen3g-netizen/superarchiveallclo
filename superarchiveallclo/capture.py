@@ -212,7 +212,7 @@ def load_capture(source, photo_dir=None, model_path=None, *, blind=False):
     return manifest, spec
 
 
-def archive(source, output, blender, model_path=None, *, blind=False):
+def archive(source, output, blender, model_path=None, *, blind=False, form="torso_with_arms"):
     if output.exists():
         raise ValueError(f"Output already exists: {output}")
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -230,7 +230,7 @@ def archive(source, output, blender, model_path=None, *, blind=False):
         with (model / "blender.log").open("w", encoding="utf8") as log:
             result = run([
                 blender, "-b", "--factory-startup", "--python-exit-code", "1", "--python", str(script),
-                "--", str(bundle / "pattern" / "pattern.json"), str(model),
+                "--", str(bundle / "pattern" / "pattern.json"), str(model), form,
             ], stdout=log, stderr=log, check=False)
         if result.returncode or not all((model / name).is_file() for name in (
             "garment.glb", "garment.blend", "simulation.json", "front.png", "back.png", "three-quarter.png",
@@ -248,9 +248,11 @@ def main():
     parser.add_argument("--blender", default="blender", help="Blender executable")
     parser.add_argument("--model", type=Path, help="Use trained weights to infer dimensions from the photos")
     parser.add_argument("--blind", action="store_true", help="Withhold all recorded measurements from reconstruction")
+    parser.add_argument("--form", choices=("torso_with_arms", "torso_only"), default="torso_with_arms",
+                        help="Collision support used for the draped GLB and Blender scene")
     args = parser.parse_args()
     try:
-        archive(args.session, args.output, args.blender, args.model, blind=args.blind)
+        archive(args.session, args.output, args.blender, args.model, blind=args.blind, form=args.form)
     except (ValueError, TypeError, KeyError, OSError, UnidentifiedImageError, DXFError) as error:
         parser.error(str(error))
     print(f"Wrote {args.output}")

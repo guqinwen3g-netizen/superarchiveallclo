@@ -346,7 +346,7 @@ def collider(name, location, scale, direction=None):
     return form
 
 
-def add_form(pattern):
+def add_form(pattern, *, with_arms=True):
     flat_chest = pattern["measurements"]["flat_chest_mm"] / 1000
     length = pattern["measurements"]["back_center_length_mm"] / 1000
     # Neck, shoulders, chest, waist and hip heights on a neutral fitting form.
@@ -382,7 +382,7 @@ def add_form(pattern):
     torso.hide_render = True
 
     forms = [torso]
-    for side in (-1, 1):
+    for side in ((-1, 1) if with_arms else ()):
         forms.append(collider(
             "Reference upper arm", (side * 0.235 * scale_x, 0, NECK_Z - 0.148 * length / 0.68),
             (0.041 * scale_x, 0.047 * scale_x, 0.15 * length / 0.68), (side, 0, -1),
@@ -555,7 +555,11 @@ def render(model, output, pattern):
 
 
 def main():
-    source, output = map(Path, sys.argv[sys.argv.index("--") + 1:])
+    source, output, *options = sys.argv[sys.argv.index("--") + 1:]
+    source, output = Path(source), Path(output)
+    form = options[0] if options else "torso_with_arms"
+    if form not in ("torso_with_arms", "torso_only"):
+        raise ValueError("Reference form must be torso_with_arms or torso_only")
     pattern = json.loads(source.read_text())
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete(use_global=False)
@@ -563,7 +567,7 @@ def main():
     scene.unit_settings.system = "METRIC"
     scene.render.threads_mode, scene.render.threads = "FIXED", 4
     scene.frame_end = FRAME
-    forms = add_form(pattern)
+    forms = add_form(pattern, with_arms=form == "torso_with_arms")
     points, welded_faces, faces, uv, pins, edges, rest, panels = build_assembly(pattern)
     garment, openings = sewn_mesh(points, welded_faces, faces, uv, panels)
     configure_cloth(garment, pins)
@@ -588,6 +592,7 @@ def main():
     strain = np.abs(actual / rest - 1)
     report = {
         "solver": "Flat edge-length fit followed by Blender Cloth on a sewn surface",
+        "reference_form": form,
         "seam_connection": "Shared vertices throughout draping",
         "evaluated_frame": FRAME,
         "flat_metric_absolute_strain_percent": {

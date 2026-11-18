@@ -1,0 +1,433 @@
+{
+  "schema_version": 1,
+  "source_configuration_sha256": "992334e1457febc9ab0aea9f49088f240c56aaaadeb9a52033d01ee94f0619e4",
+  "calibration": {
+    "photo": "netball-20.jpg",
+    "photo_sha256": "ba8e12bf0e2a200f91942d1af03baa8222ffcf20841334f1c46f258907350686",
+    "rulers": [
+      {
+        "name": "Auckland Museum 50 cm ruler",
+        "points_original_px": [
+          [
+            662,
+            4805
+          ],
+          [
+            2462,
+            4797
+          ]
+        ],
+        "length_mm": 500,
+        "mm_per_original_pixel": 0.27777503433419637
+      },
+      {
+        "name": "Tiffen chart centimetre scale",
+        "points_original_px": [
+          [
+            1297,
+            4505
+          ],
+          [
+            2032,
+            4509
+          ]
+        ],
+        "length_mm": 200,
+        "mm_per_original_pixel": 0.27210481406377945
+      }
+    ],
+    "scale_mm_per_original_pixel": 0.27493992419898794,
+    "pole": {
+      "width_original_px": 65.0,
+      "center_original_px": 1697.5,
+      "width_p10_p90_original_px": [
+        64.0,
+        65.0
+      ],
+      "sample_rows": 1074
+    },
+    "pole_diameter_estimate_mm": 17.871095072934217,
+    "views": {
+      "photo-01": {
+        "pole": {
+          "width_original_px": 66.0,
+          "center_original_px": 1852.0,
+          "width_p10_p90_original_px": [
+            66.0,
+            67.0
+          ],
+          "sample_rows": 1140
+        },
+        "exif_focal_length_mm": 28.0,
+        "mm_per_mask_pixel": 1.6246450066303835,
+        "same_distance_exif_only_mm_per_mask_pixel": 1.6496395451939276
+      },
+      "photo-02": {
+        "pole": {
+          "width_original_px": 112.0,
+          "center_original_px": 1646.5,
+          "width_p10_p90_original_px": [
+            111.0,
+            112.0
+          ],
+          "sample_rows": 270
+        },
+        "exif_focal_length_mm": 41.0,
+        "mm_per_mask_pixel": 0.9573800931929045,
+        "same_distance_exif_only_mm_per_mask_pixel": 1.1265831040348775
+      },
+      "photo-03": {
+        "pole": {
+          "width_original_px": 108.0,
+          "center_original_px": 1756.0,
+          "width_p10_p90_original_px": [
+            108.0,
+            109.0
+          ],
+          "sample_rows": 156
+        },
+        "exif_focal_length_mm": 45.0,
+        "mm_per_mask_pixel": 0.9928386151630121,
+        "same_distance_exif_only_mm_per_mask_pixel": 1.0264423836762215
+      },
+      "photo-04": {
+        "pole": {
+          "width_original_px": 108.0,
+          "center_original_px": 1541.0,
+          "width_p10_p90_original_px": [
+            108.0,
+            109.0
+          ],
+          "sample_rows": 156
+        },
+        "exif_focal_length_mm": 42.0,
+        "mm_per_mask_pixel": 0.9928386151630121,
+        "same_distance_exif_only_mm_per_mask_pixel": 1.0997596967959518
+      },
+      "photo-05": {
+        "pole": {
+          "width_original_px": 108.0,
+          "center_original_px": 1450.0,
+          "width_p10_p90_original_px": [
+            108.0,
+            109.0
+          ],
+          "sample_rows": 156
+        },
+        "exif_focal_length_mm": 40.0,
+        "mm_per_mask_pixel": 0.9928386151630121,
+        "same_distance_exif_only_mm_per_mask_pixel": 1.1547476816357494
+      }
+    }
+  },
+  "comparison": {
+    "schema_version": 1,
+    "item_id": "auckland-2017.66.22",
+    "setup": "Near-cardinal photographs of the museum's mannequin. Scale transfers from two rulers through the common stand pole. Orthographic cameras use the pole center and the neck rim height. The GLB uses the generic archive form; its neck rim is registered by translation.",
+    "scope": "Photo-derived outer volume and projected contours under the declared camera assumptions",
+    "model_origin_mm": [
+      0.0,
+      0.0,
+      1618.5929411764705
+    ],
+    "reference_manifest_sha256": "20c55f4132e890eca4e3a05b4665516d2598d478b802acc26b43e3c15c15b9f6",
+    "pattern_sha256": "161ea0af06334bb3a698d09759870950281afd0edeb8014d51b21eaae96508a0",
+    "garment_glb_sha256": "0905a07f7641f0b0016a6d05d578f1b4cb73642a2dfacbefc2f726913e28351e",
+    "reference_form": "torso_with_arms",
+    "archive_audit": {
+      "capture_kind": "physical",
+      "pattern_sha256": "161ea0af06334bb3a698d09759870950281afd0edeb8014d51b21eaae96508a0",
+      "source_photos": 4,
+      "vision_estimates": 11,
+      "dxf_panels": 5,
+      "seams": 15,
+      "garment_openings": 4,
+      "glb": {
+        "meshes": 1,
+        "bounds_span_m": [
+          0.7445,
+          0.7024,
+          0.3458
+        ]
+      }
+    },
+    "voxel_step_mm": 5.0,
+    "hull_bounds_span_mm": [
+      460.0,
+      270.0,
+      650.0
+    ],
+    "glb_bounds_span_mm": [
+      744.46,
+      345.84,
+      702.42
+    ],
+    "hull_volume_litres": 51.017,
+    "candidate_surface_vs_hull": {
+      "triangle_area_outside_by_more_than_one_voxel_fraction": 0.4957,
+      "one_sided_triangle_center_distance_p90_mm": 60.72
+    },
+    "views": {
+      "photo-01": {
+        "photo": "netball-01.jpg",
+        "photo_sha256": "1b64a9ca2387d0cd410814ce3189c7bd3d4d6f03e8157b8494c223266bd53590",
+        "mask": "photo-01-mask.png",
+        "role": "held_out",
+        "axis": "front",
+        "mm_per_pixel": 1.6246450066303835,
+        "origin_px": [
+          308.6666666666667,
+          63
+        ],
+        "mask_sha256": "e3afac12f508b38c2f113efae28a6ba3c97540ec83a31d0486ee89aeff423fd4",
+        "hull": {
+          "iou": 0.8724,
+          "contour_p90_mm": 32.49
+        },
+        "glb": {
+          "iou": 0.733,
+          "contour_p90_mm": 62.64
+        }
+      },
+      "photo-02": {
+        "photo": "netball-02.jpg",
+        "photo_sha256": "5a5c4cd1990a8ab3654d500f6ebf261606bde0374485aa342098c88b6142eb5c",
+        "mask": "photo-02-mask.png",
+        "role": "carve",
+        "axis": "front",
+        "mm_per_pixel": 0.9573800931929045,
+        "origin_px": [
+          274.4166666666667,
+          73
+        ],
+        "mask_sha256": "27ea40fe17818a3c03a18c204317b1ae25868c49a17f7f4541737a27b7211b7d",
+        "hull": {
+          "iou": 0.963,
+          "contour_p90_mm": 12.26
+        },
+        "glb": {
+          "iou": 0.7435,
+          "contour_p90_mm": 66.7
+        }
+      },
+      "photo-03": {
+        "photo": "netball-03.jpg",
+        "photo_sha256": "29b5aa5937538945f75c6a805ecd5e16be7d7c52aa140d282d08a0f21ff21020",
+        "mask": "photo-03-mask.png",
+        "role": "carve",
+        "axis": "left",
+        "mm_per_pixel": 0.9928386151630121,
+        "origin_px": [
+          292.6666666666667,
+          84
+        ],
+        "mask_sha256": "9305d8d9d906052783cf1d6001f11d017dd72bb5ba7620603ee71af6deb8aab1",
+        "hull": {
+          "iou": 0.9246,
+          "contour_p90_mm": 18.25
+        },
+        "glb": {
+          "iou": 0.7566,
+          "contour_p90_mm": 52.42
+        }
+      },
+      "photo-04": {
+        "photo": "netball-04.jpg",
+        "photo_sha256": "68317716866117d72395c1f5ec0d74a8803fb96eb9d54cb3d48464153e7ade0a",
+        "mask": "photo-04-mask.png",
+        "role": "carve",
+        "axis": "back",
+        "mm_per_pixel": 0.9928386151630121,
+        "origin_px": [
+          256.8333333333333,
+          74
+        ],
+        "mask_sha256": "d8a16fa9bc1e1fc2709e10f95ee347ab8bb89fbeb9b0f6f0860030605a8b14a4",
+        "hull": {
+          "iou": 0.8511,
+          "contour_p90_mm": 43.69
+        },
+        "glb": {
+          "iou": 0.7744,
+          "contour_p90_mm": 54.66
+        }
+      },
+      "photo-05": {
+        "photo": "netball-05.jpg",
+        "photo_sha256": "2eeaa45e2a405e059a7c5a2795ba88abbf8764b4709b04f42dfaced5163547e2",
+        "mask": "photo-05-mask.png",
+        "role": "carve",
+        "axis": "right",
+        "mm_per_pixel": 0.9928386151630121,
+        "origin_px": [
+          241.66666666666666,
+          77
+        ],
+        "mask_sha256": "637e60bca7bbe14fc6b48d8e4f9bfa41f3803fdf4e884800dab032885f87caf2",
+        "hull": {
+          "iou": 0.8911,
+          "contour_p90_mm": 23.83
+        },
+        "glb": {
+          "iou": 0.762,
+          "contour_p90_mm": 51.25
+        }
+      }
+    }
+  },
+  "torso_only_comparison": {
+    "schema_version": 1,
+    "item_id": "auckland-2017.66.22",
+    "setup": "Near-cardinal photographs of the museum's mannequin. Scale transfers from two rulers through the common stand pole. Orthographic cameras use the pole center and the neck rim height. The GLB uses the generic archive form; its neck rim is registered by translation.",
+    "scope": "Photo-derived outer volume and projected contours under the declared camera assumptions",
+    "model_origin_mm": [
+      0.0,
+      0.0,
+      1618.5929411764705
+    ],
+    "reference_manifest_sha256": "20c55f4132e890eca4e3a05b4665516d2598d478b802acc26b43e3c15c15b9f6",
+    "pattern_sha256": "161ea0af06334bb3a698d09759870950281afd0edeb8014d51b21eaae96508a0",
+    "garment_glb_sha256": "ead93ffa7329129c1748a57810ad64715e6371f5b3e9c7515a87669ec853024b",
+    "reference_form": "torso_only",
+    "archive_audit": {
+      "capture_kind": "physical",
+      "pattern_sha256": "161ea0af06334bb3a698d09759870950281afd0edeb8014d51b21eaae96508a0",
+      "source_photos": 4,
+      "vision_estimates": 11,
+      "dxf_panels": 5,
+      "seams": 15,
+      "garment_openings": 4,
+      "glb": {
+        "meshes": 1,
+        "bounds_span_m": [
+          0.6647,
+          0.7011,
+          0.2933
+        ]
+      }
+    },
+    "voxel_step_mm": 5.0,
+    "hull_bounds_span_mm": [
+      460.0,
+      270.0,
+      650.0
+    ],
+    "glb_bounds_span_mm": [
+      664.72,
+      293.29,
+      701.06
+    ],
+    "hull_volume_litres": 51.017,
+    "candidate_surface_vs_hull": {
+      "triangle_area_outside_by_more_than_one_voxel_fraction": 0.4324,
+      "one_sided_triangle_center_distance_p90_mm": 46.32
+    },
+    "views": {
+      "photo-01": {
+        "photo": "netball-01.jpg",
+        "photo_sha256": "1b64a9ca2387d0cd410814ce3189c7bd3d4d6f03e8157b8494c223266bd53590",
+        "mask": "photo-01-mask.png",
+        "role": "held_out",
+        "axis": "front",
+        "mm_per_pixel": 1.6246450066303835,
+        "origin_px": [
+          308.6666666666667,
+          63
+        ],
+        "mask_sha256": "e3afac12f508b38c2f113efae28a6ba3c97540ec83a31d0486ee89aeff423fd4",
+        "hull": {
+          "iou": 0.8724,
+          "contour_p90_mm": 32.49
+        },
+        "glb": {
+          "iou": 0.7603,
+          "contour_p90_mm": 55.24
+        }
+      },
+      "photo-02": {
+        "photo": "netball-02.jpg",
+        "photo_sha256": "5a5c4cd1990a8ab3654d500f6ebf261606bde0374485aa342098c88b6142eb5c",
+        "mask": "photo-02-mask.png",
+        "role": "carve",
+        "axis": "front",
+        "mm_per_pixel": 0.9573800931929045,
+        "origin_px": [
+          274.4166666666667,
+          73
+        ],
+        "mask_sha256": "27ea40fe17818a3c03a18c204317b1ae25868c49a17f7f4541737a27b7211b7d",
+        "hull": {
+          "iou": 0.963,
+          "contour_p90_mm": 12.26
+        },
+        "glb": {
+          "iou": 0.7518,
+          "contour_p90_mm": 63.37
+        }
+      },
+      "photo-03": {
+        "photo": "netball-03.jpg",
+        "photo_sha256": "29b5aa5937538945f75c6a805ecd5e16be7d7c52aa140d282d08a0f21ff21020",
+        "mask": "photo-03-mask.png",
+        "role": "carve",
+        "axis": "left",
+        "mm_per_pixel": 0.9928386151630121,
+        "origin_px": [
+          292.6666666666667,
+          84
+        ],
+        "mask_sha256": "9305d8d9d906052783cf1d6001f11d017dd72bb5ba7620603ee71af6deb8aab1",
+        "hull": {
+          "iou": 0.9246,
+          "contour_p90_mm": 18.25
+        },
+        "glb": {
+          "iou": 0.8051,
+          "contour_p90_mm": 47.91
+        }
+      },
+      "photo-04": {
+        "photo": "netball-04.jpg",
+        "photo_sha256": "68317716866117d72395c1f5ec0d74a8803fb96eb9d54cb3d48464153e7ade0a",
+        "mask": "photo-04-mask.png",
+        "role": "carve",
+        "axis": "back",
+        "mm_per_pixel": 0.9928386151630121,
+        "origin_px": [
+          256.8333333333333,
+          74
+        ],
+        "mask_sha256": "d8a16fa9bc1e1fc2709e10f95ee347ab8bb89fbeb9b0f6f0860030605a8b14a4",
+        "hull": {
+          "iou": 0.8511,
+          "contour_p90_mm": 43.69
+        },
+        "glb": {
+          "iou": 0.7896,
+          "contour_p90_mm": 48.03
+        }
+      },
+      "photo-05": {
+        "photo": "netball-05.jpg",
+        "photo_sha256": "2eeaa45e2a405e059a7c5a2795ba88abbf8764b4709b04f42dfaced5163547e2",
+        "mask": "photo-05-mask.png",
+        "role": "carve",
+        "axis": "right",
+        "mm_per_pixel": 0.9928386151630121,
+        "origin_px": [
+          241.66666666666666,
+          77
+        ],
+        "mask_sha256": "637e60bca7bbe14fc6b48d8e4f9bfa41f3803fdf4e884800dab032885f87caf2",
+        "hull": {
+          "iou": 0.8911,
+          "contour_p90_mm": 23.83
+        },
+        "glb": {
+          "iou": 0.8018,
+          "contour_p90_mm": 47.71
+        }
+      }
+    }
+  }
+}
