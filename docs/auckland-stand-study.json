@@ -1,0 +1,372 @@
+{
+  "schema_version": 1,
+  "item_id": "auckland-2017.66.22",
+  "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+  "archive_audit": {
+    "capture_kind": "physical",
+    "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+    "source_photos": 4,
+    "vision_estimates": 10,
+    "dxf_panels": 5,
+    "seams": 15,
+    "garment_openings": 4,
+    "glb": {
+      "meshes": 1,
+      "bounds_span_m": [
+        0.57,
+        0.7058,
+        0.3227
+      ],
+      "embedded_photo_atlases": 1
+    }
+  },
+  "garment_glb_sha256": "acb04a55714091df9e2f609a64ea3f37305e3607bfa547e438640051aa02e621",
+  "fixture_guide_sha256": "218ec21dc194bc49501dd782121c779b7271b37532e28128f354969c0d9d990a",
+  "camera_solution_sha256": "73569fd1431bcad410d9248454de97312f827fb40b779215301420cabf0aece5",
+  "reference_sha256": "146fd9b3df53cd441ebff3f2164eb75d7f7f160975ed8383799a4fad85801a7c",
+  "reference_photo_sha256": {
+    "photo-01": "1b64a9ca2387d0cd410814ce3189c7bd3d4d6f03e8157b8494c223266bd53590",
+    "photo-02": "5a5c4cd1990a8ab3654d500f6ebf261606bde0374485aa342098c88b6142eb5c",
+    "photo-03": "29b5aa5937538945f75c6a805ecd5e16be7d7c52aa140d282d08a0f21ff21020",
+    "photo-04": "68317716866117d72395c1f5ec0d74a8803fb96eb9d54cb3d48464153e7ade0a",
+    "photo-05": "2eeaa45e2a405e059a7c5a2795ba88abbf8764b4709b04f42dfaced5163547e2",
+    "photo-20": "ba8e12bf0e2a200f91942d1af03baa8222ffcf20841334f1c46f258907350686"
+  },
+  "metric_scale": {
+    "photo": "photo-20",
+    "name": "Auckland Museum 50 cm ruler",
+    "length_mm": 500,
+    "assumption": "The ruler marks lie on the same plane as the top edges of the stand",
+    "ruler_marks_px": [
+      [
+        110.33333333333333,
+        800.8333333333334
+      ],
+      [
+        410.3333333333333,
+        799.5
+      ]
+    ],
+    "stand_width_depth_mm": [
+      322.698,
+      315.927
+    ],
+    "recovered_plane_axes_cosine": -0.01027
+  },
+  "fixture": {
+    "vertical_shaft_foot_mm": [
+      162.338,
+      -147.808
+    ],
+    "rim_level_observations_mm": {
+      "photo-01": 1165.361020357725,
+      "photo-20": 1174.2850385551365
+    },
+    "mean_rim_datum_mm": 1169.823,
+    "front_camera_baseline_mm": 45.51,
+    "front_only_worst_direction_mm_per_pixel": {
+      "cup-spiral": 151.847,
+      "cup-line-start": 154.41,
+      "cup-year-tip": 166.451,
+      "canterbury-center": 144.2,
+      "upper-ink-dot": 144.779,
+      "upper-ink-crossing": 145.144,
+      "cuff-mark": 208.775,
+      "right-autograph-capital": 156.189,
+      "left-middle-crossing": 137.744
+    },
+    "per_view": {
+      "photo-01": {
+        "base_plate_corners_px": [
+          [
+            222.668,
+            728.607
+          ],
+          [
+            398.3731,
+            731.7392
+          ],
+          [
+            410.378,
+            816.3374
+          ],
+          [
+            200.927,
+            811.6991
+          ]
+        ],
+        "base_edge_diagnostics": {
+          "top": {
+            "accepted_samples": 45,
+            "distance_p90_px": 0.1255
+          },
+          "right": {
+            "accepted_samples": 48,
+            "distance_p90_px": 0.1144
+          },
+          "bottom": {
+            "accepted_samples": 45,
+            "distance_p90_px": 0.148
+          },
+          "left": {
+            "accepted_samples": 48,
+            "distance_p90_px": 0.1073
+          }
+        },
+        "metric_camera_center_mm": [
+          204.896,
+          -1865.483,
+          812.734
+        ],
+        "base_corners_fit": {
+          "points": 4,
+          "median_px": 0.093402,
+          "p90_px": 0.109227,
+          "max_px": 0.110014
+        },
+        "shaft_holdout": {
+          "pixel_rows": 1140,
+          "horizontal_reprojection_median_px": 0.35,
+          "horizontal_reprojection_p90_px": 0.505,
+          "shaft_diameter_estimate_mm": 18.344
+        }
+      },
+      "photo-20": {
+        "base_plate_corners_px": [
+          [
+            198.3584,
+            748.9594
+          ],
+          [
+            371.7167,
+            747.9672
+          ],
+          [
+            386.547,
+            830.7036
+          ],
+          [
+            180.6738,
+            831.9627
+          ]
+        ],
+        "base_edge_diagnostics": {
+          "top": {
+            "accepted_samples": 42,
+            "distance_p90_px": 0.1146
+          },
+          "right": {
+            "accepted_samples": 34,
+            "distance_p90_px": 0.1312
+          },
+          "bottom": {
+            "accepted_samples": 43,
+            "distance_p90_px": 0.1543
+          },
+          "left": {
+            "accepted_samples": 33,
+            "distance_p90_px": 0.1284
+          }
+        },
+        "metric_camera_center_mm": [
+          182.357,
+          -1901.981,
+          827.934
+        ],
+        "base_corners_fit": {
+          "points": 4,
+          "median_px": 0.039436,
+          "p90_px": 0.042652,
+          "max_px": 0.042683
+        },
+        "shaft_holdout": {
+          "pixel_rows": 1074,
+          "horizontal_reprojection_median_px": 0.624,
+          "horizontal_reprojection_p90_px": 0.669,
+          "shaft_diameter_estimate_mm": 18.282
+        }
+      }
+    }
+  },
+  "baseline": {
+    "fit_summary": {
+      "distance_to_glb_median_mm": 9.435,
+      "distance_to_glb_p90_mm": 19.005,
+      "held_out_residual_median_proxy_mm": 17.857,
+      "held_out_residual_max_proxy_mm": 32.322,
+      "held_out_residual_median_by_view_proxy_mm": {
+        "photo-01": 16.708,
+        "photo-20": 20.406
+      }
+    },
+    "checked": {
+      "checked_count": 9,
+      "accepted_count": 6,
+      "accepted_ids": [
+        "cup-spiral",
+        "cup-line-start",
+        "cup-year-tip",
+        "cuff-mark",
+        "right-autograph-capital",
+        "left-middle-crossing"
+      ],
+      "failed_views": {
+        "canterbury-center": {
+          "held_out_residual_proxy_mm": [
+            "photo-20"
+          ]
+        },
+        "upper-ink-dot": {
+          "held_out_residual_proxy_mm": [
+            "photo-20"
+          ]
+        },
+        "upper-ink-crossing": {
+          "held_out_residual_proxy_mm": [
+            "photo-20"
+          ]
+        }
+      },
+      "summary": {
+        "distance_to_glb_median_mm": 12.182,
+        "distance_to_glb_p90_mm": 19.639,
+        "held_out_residual_median_proxy_mm": 16.646,
+        "held_out_residual_max_proxy_mm": 23.871,
+        "held_out_residual_median_by_view_proxy_mm": {
+          "photo-01": 14.236,
+          "photo-20": 17.558
+        }
+      },
+      "by_region": {
+        "chest": {
+          "points": 3,
+          "orthographic": {
+            "distance_to_glb_median_mm": 18.583,
+            "median_nearest_glb_minus_reference_xyz_mm": [
+              -6.9,
+              16.614,
+              -4.52
+            ]
+          }
+        },
+        "mid-torso": {
+          "points": 2,
+          "orthographic": {
+            "distance_to_glb_median_mm": 10.272,
+            "median_nearest_glb_minus_reference_xyz_mm": [
+              2.013,
+              8.534,
+              0.282
+            ]
+          }
+        },
+        "sleeve": {
+          "points": 1,
+          "orthographic": {
+            "distance_to_glb_median_mm": 7.463,
+            "median_nearest_glb_minus_reference_xyz_mm": [
+              -6.509,
+              3.636,
+              -0.33
+            ]
+          }
+        }
+      }
+    }
+  },
+  "metric_front": {
+    "fit_summary": {
+      "distance_to_glb_median_mm": 9.435,
+      "distance_to_glb_p90_mm": 19.005,
+      "held_out_residual_median_proxy_mm": 15.697,
+      "held_out_residual_max_proxy_mm": 19.714,
+      "held_out_residual_median_by_view_proxy_mm": {
+        "photo-01": 16.164,
+        "photo-20": 15.442
+      }
+    },
+    "checked": {
+      "checked_count": 9,
+      "accepted_count": 9,
+      "accepted_ids": [
+        "cup-spiral",
+        "cup-line-start",
+        "cup-year-tip",
+        "canterbury-center",
+        "upper-ink-dot",
+        "upper-ink-crossing",
+        "cuff-mark",
+        "right-autograph-capital",
+        "left-middle-crossing"
+      ],
+      "failed_views": {},
+      "summary": {
+        "distance_to_glb_median_mm": 9.435,
+        "distance_to_glb_p90_mm": 19.005,
+        "held_out_residual_median_proxy_mm": 15.697,
+        "held_out_residual_max_proxy_mm": 19.714,
+        "held_out_residual_median_by_view_proxy_mm": {
+          "photo-01": 16.164,
+          "photo-20": 15.442
+        }
+      },
+      "by_region": {
+        "chest": {
+          "points": 6,
+          "supplied_projection": {
+            "distance_to_glb_median_mm": 10.413,
+            "median_nearest_glb_minus_reference_xyz_mm": [
+              -4.949,
+              5.233,
+              -1.165
+            ]
+          }
+        },
+        "mid-torso": {
+          "points": 2,
+          "supplied_projection": {
+            "distance_to_glb_median_mm": 10.272,
+            "median_nearest_glb_minus_reference_xyz_mm": [
+              2.013,
+              8.534,
+              0.282
+            ]
+          }
+        },
+        "sleeve": {
+          "points": 1,
+          "supplied_projection": {
+            "distance_to_glb_median_mm": 7.463,
+            "median_nearest_glb_minus_reference_xyz_mm": [
+              -6.509,
+              3.636,
+              -0.33
+            ]
+          }
+        }
+      }
+    }
+  },
+  "held_out_silhouettes": {
+    "photo-01": {
+      "orthographic": {
+        "iou": 0.8011,
+        "contour_p90_mm": 54.23
+      },
+      "metric_front": {
+        "iou": 0.7913,
+        "contour_p90_mm": 56.85
+      }
+    },
+    "photo-20": {
+      "orthographic": {
+        "iou": 0.8398,
+        "contour_p90_mm": 53.43
+      },
+      "metric_front": {
+        "iou": 0.8257,
+        "contour_p90_mm": 53.57
+      }
+    }
+  }
+}

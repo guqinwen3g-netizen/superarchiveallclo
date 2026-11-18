@@ -4,8 +4,9 @@ import json
 
 import numpy as np
 
-from superarchiveallclo.calibrate_cameras import error_pixels, fit_projection
+from superarchiveallclo.calibrate_cameras import error_pixels, fit_planar_pose, fit_projection, size_from_planar_ruler
 from superarchiveallclo.photo_points import PointCamera, project, supplied_matrices, triangulate
+from superarchiveallclo.rectify import rectangle
 
 
 class CalibratedProjectionTest(TestCase):
@@ -39,3 +40,20 @@ class CalibratedProjectionTest(TestCase):
         world = np.column_stack((pixels, np.ones(len(pixels))))
         with self.assertRaisesRegex(ValueError, "do not span enough depth"):
             fit_projection(world, pixels)
+
+    def test_planar_metric_pose_recovers_an_above_plane_control(self):
+        theta = radians(27)
+        intrinsic = np.array([[695, 0, 320], [0, 710, 240], [0, 0, 1]])
+        rotation = np.array([[1, 0, 0], [0, cos(theta), -sin(theta)], [0, sin(theta), cos(theta)]])
+        translation = np.array([-75, 25, 880])
+        camera = intrinsic @ np.column_stack((rotation, translation))
+        ground = rectangle(320, 260)
+        corners = np.array([project(camera, [*xy, 0]) for xy in ground])
+        ruler = np.array([project(camera, [x, 90, 0]) for x in (-80, 420)])
+        size, cosine = size_from_planar_ruler(corners, intrinsic, ruler, 500)
+        np.testing.assert_allclose(size, [320, 260], atol=1e-6)
+        self.assertAlmostEqual(cosine, 0)
+        fitted, center = fit_planar_pose(ground, corners, intrinsic)
+        np.testing.assert_allclose(center, -rotation.T @ translation, atol=1e-6)
+        above_plane = np.array([196, 172, 210])
+        np.testing.assert_allclose(project(fitted, above_plane), project(camera, above_plane), atol=1e-6)

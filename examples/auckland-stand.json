@@ -1,0 +1,21 @@
+{
+  "item_id": "auckland-2017.66.22",
+  "annotation_size_px": [576, 864],
+  "stand_axis_foot_photo_01_px": [308.65, 765.8],
+  "original_scale_photo": "photo-20",
+  "ruler_index": 0,
+  "plate_edge_guides_px": {
+    "photo-01": {
+      "top": [[231, 730], [389, 733]],
+      "right": [[400, 741], [407, 802]],
+      "bottom": [[210, 811], [402, 815]],
+      "left": [[220, 741], [207, 793]]
+    },
+    "photo-20": {
+      "top": [[208, 748], [365, 749]],
+      "right": [[375, 758], [382, 817]],
+      "bottom": [[190, 828], [380, 828]],
+      "left": [[196, 756], [184, 818]]
+    }
+  }
+}

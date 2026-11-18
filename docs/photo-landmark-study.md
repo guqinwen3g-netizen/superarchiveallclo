@@ -43,6 +43,8 @@
 
 左图青圈为留出照片的点位，橙色和紫色为两种相机的反投影。右图橙色仅为模型覆盖，蓝色仅为实物覆盖，深灰为两者重叠。照片由 Auckland War Memorial Museum Tāmaki Paenga Hira 以 CC BY 4.0 发布，此处裁切原图并添加标记。[原照](https://commons.wikimedia.org/?curid=83524175) · [许可](https://creativecommons.org/licenses/by/4.0/)
 
+后续用 500 mm 实物标尺和人台底板直接求解这两张照片的相机，九处点均通过两张留出照的反投影检查。整体轮廓仍有偏差。[独立标定与同版 GLB 对照](auckland-stand-study.md)
+
 ## 复现
 
 ```sh
