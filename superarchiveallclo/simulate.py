@@ -3,21 +3,23 @@
 from collections import Counter, defaultdict
 from hashlib import sha256
 import json
-from math import ceil, cos, pi, sin
+from math import ceil, cos, floor, pi, sin, sqrt
 from pathlib import Path
 import sys
 
 import bmesh
 import bpy
+import numpy as np
 from mathutils import Vector
+from mathutils.bvhtree import BVHTree
 from mathutils.geometry import delaunay_2d_cdt
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from superarchiveallclo.pattern import Edge
 
-STEP_MM = 19
+STEP_MM = 13
 NECK_Z = 1.52
-FRAME = 48
+FRAME = 38
 
 
 def panel_edges(panel):
@@ -46,11 +48,23 @@ def flat_mesh(edges, steps):
     for indices in refs.values():
         indices[-1] %= len(perimeter)
     x, y = zip(*perimeter)
-    interior = [
-        (i * STEP_MM + STEP_MM * 0.37, j * STEP_MM + STEP_MM * 0.41)
-        for i in range(int(min(x) / STEP_MM) - 1, int(max(x) / STEP_MM) + 1)
-        for j in range(int(min(y) / STEP_MM) - 1, int(max(y) / STEP_MM) + 1)
-    ]
+    row_height = STEP_MM * sqrt(3) / 2
+    candidates = np.array([
+        ((i + 0.5 * (j % 2)) * STEP_MM, j * row_height)
+        for j in range(floor(min(y) / row_height), ceil(max(y) / row_height) + 1)
+        for i in range(floor(min(x) / STEP_MM) - 1, ceil(max(x) / STEP_MM) + 1)
+    ])
+    boundary = np.array(perimeter)
+    border = np.roll(boundary, -1, axis=0) - boundary
+    squared_lengths = (border ** 2).sum(axis=1)
+    interior = []
+    for start in range(0, len(candidates), 256):
+        batch = candidates[start:start + 256]
+        delta = batch[:, None, :] - boundary[None, :, :]
+        projection = (delta * border).sum(axis=2) / squared_lengths
+        separation = delta - np.clip(projection, 0, 1)[..., None] * border
+        inside = (separation ** 2).sum(axis=2).min(axis=1) > (STEP_MM * 0.38) ** 2
+        interior.extend(batch[inside].tolist())
     verts, _, faces, origins, _, _ = delaunay_2d_cdt(
         [Vector(p) for p in perimeter + interior], [], [list(range(len(perimeter)))], 1, 0.001,
     )
@@ -80,7 +94,7 @@ def place(pattern, panel, edges, point):
         name, neck_id = seam["a"]
         body = next(piece for piece in pattern["panels"] if piece["id"] == name)
         neck = Edge(**next(item for item in body["edges"] if item["id"] == neck_id))
-        anchor = place(pattern, name, (), neck.point_at(1 - t if seam["reversed"] else t)[0])
+        anchor = body_border(pattern, name, neck, 1 - t if seam["reversed"] else t)
         inward = Vector((-anchor.x, -anchor.y, 0)).normalized()
         fold = inward * 0.85 + Vector((0, 0, 0.53))
         return anchor + fold * ((y + 1.5) / 1000)
@@ -99,14 +113,73 @@ def place(pattern, panel, edges, point):
     transverse = side * x
     angle = pi * transverse / (front_span if transverse >= 0 else back_span)
     radius = (front_span + back_span) / (2 * pi * 1000)
-    normal = Vector((0.54 * side, 0, 0.84))
-    direction = Vector((0.84 * side, 0, -0.54))
+    normal = Vector((side, 0, 1)).normalized()
+    direction = Vector((side, 0, -1)).normalized()
     shoulder_x = rx * sin(pattern["measurements"]["across_shoulders_mm"] / (2 * half_width) * pi / 2)
     shoulder = Vector((side * shoulder_x, 0, NECK_Z - p["shoulder_slope_mm"] / 1000))
     return (
         shoulder - normal * radius + direction * (y / 1000)
         + normal * (radius * cos(angle)) + Vector((0, -radius * sin(angle), 0))
     )
+
+
+def body_border(pattern, name, edge, fraction):
+    """Place the body seam curve onto the neutral form before fitting its metric."""
+    p = pattern["parameters"]
+    x, y = edge.point_at(fraction)[0]
+    sign = -1 if name == "front" else 1
+    half_width = p["flat_chest_mm"] / 2000
+    neck = p["neck_width_mm"] / 2000
+    shoulder = pattern["measurements"]["across_shoulders_mm"] / 2000
+    side = -1 if "_left" in edge.id else 1
+    x_shoulder = shoulder * 0.87
+    x_side = half_width * 0.72
+    if edge.id.startswith("neck"):
+        phase = min(1, abs(x) / (neck * 1000))
+        depth = (0.092 if name == "front" else 0.069) * half_width / 0.28
+        return Vector((x * 0.93 / 1000, sign * depth * (1 - phase ** 2) ** 0.65, NECK_Z - y / 1000))
+    if edge.id.startswith("shoulder"):
+        along = (abs(x) / 1000 - neck) / (shoulder - neck)
+        return Vector((side * (0.93 * neck + along * (x_shoulder - 0.93 * neck)), 0, NECK_Z - y / 1000))
+    if edge.id.startswith("armhole"):
+        along = 1 - fraction if side == -1 else fraction
+        top = p["shoulder_slope_mm"] / 1000
+        drop = (p["armhole_depth_mm"] - p["shoulder_slope_mm"]) / 1000
+        depth = (0.345 if name == "front" else 0.29) * drop
+        return Vector((
+            side * (x_shoulder + along * (x_side - x_shoulder)),
+            sign * depth * sin(pi * along),
+            NECK_Z - top - 0.84 * drop * along,
+        ))
+    hem = p["back_length_mm"] + p["back_neck_depth_mm"]
+    recovery = (hem - y) / (hem - p["armhole_depth_mm"])
+    lift = 0.00016 * (p["armhole_depth_mm"] - p["shoulder_slope_mm"])
+    return Vector((side * x_side, 0, NECK_Z - y / 1000 + recovery * lift))
+
+
+def weighted_sum(values, indices, weights, n):
+    return np.column_stack([
+        np.bincount(indices, weights=values[:, axis] * weights, minlength=n)
+        for axis in range(3)
+    ])
+
+
+def spread_border_adjustments(positions, rest, faces, anchors):
+    """Extend seam displacement into each panel, retaining its initial curvature."""
+    original = np.asarray(positions)
+    neighbors = sorted({(a, b) for f in faces for a in f for b in f if a != b})
+    a, b = np.array(neighbors).T
+    rest = np.asarray(rest)
+    weights = 1 / np.maximum(np.linalg.norm(rest[a] - rest[b], axis=1), 3)
+    n = len(rest)
+    scale = np.bincount(a, weights=weights, minlength=n) * 1.018
+    fixed = np.array(list(anchors))
+    delta = np.zeros_like(original)
+    boundary = np.asarray(list(anchors.values())) - original[fixed]
+    for _ in range(110):
+        delta = weighted_sum(delta[b], a, weights, n) / scale[:, None]
+        delta[fixed] = boundary
+    return original + delta
 
 
 def build_assembly(pattern):
@@ -119,81 +192,105 @@ def build_assembly(pattern):
         a, b = tuple(seam["a"]), tuple(seam["b"])
         steps[a] = steps[b] = max(steps[a], steps[b])
 
-    positions, rest, faces, refs, uv = [], [], [], {}, []
+    positions, faces, refs, uv = [], [], {}, []
     panels = {}
+    candidates = defaultdict(list)
+    shoulder_points = set()
     for name, panel in edges.items():
         verts, triangles, local_refs = flat_mesh(panel, {edge.id: steps[name, edge.id] for edge in panel})
         offset = len(positions)
         positions.extend(place(pattern, name, panel, v) for v in verts)
-        rest.extend(Vector((v.x / 1000, 0, -v.y / 1000)) for v in verts)
         uv.extend(tuple(v / 1000) for v in verts)
-        # Front panel is oriented toward -Y.
-        faces.extend(tuple(i + offset for i in (face[::-1] if name == "front" else face)) for face in triangles)
-        refs.update({(name, edge): [i + offset for i in indices] for edge, indices in local_refs.items()})
+        faces.extend(tuple(i + offset for i in face) for face in triangles)
+        refs.update({(name, edge): [i + offset for i in values] for edge, values in local_refs.items()})
         panels[name] = {"vertex_start": offset, "vertex_count": len(verts)}
+        if name in ("front", "back"):
+            for edge in panel:
+                if edge.role == "hem":
+                    continue
+                indices = refs[name, edge.id]
+                for i, index in enumerate(indices):
+                    fraction = i / (len(indices) - 1)
+                    candidates[index].append(body_border(pattern, name, edge, fraction))
+                    if edge.id.startswith("shoulder") and 0.18 < fraction < 0.82:
+                        shoulder_points.add(index)
 
-    links = {}
-    neighbors = defaultdict(set)
-    pins = set()
+    parent = list(range(len(positions)))
+
+    def root(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    stitches = set()
     for seam in pattern["seams"]:
         a, b = refs[tuple(seam["a"])], refs[tuple(seam["b"])]
-        if seam["reversed"]:
-            b = b[::-1]
-        pairs = list(zip(a, b))
-        links[seam["id"]] = pairs
-        if seam["id"].startswith("shoulder"):
-            pins.add(a[len(a) // 2])
-        for i, j in pairs:
-            neighbors[i].add(j)
-            neighbors[j].add(i)
+        for i, j in zip(a, reversed(b) if seam["reversed"] else b):
+            parent[root(j)] = root(i)
+            stitches.update((i, j))
 
-    # Pull neighboring edge vertices close before the solver starts.
-    seeded = positions.copy()
-    visited = set()
-    for start in neighbors:
-        if start in visited:
+    groups = defaultdict(list)
+    for i in range(len(positions)):
+        groups[root(i)].append(i)
+    anchors = {}
+    for group in groups.values():
+        if group[0] not in stitches:
             continue
-        group, pending = set(), [start]
-        for point in pending:
-            if point not in group:
-                group.add(point)
-                pending.extend(neighbors[point] - group)
-        center = sum((positions[i] for i in group), Vector((0, 0, 0))) / len(group)
-        for i in group:
-            seeded[i] = positions[i].lerp(center, 0.94)
-        visited.update(group)
+        targets = [p for i in group for p in candidates[i]]
+        if not targets:
+            targets = [positions[i] for i in group]
+        target = sum(targets, Vector()) / len(targets)
+        anchors.update(dict.fromkeys(group, target))
 
-    stitches = sorted({tuple(sorted(pair)) for pairs in links.values() for pair in pairs})
-    mesh = bpy.data.meshes.new("Sewing panels")
-    mesh.from_pydata(seeded, stitches, faces)
-    mesh.update()
-    garment = bpy.data.objects.new("Archived tee", mesh)
-    bpy.context.collection.objects.link(garment)
-    bpy.context.view_layer.objects.active = garment
-    garment.select_set(True)
+    placed = spread_border_adjustments(positions, np.asarray(uv) * 1000, faces, anchors)
+    mapping = {key: i for i, key in enumerate(groups)}
+    transform = np.asarray([mapping[root(i)] for i in range(len(positions))])
+    vertices = np.array([placed[group].mean(axis=0) for group in groups.values()])
+    welded_faces = [tuple(transform[i] for i in f) for f in faces]
+    pins = sorted({int(transform[i]) for i in shoulder_points})
+    source_edges = np.array(sorted({tuple(sorted((a, b))) for f in faces for a, b in zip(f, (*f[1:], f[0]))}))
+    basis = np.asarray(uv)
+    target_lengths = np.linalg.norm(basis[source_edges[:, 0]] - basis[source_edges[:, 1]], axis=1)
+    fit_metric(vertices, transform[source_edges], target_lengths, pins)
+    return vertices, welded_faces, faces, uv, pins, transform[source_edges], target_lengths, panels
 
-    garment.shape_key_add(name="Assembly")
-    flat = garment.shape_key_add(name="Flat sewing rest")
-    for i, co in enumerate(rest):
-        flat.data[i].co = co
-    group = garment.vertex_groups.new(name="Shoulder support")
-    group.add(list(pins), 1, "REPLACE")
-    cloth = garment.modifiers.new("Cloth sewing", "CLOTH")
-    cloth.settings.rest_shape_key = flat
-    cloth.settings.use_sewing_springs = True
-    cloth.settings.sewing_force_max = 0
-    cloth.settings.quality = 12
-    cloth.settings.mass = 0.18
-    cloth.settings.tension_stiffness = 19
-    cloth.settings.compression_stiffness = 19
-    cloth.settings.shear_stiffness = 12
-    cloth.settings.bending_stiffness = 0.45
+
+def fit_metric(vertices, edges, target_lengths, pins):
+    """Fit stitched rest geometry to the flat edge lengths without removing ease."""
+    a, b = edges.T
+    n = len(vertices)
+    degree = np.bincount(np.r_[a, b], minlength=n)
+    original = vertices.copy()
+    weight = np.ones(len(edges))
+    for _ in range(200):
+        along = vertices[b] - vertices[a]
+        length = np.linalg.norm(along, axis=1)
+        correction = along * ((length - target_lengths) / np.maximum(length, 1e-9))[:, None]
+        gradient = weighted_sum(correction, a, weight, n) - weighted_sum(correction, b, weight, n)
+        vertices += 0.68 * gradient / degree[:, None]
+        vertices += 0.008 * (original - vertices)
+        vertices[pins] = original[pins]
+
+
+def configure_cloth(model, pins):
+    group = model.vertex_groups.new(name="Mannequin shoulder support")
+    group.add(pins, 1, "REPLACE")
+    cloth = model.modifiers.new("Cloth drape", "CLOTH")
+    cloth.settings.quality = 10
+    cloth.settings.mass = 0.15
+    cloth.settings.tension_stiffness = 32
+    cloth.settings.compression_stiffness = 32
+    cloth.settings.shear_stiffness = 19
+    cloth.settings.bending_stiffness = 1.45
+    cloth.settings.bending_damping = 0.8
     cloth.settings.vertex_group_mass = group.name
-    cloth.settings.pin_stiffness = 0.9
+    cloth.settings.pin_stiffness = 1
+    cloth.settings.effector_weights.gravity = 0.62
+    cloth.collision_settings.distance_min = 0.0018
     cloth.collision_settings.use_self_collision = True
     cloth.collision_settings.self_distance_min = 0.0015
     cloth.point_cache.frame_end = FRAME
-    return garment, links, panels, uv, faces
 
 
 def collider(name, location, scale, direction=None):
@@ -213,35 +310,73 @@ def collider(name, location, scale, direction=None):
 def add_form(pattern):
     flat_chest = pattern["measurements"]["flat_chest_mm"] / 1000
     length = pattern["measurements"]["back_center_length_mm"] / 1000
-    rx, ry = 0.285 * flat_chest, 0.209 * flat_chest
-    forms = [collider("Reference torso", (0, 0, NECK_Z - length * 0.43), (rx, ry, length * 0.52))]
+    # Neck, shoulders, chest, waist and hip heights on a neutral fitting form.
+    rings = (
+        (0.10, 0.060, 0.053), (0.019, 0.061, 0.054), (-0.016, 0.122, 0.066),
+        (-0.062, 0.178, 0.085), (-0.13, 0.167, 0.103), (-0.23, 0.158, 0.115),
+        (-0.39, 0.144, 0.106), (-0.52, 0.141, 0.103), (-0.64, 0.166, 0.112),
+        (-0.76, 0.172, 0.111), (-0.91, 0.170, 0.107),
+    )
+    segments = 48
+    scale_x = flat_chest / 0.56
+    vertices = [
+        (rx * scale_x * cos(2 * pi * i / segments), ry * scale_x * sin(2 * pi * i / segments),
+         NECK_Z + level * length / 0.68)
+        for level, rx, ry in rings for i in range(segments)
+    ]
+    faces = [
+        (j * segments + i, (j + 1) * segments + i,
+         (j + 1) * segments + (i + 1) % segments, j * segments + (i + 1) % segments)
+        for j in range(len(rings) - 1) for i in range(segments)
+    ]
+    faces.extend((
+        tuple(range(segments)),
+        tuple(reversed(range((len(rings) - 1) * segments, len(rings) * segments))),
+    ))
+    mesh = bpy.data.meshes.new("Reference torso")
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    torso = bpy.data.objects.new("Reference torso", mesh)
+    bpy.context.collection.objects.link(torso)
+    torso.modifiers.new("Cloth collision", "COLLISION")
+    torso.collision.thickness_outer = 0.002
+    torso.hide_render = True
+
+    forms = [torso]
     for side in (-1, 1):
         forms.append(collider(
-            "Reference upper arm", (side * rx * 1.17, 0, NECK_Z - 0.15),
-            (0.033, 0.045, 0.145), (side * 0.84, 0, -0.54),
+            "Reference upper arm", (side * 0.235 * scale_x, 0, NECK_Z - 0.148 * length / 0.68),
+            (0.041 * scale_x, 0.047 * scale_x, 0.15 * length / 0.68), (side, 0, -1),
         ))
     return forms
 
 
-def baked_garment(garment, links, positions, faces, uv):
-    # Merge only the sewn vertex pairs. Preserve panel-specific UVs per face corner.
-    parent = list(range(len(positions)))
+def contact_surfaces(forms):
+    graph = bpy.context.evaluated_depsgraph_get()
+    return [
+        (BVHTree.FromObject(form, graph), form.matrix_world.copy(), form.matrix_world.inverted())
+        for form in forms
+    ]
 
-    def root(i):
-        while parent[i] != i:
-            parent[i] = parent[parent[i]]
-            i = parent[i]
-        return i
 
-    for pairs in links.values():
-        for a, b in pairs:
-            parent[root(b)] = root(a)
-    groups = defaultdict(list)
-    for i in range(len(positions)):
-        groups[root(i)].append(i)
-    mapping = {k: i for i, k in enumerate(groups)}
-    welded = [sum((positions[i] for i in indices), Vector((0, 0, 0))) / len(indices) for indices in groups.values()]
-    welded_faces = [tuple(mapping[root(v)] for v in f) for f in faces]
+def stabilize_contact(surfaces, vertices, clearance):
+    """Project deeply overlapping vertices and report numerical contact depth."""
+    result = vertices.copy()
+    depth = 0.0
+    for tree, world, inverse in surfaces:
+        for i, point in enumerate(result):
+            local = inverse @ Vector(point)
+            nearest, normal, _, _ = tree.find_nearest(local)
+            if nearest is None:
+                continue
+            overlap = (nearest - local).dot(normal)
+            depth = max(depth, overlap)
+            if clearance is not None and overlap > -clearance:
+                result[i] = world @ (nearest + clearance * normal)
+    return result, round(depth * 1000, 2)
+
+
+def sewn_mesh(vertices, welded_faces, faces, uv, panels):
     boundary = Counter()
     for face in welded_faces:
         if len(set(face)) != 3:
@@ -269,11 +404,15 @@ def baked_garment(garment, links, positions, faces, uv):
     if openings != 4:
         raise ValueError(f"Expected four garment openings, found {openings}")
     mesh = bpy.data.meshes.new("Sewn surface")
-    mesh.from_pydata(welded, [], welded_faces)
+    mesh.from_pydata(vertices, [], welded_faces)
     mesh.update()
     layer = mesh.uv_layers.new(name="Flat panels")
+    mesh.materials.append(None)
+    mesh.materials.append(None)
+    collar_start = panels["collar"]["vertex_start"]
     for poly, face in zip(mesh.polygons, faces):
         poly.use_smooth = True
+        poly.material_index = int(face[0] >= collar_start)
         for loop, index in zip(poly.loop_indices, face):
             layer.data[loop].uv = uv[index]
     bm = bmesh.new()
@@ -283,32 +422,76 @@ def baked_garment(garment, links, positions, faces, uv):
     bm.free()
     model = bpy.data.objects.new("Sewn tee", mesh)
     bpy.context.collection.objects.link(model)
-    smooth = model.modifiers.new("Relax sewn junctions", "SMOOTH")
-    smooth.factor = 0.48
-    smooth.iterations = 4
-    subdivision = model.modifiers.new("Preview surface", "SUBSURF")
-    subdivision.levels = subdivision.render_levels = 1
-    garment.hide_render = True
-    garment.hide_set(True)
     return model, openings
+
+
+def freeze_drape(source, positions):
+    mesh = source.data.copy()
+    for vertex, point in zip(mesh.vertices, positions):
+        vertex.co = point
+    displayed = bpy.data.objects.new("Sewn tee preview", mesh)
+    bpy.context.collection.objects.link(displayed)
+    subdivision = displayed.modifiers.new("Subdivided textile", "SUBSURF")
+    subdivision.levels = subdivision.render_levels = 1
+    thickness = displayed.modifiers.new("Textile thickness", "SOLIDIFY")
+    thickness.thickness = 0.001
+    thickness.offset = -1
+    source.hide_render = True
+    source.hide_set(True)
+    return displayed
+
+
+def textile(name, color, rib=False):
+    material = bpy.data.materials.new(name)
+    material.diffuse_color = (*color, 1)
+    material.use_nodes = True
+    nodes = material.node_tree.nodes
+    connect = material.node_tree.links.new
+    shader = nodes.get("Principled BSDF")
+    shader.inputs["Base Color"].default_value = material.diffuse_color
+    shader.inputs["Roughness"].default_value = 0.87
+    shader.inputs["Specular IOR Level"].default_value = 0.23
+    shader.inputs["Sheen Weight"].default_value = 0.32
+
+    coordinates = nodes.new("ShaderNodeTexCoord")
+    texture = nodes.new("ShaderNodeTexWave" if rib else "ShaderNodeTexNoise")
+    texture.inputs["Scale"].default_value = 150 if rib else 1650
+    if rib:
+        texture.bands_direction = "X"
+        texture.inputs["Distortion"].default_value = 0
+    connect(coordinates.outputs["UV"], texture.inputs["Vector"])
+    bump = nodes.new("ShaderNodeBump")
+    bump.inputs["Strength"].default_value = 0.32 if rib else 0.22
+    bump.inputs["Distance"].default_value = 0.0003 if rib else 0.00015
+    connect(texture.outputs["Color" if rib else "Fac"], bump.inputs["Height"])
+    connect(bump.outputs["Normal"], shader.inputs["Normal"])
+    return material
 
 
 def render(model, output, pattern):
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
-    scene.cycles.samples = 32
+    scene.cycles.samples = 40
     scene.cycles.use_denoising = False
     scene.render.resolution_x = scene.render.resolution_y = 768
     scene.render.resolution_percentage = 100
-    scene.world.color = (0.52, 0.52, 0.52)
-    material = bpy.data.materials.new("Reference charcoal knit")
-    material.diffuse_color = (0.155, 0.183, 0.169, 1)
-    material.use_nodes = True
-    shader = material.node_tree.nodes.get("Principled BSDF")
-    shader.inputs["Base Color"].default_value = material.diffuse_color
-    shader.inputs["Roughness"].default_value = 0.82
-    shader.inputs["Sheen Weight"].default_value = 0.25
-    model.data.materials.append(material)
+    scene.world.color = (0.48, 0.48, 0.48)
+    scene.world.use_nodes = True
+    world = scene.world.node_tree
+    nodes = world.nodes
+    background = nodes.get("Background")
+    background.inputs["Color"].default_value = (0.4, 0.43, 0.46, 1)
+    background.inputs["Strength"].default_value = 0.55
+    camera_background = nodes.new("ShaderNodeBackground")
+    camera_background.inputs["Color"].default_value = (0.74, 0.71, 0.65, 1)
+    mix = nodes.new("ShaderNodeMixShader")
+    camera_ray = nodes.new("ShaderNodeLightPath")
+    world.links.new(camera_ray.outputs["Is Camera Ray"], mix.inputs[0])
+    world.links.new(background.outputs[0], mix.inputs[1])
+    world.links.new(camera_background.outputs[0], mix.inputs[2])
+    world.links.new(mix.outputs[0], nodes.get("World Output").inputs["Surface"])
+    model.data.materials[0] = textile("Reference cotton jersey", (0.082, 0.092, 0.094))
+    model.data.materials[1] = textile("Reference neck rib", (0.065, 0.074, 0.077), rib=True)
     target = Vector((0, 0, NECK_Z - pattern["measurements"]["back_center_length_mm"] / 2000))
     for location, energy, size in (
         ((-2, -3, 3), 350, 3), ((2, 2, 3), 250, 3), ((1, 1, -0.4), 35, 2),
@@ -342,25 +525,43 @@ def main():
     scene.render.threads_mode, scene.render.threads = "FIXED", 4
     scene.frame_end = FRAME
     forms = add_form(pattern)
-    garment, links, panels, uv, faces = build_assembly(pattern)
+    points, welded_faces, faces, uv, pins, edges, rest, panels = build_assembly(pattern)
+    garment, openings = sewn_mesh(points, welded_faces, faces, uv, panels)
+    configure_cloth(garment, pins)
     for frame in range(1, FRAME + 1):
         scene.frame_set(frame)
-        if frame in (1, 24, FRAME):
-            print(f"Sewing frame {frame}/{FRAME}", flush=True)
+        if frame in (1, 20, FRAME):
+            print(f"Draping frame {frame}/{FRAME}", flush=True)
     evaluated = garment.evaluated_get(bpy.context.evaluated_depsgraph_get())
-    positions = [v.co.copy() for v in evaluated.data.vertices]
-    gaps = {
-        name: round(max((positions[a] - positions[b]).length for a, b in pairs) * 1000, 3)
-        for name, pairs in links.items()
-    }
-    model, openings = baked_garment(garment, links, positions, faces, uv)
+    positions = np.asarray([v.co[:] for v in evaluated.data.vertices])
+    if not np.isfinite(positions).all():
+        raise ValueError("Cloth solve produced non-finite coordinates")
+    contacts = contact_surfaces(forms)
+    _, raw_penetration = stabilize_contact(contacts, positions, None)
+    for _ in range(3):
+        positions, _ = stabilize_contact(contacts, positions, 0.0022)
+    model = freeze_drape(garment, positions)
+    bpy.context.view_layer.update()
+    drawn = model.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    _, visible_penetration = stabilize_contact(contacts, np.asarray([v.co[:] for v in drawn.data.vertices]), None)
+    a, b = edges.T
+    actual = np.linalg.norm(positions[a] - positions[b], axis=1)
+    strain = np.abs(actual / rest - 1)
     report = {
-        "solver": "Blender Cloth with rest lengths from flat sewing panels",
+        "solver": "Flat edge-length fit followed by Blender Cloth on a sewn surface",
+        "seam_connection": "Shared vertices throughout draping",
         "evaluated_frame": FRAME,
-        "pre_weld_max_seam_gap_mm": gaps,
+        "flat_metric_absolute_strain_percent": {
+            "median": round(float(np.median(strain)) * 100, 2),
+            "p95": round(float(np.quantile(strain, 0.95)) * 100, 2),
+        },
         "welded_opening_count": openings,
+        "max_reference_form_vertex_penetration_mm": {
+            "cloth_solve": raw_penetration,
+            "exported_surface": visible_penetration,
+        },
         "pattern_sha256": sha256(source.read_bytes()).hexdigest(),
-        "preview_surface": "Four smoothing passes and one subdivision level applied after sewing",
+        "preview_surface": "Subdivision and 1 mm reference material thickness",
         "review": "Reference form and estimated knit settings, subject to physical comparison",
         "panel_vertex_ranges_before_welding": panels,
     }
