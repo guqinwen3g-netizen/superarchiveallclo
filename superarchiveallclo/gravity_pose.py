@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from superarchiveallclo.flat_pose import flat_assembly
 from superarchiveallclo.hang_supports import place_for_gravity
 from superarchiveallclo.read_garment_glb import mesh_geometry
-from superarchiveallclo.simulate import configure_cloth, sewn_mesh
+from superarchiveallclo.simulate import configure_cloth, displacement_summary, evaluated_positions, sewn_mesh
 
 FRAME = 55
 MOTION_INTERVAL_FRAMES = 8
@@ -29,11 +29,6 @@ def save_pose(source, positions, filename):
     bpy.context.view_layer.objects.active = model
     bpy.ops.export_scene.gltf(filepath=str(filename), use_selection=True)
     bpy.data.objects.remove(model, do_unlink=True)
-
-
-def evaluated_positions(garment):
-    evaluated = garment.evaluated_get(bpy.context.evaluated_depsgraph_get())
-    return np.asarray([vertex.co[:] for vertex in evaluated.data.vertices])
 
 
 def main():
@@ -54,11 +49,10 @@ def main():
         supports = job["supports"]
     garment, openings = sewn_mesh(posed, triangles, faces, uv, panels)
     save_pose(garment, posed, directory / "before-gravity.glb")
-    configure_cloth(garment, np.concatenate(patches).tolist())
+    configure_cloth(garment, np.concatenate(patches).tolist(), frame_end=FRAME)
     cloth = garment.modifiers["Cloth drape"]
     cloth.settings.effector_weights.gravity = 1.0
     cloth.settings.time_scale = 0.8
-    cloth.point_cache.frame_end = FRAME
     for frame in range(1, FRAME + 1):
         scene.frame_set(frame)
         if frame == FRAME - MOTION_INTERVAL_FRAMES:
@@ -72,15 +66,13 @@ def main():
     support_drift = [float(np.linalg.norm(final[patch].mean(axis=0) - goal) * 1000)
                      for patch, goal in zip(patches, supports, strict=True)]
     strain = np.abs(np.linalg.norm(final[edges[:, 0]] - final[edges[:, 1]], axis=1) / rest - 1)
-    motion = 1000 * np.linalg.norm(final - earlier, axis=1)
     (directory / "support-metrics.json").write_text(json.dumps({
         **history, "pinned_patch_centroid_drift_mm": np.round(support_drift, 4).tolist(),
         "edge_strain_p95_percent": round(float(np.quantile(strain, 0.95) * 100), 2),
         "frame": FRAME, "fps": scene.render.fps, "time_scale": 0.8,
-        "last_interval_vertex_displacement_mm": {
-            "frames": [FRAME - MOTION_INTERVAL_FRAMES, FRAME],
-            "median": round(float(np.median(motion)), 2), "p90": round(float(np.quantile(motion, 0.9)), 2),
-        },
+        "last_interval_vertex_displacement_mm": displacement_summary(
+            earlier, final, FRAME - MOTION_INTERVAL_FRAMES, FRAME,
+        ),
         "openings": openings, "cloth_mass_setting": 0.15,
     }, indent=2) + "\n")
     metrics = {}

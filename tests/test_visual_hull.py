@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from superarchiveallclo.visual_hull import CameraView, carve, compare_surface, hull_mask
+from superarchiveallclo.visual_hull import CameraView, carve, compare_surface, horizontal_spans, hull_mask
 
 
 def camera(axis, sign, horizontal):
@@ -37,3 +37,13 @@ class VisualHullTest(TestCase):
         report, _ = compare_surface(volume, low, 5, vertices, np.array([[0, 1, 2], [3, 4, 5]]))
         self.assertEqual(report["triangle_area_outside_by_more_than_one_voxel_fraction"], 0.5)
         self.assertGreater(report["one_sided_triangle_center_distance_p90_mm"], 25)
+
+    def test_distinct_depths_are_measured_by_height_in_a_shared_frame(self):
+        hull = np.array([[-30, -12, -50], [30, 12, -50], [-40, -20, -105], [40, 20, -105]])
+        mesh = np.array([[-30, -12, -50], [30, 12, -50], [-39, -33, -125], [39, 37, -125],
+                         [41, 0, -220]])
+        top, body, below = horizontal_spans(hull, mesh, 5)
+        self.assertEqual(top["hull_width_depth_mm"], [65, 29])
+        self.assertEqual(body["range_below_datum_mm"], [100, 200])
+        self.assertEqual(body["glb_width_depth_mm"], [78, 70])
+        self.assertIsNone(below["hull_width_depth_mm"])

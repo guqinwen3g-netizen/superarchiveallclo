@@ -126,6 +126,22 @@ def compare_surface(volume, low, step, vertices, triangles):
     }, boundary
 
 
+def horizontal_spans(boundary, vertices, voxel_mm, band_mm=100):
+    """Compare lateral width and depth in bands below the registration datum."""
+    def spans(points, padding):
+        bands = np.floor(-points[:, 2] / band_mm).astype(int)
+        return {band: (np.ptp(points[bands == band, :2], axis=0) + padding).round(2).tolist()
+                for band in np.unique(bands)}
+
+    reference = spans(boundary, voxel_mm)
+    candidate = spans(vertices, 0)
+    return [
+        {"range_below_datum_mm": [int(band * band_mm), int((band + 1) * band_mm)],
+         "hull_width_depth_mm": reference.get(band), "glb_width_depth_mm": candidate.get(band)}
+        for band in sorted(reference.keys() | candidate.keys())
+    ]
+
+
 def write_surface(path, boundary):
     vertices = np.asarray(boundary / 1000, dtype="<f4")
     with path.open("wb") as stream:
@@ -196,6 +212,7 @@ def compare(archive, reference, output, *, blender="blender", step=5.0):
         "archive_audit": audit,
         "voxel_step_mm": step, "hull_bounds_span_mm": (np.ptp(boundary, axis=0) + step).round(2).tolist(),
         "glb_bounds_span_mm": np.ptp(vertices, axis=0).round(2).tolist(),
+        "horizontal_spans_by_height": horizontal_spans(boundary, vertices, step),
         "hull_volume_litres": round(float(volume.sum() * step ** 3 / 1_000_000), 3),
         "candidate_surface_vs_hull": support, "views": {},
     }

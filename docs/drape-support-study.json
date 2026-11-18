@@ -1,0 +1,1330 @@
+{
+  "schema_version": 1,
+  "runtime": {
+    "python": "3.12.14",
+    "blender": "4.3.2"
+  },
+  "scope": "Same-pattern drape against one Auckland Museum garment. Fixed-camera outer hull and held-out photograph.",
+  "cases": {
+    "fixed-38": {
+      "simulation": {
+        "solver": "Flat edge-length fit followed by Blender Cloth on a sewn surface",
+        "reference_form": "torso_only",
+        "cloth_support": "fixed_shoulders_and_contact",
+        "initial_sleeve_angle_from_vertical_deg": 45,
+        "seam_connection": "Shared vertices throughout draping",
+        "evaluated_frame": 38,
+        "frames_per_second": 24.0,
+        "last_interval_vertex_displacement_mm": {
+          "frames": [
+            33,
+            38
+          ],
+          "median": 1.82,
+          "p90": 6.88
+        },
+        "flat_metric_absolute_strain_percent": {
+          "median": 2.44,
+          "p95": 13.74
+        },
+        "welded_opening_count": 4,
+        "max_reference_form_vertex_penetration_mm": {
+          "cloth_solve": 3.26,
+          "exported_surface": 0.0
+        },
+        "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+        "preview_surface": "Subdivision and 1 mm reference material thickness",
+        "review": "Reference form and estimated knit settings, subject to physical comparison",
+        "panel_vertex_ranges_before_welding": {
+          "front": {
+            "vertex_start": 0,
+            "vertex_count": 2604
+          },
+          "back": {
+            "vertex_start": 2604,
+            "vertex_count": 2654
+          },
+          "sleeve_right": {
+            "vertex_start": 5258,
+            "vertex_count": 588
+          },
+          "sleeve_left": {
+            "vertex_start": 5846,
+            "vertex_count": 588
+          },
+          "collar": {
+            "vertex_start": 6434,
+            "vertex_count": 91
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "item_id": "auckland-2017.66.22",
+        "setup": "Near-cardinal photographs of the museum's mannequin. Scale transfers from two rulers through the common stand pole. Orthographic cameras use the pole center and the neck rim height. The GLB uses the generic archive form; its neck rim is registered by translation.",
+        "scope": "Photo-derived outer volume and projected contours under the declared camera assumptions",
+        "model_origin_mm": [
+          0.0,
+          0.0,
+          1618.5929411764705
+        ],
+        "reference_manifest_sha256": "20c55f4132e890eca4e3a05b4665516d2598d478b802acc26b43e3c15c15b9f6",
+        "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+        "garment_glb_sha256": "3f609c167a862a55a5bd0da78fe375a151ac1b01767289d5a6315b0a8bda4953",
+        "reference_form": "torso_only",
+        "archive_audit": {
+          "capture_kind": "physical",
+          "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+          "source_photos": 4,
+          "vision_estimates": 10,
+          "dxf_panels": 5,
+          "seams": 15,
+          "garment_openings": 4,
+          "glb": {
+            "meshes": 1,
+            "bounds_span_m": [
+              0.6437,
+              0.7035,
+              0.332
+            ]
+          }
+        },
+        "voxel_step_mm": 5,
+        "hull_bounds_span_mm": [
+          460,
+          270,
+          650
+        ],
+        "glb_bounds_span_mm": [
+          643.75,
+          331.96,
+          703.55
+        ],
+        "horizontal_spans_by_height": [
+          {
+            "range_below_datum_mm": [
+              0,
+              100
+            ],
+            "hull_width_depth_mm": [
+              285,
+              135
+            ],
+            "glb_width_depth_mm": [
+              241.23,
+              125.52
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              100,
+              200
+            ],
+            "hull_width_depth_mm": [
+              370,
+              200
+            ],
+            "glb_width_depth_mm": [
+              477.57,
+              233.75
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              200,
+              300
+            ],
+            "hull_width_depth_mm": [
+              415,
+              230
+            ],
+            "glb_width_depth_mm": [
+              593.96,
+              269.23
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              300,
+              400
+            ],
+            "hull_width_depth_mm": [
+              455,
+              255
+            ],
+            "glb_width_depth_mm": [
+              643.75,
+              298.58
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              400,
+              500
+            ],
+            "hull_width_depth_mm": [
+              440,
+              265
+            ],
+            "glb_width_depth_mm": [
+              358.35,
+              313.62
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              500,
+              600
+            ],
+            "hull_width_depth_mm": [
+              330,
+              265
+            ],
+            "glb_width_depth_mm": [
+              349.52,
+              322.55
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              600,
+              700
+            ],
+            "hull_width_depth_mm": [
+              335,
+              265
+            ],
+            "glb_width_depth_mm": [
+              339.65,
+              328.91
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              700,
+              800
+            ],
+            "hull_width_depth_mm": null,
+            "glb_width_depth_mm": [
+              342.13,
+              331.96
+            ]
+          }
+        ],
+        "hull_volume_litres": 51.017,
+        "candidate_surface_vs_hull": {
+          "triangle_area_outside_by_more_than_one_voxel_fraction": 0.4528,
+          "one_sided_triangle_center_distance_p90_mm": 47.48
+        },
+        "views": {
+          "photo-01": {
+            "photo": "netball-01.jpg",
+            "photo_sha256": "1b64a9ca2387d0cd410814ce3189c7bd3d4d6f03e8157b8494c223266bd53590",
+            "mask": "photo-01-mask.png",
+            "role": "held_out",
+            "axis": "front",
+            "mm_per_pixel": 1.6246450066303835,
+            "origin_px": [
+              308.6666666666667,
+              63
+            ],
+            "mask_sha256": "e3afac12f508b38c2f113efae28a6ba3c97540ec83a31d0486ee89aeff423fd4",
+            "hull": {
+              "iou": 0.8724,
+              "contour_p90_mm": 32.49
+            },
+            "glb": {
+              "iou": 0.7618,
+              "contour_p90_mm": 55.33
+            }
+          },
+          "photo-02": {
+            "photo": "netball-02.jpg",
+            "photo_sha256": "5a5c4cd1990a8ab3654d500f6ebf261606bde0374485aa342098c88b6142eb5c",
+            "mask": "photo-02-mask.png",
+            "role": "carve",
+            "axis": "front",
+            "mm_per_pixel": 0.9573800931929045,
+            "origin_px": [
+              274.4166666666667,
+              73
+            ],
+            "mask_sha256": "27ea40fe17818a3c03a18c204317b1ae25868c49a17f7f4541737a27b7211b7d",
+            "hull": {
+              "iou": 0.963,
+              "contour_p90_mm": 12.26
+            },
+            "glb": {
+              "iou": 0.7563,
+              "contour_p90_mm": 62.23
+            }
+          },
+          "photo-03": {
+            "photo": "netball-03.jpg",
+            "photo_sha256": "29b5aa5937538945f75c6a805ecd5e16be7d7c52aa140d282d08a0f21ff21020",
+            "mask": "photo-03-mask.png",
+            "role": "carve",
+            "axis": "left",
+            "mm_per_pixel": 0.9928386151630121,
+            "origin_px": [
+              292.6666666666667,
+              84
+            ],
+            "mask_sha256": "9305d8d9d906052783cf1d6001f11d017dd72bb5ba7620603ee71af6deb8aab1",
+            "hull": {
+              "iou": 0.9246,
+              "contour_p90_mm": 18.25
+            },
+            "glb": {
+              "iou": 0.7561,
+              "contour_p90_mm": 53.22
+            }
+          },
+          "photo-04": {
+            "photo": "netball-04.jpg",
+            "photo_sha256": "68317716866117d72395c1f5ec0d74a8803fb96eb9d54cb3d48464153e7ade0a",
+            "mask": "photo-04-mask.png",
+            "role": "carve",
+            "axis": "back",
+            "mm_per_pixel": 0.9928386151630121,
+            "origin_px": [
+              256.8333333333333,
+              74
+            ],
+            "mask_sha256": "d8a16fa9bc1e1fc2709e10f95ee347ab8bb89fbeb9b0f6f0860030605a8b14a4",
+            "hull": {
+              "iou": 0.8511,
+              "contour_p90_mm": 43.69
+            },
+            "glb": {
+              "iou": 0.7828,
+              "contour_p90_mm": 50.38
+            }
+          },
+          "photo-05": {
+            "photo": "netball-05.jpg",
+            "photo_sha256": "2eeaa45e2a405e059a7c5a2795ba88abbf8764b4709b04f42dfaced5163547e2",
+            "mask": "photo-05-mask.png",
+            "role": "carve",
+            "axis": "right",
+            "mm_per_pixel": 0.9928386151630121,
+            "origin_px": [
+              241.66666666666666,
+              77
+            ],
+            "mask_sha256": "637e60bca7bbe14fc6b48d8e4f9bfa41f3803fdf4e884800dab032885f87caf2",
+            "hull": {
+              "iou": 0.8911,
+              "contour_p90_mm": 23.83
+            },
+            "glb": {
+              "iou": 0.7578,
+              "contour_p90_mm": 54.06
+            }
+          }
+        }
+      }
+    },
+    "fixed-76": {
+      "simulation": {
+        "solver": "Flat edge-length fit followed by Blender Cloth on a sewn surface",
+        "reference_form": "torso_only",
+        "cloth_support": "fixed_shoulders_and_contact",
+        "initial_sleeve_angle_from_vertical_deg": 45,
+        "seam_connection": "Shared vertices throughout draping",
+        "evaluated_frame": 76,
+        "frames_per_second": 24.0,
+        "last_interval_vertex_displacement_mm": {
+          "frames": [
+            71,
+            76
+          ],
+          "median": 0.91,
+          "p90": 2.25
+        },
+        "flat_metric_absolute_strain_percent": {
+          "median": 2.45,
+          "p95": 13.51
+        },
+        "welded_opening_count": 4,
+        "max_reference_form_vertex_penetration_mm": {
+          "cloth_solve": 3.26,
+          "exported_surface": 0.0
+        },
+        "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+        "preview_surface": "Subdivision and 1 mm reference material thickness",
+        "review": "Reference form and estimated knit settings, subject to physical comparison",
+        "panel_vertex_ranges_before_welding": {
+          "front": {
+            "vertex_start": 0,
+            "vertex_count": 2604
+          },
+          "back": {
+            "vertex_start": 2604,
+            "vertex_count": 2654
+          },
+          "sleeve_right": {
+            "vertex_start": 5258,
+            "vertex_count": 588
+          },
+          "sleeve_left": {
+            "vertex_start": 5846,
+            "vertex_count": 588
+          },
+          "collar": {
+            "vertex_start": 6434,
+            "vertex_count": 91
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "item_id": "auckland-2017.66.22",
+        "setup": "Near-cardinal photographs of the museum's mannequin. Scale transfers from two rulers through the common stand pole. Orthographic cameras use the pole center and the neck rim height. The GLB uses the generic archive form; its neck rim is registered by translation.",
+        "scope": "Photo-derived outer volume and projected contours under the declared camera assumptions",
+        "model_origin_mm": [
+          0.0,
+          0.0,
+          1618.5929411764705
+        ],
+        "reference_manifest_sha256": "20c55f4132e890eca4e3a05b4665516d2598d478b802acc26b43e3c15c15b9f6",
+        "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+        "garment_glb_sha256": "e4a769ffaeff62cacd73216486c7280caed19be63c96b221e836f46c61e27590",
+        "reference_form": "torso_only",
+        "archive_audit": {
+          "capture_kind": "physical",
+          "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+          "source_photos": 4,
+          "vision_estimates": 10,
+          "dxf_panels": 5,
+          "seams": 15,
+          "garment_openings": 4,
+          "glb": {
+            "meshes": 1,
+            "bounds_span_m": [
+              0.6377,
+              0.7027,
+              0.3573
+            ]
+          }
+        },
+        "voxel_step_mm": 5,
+        "hull_bounds_span_mm": [
+          460,
+          270,
+          650
+        ],
+        "glb_bounds_span_mm": [
+          637.74,
+          357.27,
+          702.68
+        ],
+        "horizontal_spans_by_height": [
+          {
+            "range_below_datum_mm": [
+              0,
+              100
+            ],
+            "hull_width_depth_mm": [
+              285,
+              135
+            ],
+            "glb_width_depth_mm": [
+              238.01,
+              126.24
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              100,
+              200
+            ],
+            "hull_width_depth_mm": [
+              370,
+              200
+            ],
+            "glb_width_depth_mm": [
+              476.29,
+              233.63
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              200,
+              300
+            ],
+            "hull_width_depth_mm": [
+              415,
+              230
+            ],
+            "glb_width_depth_mm": [
+              590.29,
+              267.65
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              300,
+              400
+            ],
+            "hull_width_depth_mm": [
+              455,
+              255
+            ],
+            "glb_width_depth_mm": [
+              637.74,
+              298.95
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              400,
+              500
+            ],
+            "hull_width_depth_mm": [
+              440,
+              265
+            ],
+            "glb_width_depth_mm": [
+              360.81,
+              317.84
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              500,
+              600
+            ],
+            "hull_width_depth_mm": [
+              330,
+              265
+            ],
+            "glb_width_depth_mm": [
+              351.47,
+              333.39
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              600,
+              700
+            ],
+            "hull_width_depth_mm": [
+              335,
+              265
+            ],
+            "glb_width_depth_mm": [
+              340.1,
+              348.76
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              700,
+              800
+            ],
+            "hull_width_depth_mm": null,
+            "glb_width_depth_mm": [
+              343.06,
+              357.27
+            ]
+          }
+        ],
+        "hull_volume_litres": 51.017,
+        "candidate_surface_vs_hull": {
+          "triangle_area_outside_by_more_than_one_voxel_fraction": 0.4743,
+          "one_sided_triangle_center_distance_p90_mm": 48.47
+        },
+        "views": {
+          "photo-01": {
+            "photo": "netball-01.jpg",
+            "photo_sha256": "1b64a9ca2387d0cd410814ce3189c7bd3d4d6f03e8157b8494c223266bd53590",
+            "mask": "photo-01-mask.png",
+            "role": "held_out",
+            "axis": "front",
+            "mm_per_pixel": 1.6246450066303835,
+            "origin_px": [
+              308.6666666666667,
+              63
+            ],
+            "mask_sha256": "e3afac12f508b38c2f113efae28a6ba3c97540ec83a31d0486ee89aeff423fd4",
+            "hull": {
+              "iou": 0.8724,
+              "contour_p90_mm": 32.49
+            },
+            "glb": {
+              "iou": 0.7655,
+              "contour_p90_mm": 54.49
+            }
+          },
+          "photo-02": {
+            "photo": "netball-02.jpg",
+            "photo_sha256": "5a5c4cd1990a8ab3654d500f6ebf261606bde0374485aa342098c88b6142eb5c",
+            "mask": "photo-02-mask.png",
+            "role": "carve",
+            "axis": "front",
+            "mm_per_pixel": 0.9573800931929045,
+            "origin_px": [
+              274.4166666666667,
+              73
+            ],
+            "mask_sha256": "27ea40fe17818a3c03a18c204317b1ae25868c49a17f7f4541737a27b7211b7d",
+            "hull": {
+              "iou": 0.963,
+              "contour_p90_mm": 12.26
+            },
+            "glb": {
+              "iou": 0.7561,
+              "contour_p90_mm": 62.23
+            }
+          },
+          "photo-03": {
+            "photo": "netball-03.jpg",
+            "photo_sha256": "29b5aa5937538945f75c6a805ecd5e16be7d7c52aa140d282d08a0f21ff21020",
+            "mask": "photo-03-mask.png",
+            "role": "carve",
+            "axis": "left",
+            "mm_per_pixel": 0.9928386151630121,
+            "origin_px": [
+              292.6666666666667,
+              84
+            ],
+            "mask_sha256": "9305d8d9d906052783cf1d6001f11d017dd72bb5ba7620603ee71af6deb8aab1",
+            "hull": {
+              "iou": 0.9246,
+              "contour_p90_mm": 18.25
+            },
+            "glb": {
+              "iou": 0.7419,
+              "contour_p90_mm": 55.6
+            }
+          },
+          "photo-04": {
+            "photo": "netball-04.jpg",
+            "photo_sha256": "68317716866117d72395c1f5ec0d74a8803fb96eb9d54cb3d48464153e7ade0a",
+            "mask": "photo-04-mask.png",
+            "role": "carve",
+            "axis": "back",
+            "mm_per_pixel": 0.9928386151630121,
+            "origin_px": [
+              256.8333333333333,
+              74
+            ],
+            "mask_sha256": "d8a16fa9bc1e1fc2709e10f95ee347ab8bb89fbeb9b0f6f0860030605a8b14a4",
+            "hull": {
+              "iou": 0.8511,
+              "contour_p90_mm": 43.69
+            },
+            "glb": {
+              "iou": 0.7865,
+              "contour_p90_mm": 49.04
+            }
+          },
+          "photo-05": {
+            "photo": "netball-05.jpg",
+            "photo_sha256": "2eeaa45e2a405e059a7c5a2795ba88abbf8764b4709b04f42dfaced5163547e2",
+            "mask": "photo-05-mask.png",
+            "role": "carve",
+            "axis": "right",
+            "mm_per_pixel": 0.9928386151630121,
+            "origin_px": [
+              241.66666666666666,
+              77
+            ],
+            "mask_sha256": "637e60bca7bbe14fc6b48d8e4f9bfa41f3803fdf4e884800dab032885f87caf2",
+            "hull": {
+              "iou": 0.8911,
+              "contour_p90_mm": 23.83
+            },
+            "glb": {
+              "iou": 0.7474,
+              "contour_p90_mm": 55.05
+            }
+          }
+        }
+      }
+    },
+    "display-38": {
+      "simulation": {
+        "solver": "Flat edge-length fit followed by Blender Cloth on a sewn surface",
+        "reference_form": "display_torso",
+        "cloth_support": "contact_only",
+        "initial_sleeve_angle_from_vertical_deg": 20,
+        "seam_connection": "Shared vertices throughout draping",
+        "evaluated_frame": 38,
+        "frames_per_second": 24.0,
+        "last_interval_vertex_displacement_mm": {
+          "frames": [
+            33,
+            38
+          ],
+          "median": 3.82,
+          "p90": 8.73
+        },
+        "flat_metric_absolute_strain_percent": {
+          "median": 2.5,
+          "p95": 13.61
+        },
+        "welded_opening_count": 4,
+        "max_reference_form_vertex_penetration_mm": {
+          "cloth_solve": 0.0,
+          "exported_surface": 0.0
+        },
+        "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+        "preview_surface": "Subdivision and 1 mm reference material thickness",
+        "review": "Reference form and estimated knit settings, subject to physical comparison",
+        "panel_vertex_ranges_before_welding": {
+          "front": {
+            "vertex_start": 0,
+            "vertex_count": 2604
+          },
+          "back": {
+            "vertex_start": 2604,
+            "vertex_count": 2654
+          },
+          "sleeve_right": {
+            "vertex_start": 5258,
+            "vertex_count": 588
+          },
+          "sleeve_left": {
+            "vertex_start": 5846,
+            "vertex_count": 588
+          },
+          "collar": {
+            "vertex_start": 6434,
+            "vertex_count": 91
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "item_id": "auckland-2017.66.22",
+        "setup": "Near-cardinal photographs of the museum's mannequin. Scale transfers from two rulers through the common stand pole. Orthographic cameras use the pole center and the neck rim height. The GLB uses the generic archive form; its neck rim is registered by translation.",
+        "scope": "Photo-derived outer volume and projected contours under the declared camera assumptions",
+        "model_origin_mm": [
+          0.0,
+          0.0,
+          1618.5929411764705
+        ],
+        "reference_manifest_sha256": "20c55f4132e890eca4e3a05b4665516d2598d478b802acc26b43e3c15c15b9f6",
+        "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+        "garment_glb_sha256": "296ec2ecc1ab8be84e78b67865427cfe1b307b9fe30c89b618ac6ec7ded2f772",
+        "reference_form": "display_torso",
+        "archive_audit": {
+          "capture_kind": "physical",
+          "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+          "source_photos": 4,
+          "vision_estimates": 10,
+          "dxf_panels": 5,
+          "seams": 15,
+          "garment_openings": 4,
+          "glb": {
+            "meshes": 1,
+            "bounds_span_m": [
+              0.57,
+              0.7058,
+              0.3227
+            ]
+          }
+        },
+        "voxel_step_mm": 5,
+        "hull_bounds_span_mm": [
+          460,
+          270,
+          650
+        ],
+        "glb_bounds_span_mm": [
+          570.01,
+          322.73,
+          705.81
+        ],
+        "horizontal_spans_by_height": [
+          {
+            "range_below_datum_mm": [
+              0,
+              100
+            ],
+            "hull_width_depth_mm": [
+              285,
+              135
+            ],
+            "glb_width_depth_mm": [
+              294.83,
+              125.28
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              100,
+              200
+            ],
+            "hull_width_depth_mm": [
+              370,
+              200
+            ],
+            "glb_width_depth_mm": [
+              465.64,
+              227.49
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              200,
+              300
+            ],
+            "hull_width_depth_mm": [
+              415,
+              230
+            ],
+            "glb_width_depth_mm": [
+              534.53,
+              265.7
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              300,
+              400
+            ],
+            "hull_width_depth_mm": [
+              455,
+              255
+            ],
+            "glb_width_depth_mm": [
+              570.01,
+              287.11
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              400,
+              500
+            ],
+            "hull_width_depth_mm": [
+              440,
+              265
+            ],
+            "glb_width_depth_mm": [
+              425.79,
+              300.13
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              500,
+              600
+            ],
+            "hull_width_depth_mm": [
+              330,
+              265
+            ],
+            "glb_width_depth_mm": [
+              404.85,
+              311.35
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              600,
+              700
+            ],
+            "hull_width_depth_mm": [
+              335,
+              265
+            ],
+            "glb_width_depth_mm": [
+              384.26,
+              321.29
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              700,
+              800
+            ],
+            "hull_width_depth_mm": null,
+            "glb_width_depth_mm": [
+              365.52,
+              322.42
+            ]
+          }
+        ],
+        "hull_volume_litres": 51.017,
+        "candidate_surface_vs_hull": {
+          "triangle_area_outside_by_more_than_one_voxel_fraction": 0.4224,
+          "one_sided_triangle_center_distance_p90_mm": 38.65
+        },
+        "views": {
+          "photo-01": {
+            "photo": "netball-01.jpg",
+            "photo_sha256": "1b64a9ca2387d0cd410814ce3189c7bd3d4d6f03e8157b8494c223266bd53590",
+            "mask": "photo-01-mask.png",
+            "role": "held_out",
+            "axis": "front",
+            "mm_per_pixel": 1.6246450066303835,
+            "origin_px": [
+              308.6666666666667,
+              63
+            ],
+            "mask_sha256": "e3afac12f508b38c2f113efae28a6ba3c97540ec83a31d0486ee89aeff423fd4",
+            "hull": {
+              "iou": 0.8724,
+              "contour_p90_mm": 32.49
+            },
+            "glb": {
+              "iou": 0.8011,
+              "contour_p90_mm": 54.23
+            }
+          },
+          "photo-02": {
+            "photo": "netball-02.jpg",
+            "photo_sha256": "5a5c4cd1990a8ab3654d500f6ebf261606bde0374485aa342098c88b6142eb5c",
+            "mask": "photo-02-mask.png",
+            "role": "carve",
+            "axis": "front",
+            "mm_per_pixel": 0.9573800931929045,
+            "origin_px": [
+              274.4166666666667,
+              73
+            ],
+            "mask_sha256": "27ea40fe17818a3c03a18c204317b1ae25868c49a17f7f4541737a27b7211b7d",
+            "hull": {
+              "iou": 0.963,
+              "contour_p90_mm": 12.26
+            },
+            "glb": {
+              "iou": 0.7586,
+              "contour_p90_mm": 63.11
+            }
+          },
+          "photo-03": {
+            "photo": "netball-03.jpg",
+            "photo_sha256": "29b5aa5937538945f75c6a805ecd5e16be7d7c52aa140d282d08a0f21ff21020",
+            "mask": "photo-03-mask.png",
+            "role": "carve",
+            "axis": "left",
+            "mm_per_pixel": 0.9928386151630121,
+            "origin_px": [
+              292.6666666666667,
+              84
+            ],
+            "mask_sha256": "9305d8d9d906052783cf1d6001f11d017dd72bb5ba7620603ee71af6deb8aab1",
+            "hull": {
+              "iou": 0.9246,
+              "contour_p90_mm": 18.25
+            },
+            "glb": {
+              "iou": 0.7812,
+              "contour_p90_mm": 50.63
+            }
+          },
+          "photo-04": {
+            "photo": "netball-04.jpg",
+            "photo_sha256": "68317716866117d72395c1f5ec0d74a8803fb96eb9d54cb3d48464153e7ade0a",
+            "mask": "photo-04-mask.png",
+            "role": "carve",
+            "axis": "back",
+            "mm_per_pixel": 0.9928386151630121,
+            "origin_px": [
+              256.8333333333333,
+              74
+            ],
+            "mask_sha256": "d8a16fa9bc1e1fc2709e10f95ee347ab8bb89fbeb9b0f6f0860030605a8b14a4",
+            "hull": {
+              "iou": 0.8511,
+              "contour_p90_mm": 43.69
+            },
+            "glb": {
+              "iou": 0.8071,
+              "contour_p90_mm": 49.14
+            }
+          },
+          "photo-05": {
+            "photo": "netball-05.jpg",
+            "photo_sha256": "2eeaa45e2a405e059a7c5a2795ba88abbf8764b4709b04f42dfaced5163547e2",
+            "mask": "photo-05-mask.png",
+            "role": "carve",
+            "axis": "right",
+            "mm_per_pixel": 0.9928386151630121,
+            "origin_px": [
+              241.66666666666666,
+              77
+            ],
+            "mask_sha256": "637e60bca7bbe14fc6b48d8e4f9bfa41f3803fdf4e884800dab032885f87caf2",
+            "hull": {
+              "iou": 0.8911,
+              "contour_p90_mm": 23.83
+            },
+            "glb": {
+              "iou": 0.7724,
+              "contour_p90_mm": 50.22
+            }
+          }
+        }
+      }
+    },
+    "display-76": {
+      "simulation": {
+        "solver": "Flat edge-length fit followed by Blender Cloth on a sewn surface",
+        "reference_form": "display_torso",
+        "cloth_support": "contact_only",
+        "initial_sleeve_angle_from_vertical_deg": 20,
+        "seam_connection": "Shared vertices throughout draping",
+        "evaluated_frame": 76,
+        "frames_per_second": 24.0,
+        "last_interval_vertex_displacement_mm": {
+          "frames": [
+            71,
+            76
+          ],
+          "median": 1.65,
+          "p90": 3.61
+        },
+        "flat_metric_absolute_strain_percent": {
+          "median": 2.51,
+          "p95": 13.76
+        },
+        "welded_opening_count": 4,
+        "max_reference_form_vertex_penetration_mm": {
+          "cloth_solve": 0.0,
+          "exported_surface": 0.0
+        },
+        "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+        "preview_surface": "Subdivision and 1 mm reference material thickness",
+        "review": "Reference form and estimated knit settings, subject to physical comparison",
+        "panel_vertex_ranges_before_welding": {
+          "front": {
+            "vertex_start": 0,
+            "vertex_count": 2604
+          },
+          "back": {
+            "vertex_start": 2604,
+            "vertex_count": 2654
+          },
+          "sleeve_right": {
+            "vertex_start": 5258,
+            "vertex_count": 588
+          },
+          "sleeve_left": {
+            "vertex_start": 5846,
+            "vertex_count": 588
+          },
+          "collar": {
+            "vertex_start": 6434,
+            "vertex_count": 91
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "item_id": "auckland-2017.66.22",
+        "setup": "Near-cardinal photographs of the museum's mannequin. Scale transfers from two rulers through the common stand pole. Orthographic cameras use the pole center and the neck rim height. The GLB uses the generic archive form; its neck rim is registered by translation.",
+        "scope": "Photo-derived outer volume and projected contours under the declared camera assumptions",
+        "model_origin_mm": [
+          0.0,
+          0.0,
+          1618.5929411764705
+        ],
+        "reference_manifest_sha256": "20c55f4132e890eca4e3a05b4665516d2598d478b802acc26b43e3c15c15b9f6",
+        "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+        "garment_glb_sha256": "9f9ba41ea9dcde25c835bcf7b3d2975b4c662bf49eff2372b7d0670dd5b29f85",
+        "reference_form": "display_torso",
+        "archive_audit": {
+          "capture_kind": "physical",
+          "pattern_sha256": "e01dc893b1dac8c4808bf99a07387159bb0d855ac07f822522a0323b376e1ea0",
+          "source_photos": 4,
+          "vision_estimates": 10,
+          "dxf_panels": 5,
+          "seams": 15,
+          "garment_openings": 4,
+          "glb": {
+            "meshes": 1,
+            "bounds_span_m": [
+              0.5849,
+              0.7086,
+              0.3168
+            ]
+          }
+        },
+        "voxel_step_mm": 5,
+        "hull_bounds_span_mm": [
+          460,
+          270,
+          650
+        ],
+        "glb_bounds_span_mm": [
+          584.86,
+          316.76,
+          708.59
+        ],
+        "horizontal_spans_by_height": [
+          {
+            "range_below_datum_mm": [
+              0,
+              100
+            ],
+            "hull_width_depth_mm": [
+              285,
+              135
+            ],
+            "glb_width_depth_mm": [
+              281.62,
+              129.14
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              100,
+              200
+            ],
+            "hull_width_depth_mm": [
+              370,
+              200
+            ],
+            "glb_width_depth_mm": [
+              462.68,
+              229.94
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              200,
+              300
+            ],
+            "hull_width_depth_mm": [
+              415,
+              230
+            ],
+            "glb_width_depth_mm": [
+              541.41,
+              267.82
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              300,
+              400
+            ],
+            "hull_width_depth_mm": [
+              455,
+              255
+            ],
+            "glb_width_depth_mm": [
+              584.86,
+              288.65
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              400,
+              500
+            ],
+            "hull_width_depth_mm": [
+              440,
+              265
+            ],
+            "glb_width_depth_mm": [
+              418.66,
+              299.46
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              500,
+              600
+            ],
+            "hull_width_depth_mm": [
+              330,
+              265
+            ],
+            "glb_width_depth_mm": [
+              398.15,
+              307.53
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              600,
+              700
+            ],
+            "hull_width_depth_mm": [
+              335,
+              265
+            ],
+            "glb_width_depth_mm": [
+              381.78,
+              312.57
+            ]
+          },
+          {
+            "range_below_datum_mm": [
+              700,
+              800
+            ],
+            "hull_width_depth_mm": null,
+            "glb_width_depth_mm": [
+              362.38,
+              310.09
+            ]
+          }
+        ],
+        "hull_volume_litres": 51.017,
+        "candidate_surface_vs_hull": {
+          "triangle_area_outside_by_more_than_one_voxel_fraction": 0.3951,
+          "one_sided_triangle_center_distance_p90_mm": 38.47
+        },
+        "views": {
+          "photo-01": {
+            "photo": "netball-01.jpg",
+            "photo_sha256": "1b64a9ca2387d0cd410814ce3189c7bd3d4d6f03e8157b8494c223266bd53590",
+            "mask": "photo-01-mask.png",
+            "role": "held_out",
+            "axis": "front",
+            "mm_per_pixel": 1.6246450066303835,
+            "origin_px": [
+              308.6666666666667,
+              63
+            ],
+            "mask_sha256": "e3afac12f508b38c2f113efae28a6ba3c97540ec83a31d0486ee89aeff423fd4",
+            "hull": {
+              "iou": 0.8724,
+              "contour_p90_mm": 32.49
+            },
+            "glb": {
+              "iou": 0.7921,
+              "contour_p90_mm": 58.69
+            }
+          },
+          "photo-02": {
+            "photo": "netball-02.jpg",
+            "photo_sha256": "5a5c4cd1990a8ab3654d500f6ebf261606bde0374485aa342098c88b6142eb5c",
+            "mask": "photo-02-mask.png",
+            "role": "carve",
+            "axis": "front",
+            "mm_per_pixel": 0.9573800931929045,
+            "origin_px": [
+              274.4166666666667,
+              73
+            ],
+            "mask_sha256": "27ea40fe17818a3c03a18c204317b1ae25868c49a17f7f4541737a27b7211b7d",
+            "hull": {
+              "iou": 0.963,
+              "contour_p90_mm": 12.26
+            },
+            "glb": {
+              "iou": 0.7576,
+              "contour_p90_mm": 62.82
+            }
+          },
+          "photo-03": {
+            "photo": "netball-03.jpg",
+            "photo_sha256": "29b5aa5937538945f75c6a805ecd5e16be7d7c52aa140d282d08a0f21ff21020",
+            "mask": "photo-03-mask.png",
+            "role": "carve",
+            "axis": "left",
+            "mm_per_pixel": 0.9928386151630121,
+            "origin_px": [
+              292.6666666666667,
+              84
+            ],
+            "mask_sha256": "9305d8d9d906052783cf1d6001f11d017dd72bb5ba7620603ee71af6deb8aab1",
+            "hull": {
+              "iou": 0.9246,
+              "contour_p90_mm": 18.25
+            },
+            "glb": {
+              "iou": 0.7855,
+              "contour_p90_mm": 51.11
+            }
+          },
+          "photo-04": {
+            "photo": "netball-04.jpg",
+            "photo_sha256": "68317716866117d72395c1f5ec0d74a8803fb96eb9d54cb3d48464153e7ade0a",
+            "mask": "photo-04-mask.png",
+            "role": "carve",
+            "axis": "back",
+            "mm_per_pixel": 0.9928386151630121,
+            "origin_px": [
+              256.8333333333333,
+              74
+            ],
+            "mask_sha256": "d8a16fa9bc1e1fc2709e10f95ee347ab8bb89fbeb9b0f6f0860030605a8b14a4",
+            "hull": {
+              "iou": 0.8511,
+              "contour_p90_mm": 43.69
+            },
+            "glb": {
+              "iou": 0.8009,
+              "contour_p90_mm": 49.64
+            }
+          },
+          "photo-05": {
+            "photo": "netball-05.jpg",
+            "photo_sha256": "2eeaa45e2a405e059a7c5a2795ba88abbf8764b4709b04f42dfaced5163547e2",
+            "mask": "photo-05-mask.png",
+            "role": "carve",
+            "axis": "right",
+            "mm_per_pixel": 0.9928386151630121,
+            "origin_px": [
+              241.66666666666666,
+              77
+            ],
+            "mask_sha256": "637e60bca7bbe14fc6b48d8e4f9bfa41f3803fdf4e884800dab032885f87caf2",
+            "hull": {
+              "iou": 0.8911,
+              "contour_p90_mm": 23.83
+            },
+            "glb": {
+              "iou": 0.7699,
+              "contour_p90_mm": 52.1
+            }
+          }
+        }
+      }
+    }
+  },
+  "source_audit": {
+    "utah_clothcap": {
+      "source": "https://graphics.cs.utah.edu/research/projects/two-level-cloth-capture-pattern/",
+      "code_tree_id": "adcce77babad2c543e887d8fd725c61111798d52",
+      "garment_data_tar_gz_sha256": "0cdd318c2b31be84a9a7c8cb708e35ba1af709f06c998d860465c1d0e88010d9",
+      "sample_frames_tar_gz_sha256": "8d436409f888c4b1ead9a61ac987798df7791630b5b84286e7b8844395f6343d",
+      "shirt_frame": "capture_shirt_S_input/{A..P}/*04140.png",
+      "views": 16,
+      "checked_frame_size_px": [
+        4000,
+        2160
+      ],
+      "missing_from_checked_release": [
+        "camera_params_shirt_S.json",
+        "independent captured cloth surface for frame 04140"
+      ]
+    },
+    "ctu_spread_garments": {
+      "official_historical_page": "https://web.archive.org/web/20170420172715id_/http://clopema.felk.cvut.cz/color_and_depth_dataset.html",
+      "tool_repository": "https://github.com/CloPeMa/garment_dataset",
+      "terms": "Research and educational purposes only with publication acknowledgment",
+      "download_paths_at_original_server": [
+        "ftp://clopema.felk.cvut.cz/public/sample.zip",
+        "ftp://clopema.felk.cvut.cz/public/00001-02050.zip"
+      ],
+      "inspected_example_labels": {
+        "cloA00023.yaml": [
+          "pants",
+          "front",
+          "flat"
+        ],
+        "cloA01158.yaml": [
+          "polo",
+          "front",
+          "wrinkled"
+        ],
+        "cloA02321.yaml": [
+          "pants",
+          "front",
+          "folded"
+        ]
+      }
+    }
+  }
+}

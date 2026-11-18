@@ -32,6 +32,8 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 双面采集可分别恢复腋下胸宽与下摆宽，把侧缝收窄或放宽的幅度写入毫米纸样及同版仿真。[两件实物的衣身宽度对照](docs/body-profile-study.md)
 
+展台仿真可以使用无臂人台的接触支撑。对照报告记录模型随高度变化的前后深度，以及导出时布料的位移。[同版垂坠对照](docs/drape-support-study.md)
+
 ## 生成首款 T 恤纸样
 
 在仓库目录使用 Python 3.10+ 和 ReportLab。样例为虚构的 960 mm 净胸围体型，配 560 mm 成衣半胸宽和 680 mm 后中衣长。

@@ -110,7 +110,7 @@ python -m superarchiveallclo.compare_shape build/tee-01 \
 
 有标定抓取点和独立悬挂点云时，`superarchiveallclo.compare_hang` 可评估同版网格在两个绝对支撑点约束下的重力仿真。[实物悬挂对照](suspension-study.md)
 
-有同一姿态的近正交多视角挂拍时，`superarchiveallclo.visual_hull` 可以结合每帧独立尺度和同一人体基准生成毫米三维外包络。报告包含留出照片的轮廓误差，以及 GLB 超出外包络的面积与距离。可见布面深度由带标定的三维设备独立核对。[馆藏实物三维外包络与同版仿真](mannequin-study.md)
+有同一姿态的近正交多视角挂拍时，`superarchiveallclo.visual_hull` 可以结合每帧独立尺度和同一人体基准生成毫米三维外包络。报告包含留出照片的轮廓误差、GLB 超出外包络的面积与距离，以及各高度区间的前后深度。可见布面深度由带标定的三维设备独立核对。[馆藏实物三维外包络](mannequin-study.md) · [同版垂坠和分段深度](drape-support-study.md)
 
 ## 公开数据核对
 
@@ -129,4 +129,4 @@ python -m superarchiveallclo.compare_shape build/tee-01 \
 - Wikimedia Commons 的鹿儿岛 OpenStreetMap 调查 T 恤提供同件正背图，许可为 CC BY-SA 4.0。已验证可见衣身的相对比例，并检查到袖缘贴图边。该对照还需要可信尺度和独立原件尺寸。[正背照报告](sleeve-join-study.md#有授权的同件正背照)
 - 奥克兰博物馆的两件圆领 T 恤提供 CC BY 4.0 的同件正背照。一件带独立标尺，另一件有馆方尺寸、独立内部结构照和额外的近正交挂拍。两件均已生成候选归档。挂拍支持毫米外包络对照，原版纸样和直接三维布面测量仍待核对。[正背照盲测](paired-photo-study.md) · [人台三维对照](mannequin-study.md)
 - Deep Fashion3D V2 提供真实服装点云、注册网格和领口等边缘标注，许可为 CC BY-NC 4.0。归档的官方下载页面要求申请解压密码，发布说明未列出独立卷尺尺寸或原厂纸样。[发布说明](https://kv2000.github.io/2023/06/20/deepFashion3DV2/) · [下载与许可](https://github.com/GAP-LAB-CUHK-SZ/deepFashion3D)
-- 犹他大学的双层标记服装采集项目公开了数据和输入样本入口。研究用同一设计印制并缝制了长袖 T 恤，标定的 16 相机同时拍摄。可见区域由标记三角化，遮挡区域由算法补齐。该项目是长袖仿真的候选参考，服装资产的独立使用条件、可复核尺寸和所需数据文件仍待核查。[项目与数据入口](https://graphics.cs.utah.edu/research/projects/two-level-cloth-capture-pattern/) · [论文及采集说明](https://graphics.cs.utah.edu/research/projects/two-level-cloth-capture-pattern/two-level-cloth-capture-pattern.pdf)
+- 犹他大学的双层标记服装采集项目已下载核对服装模板和长袖 T 恤的 16 视角同步样本。该帧标定文件及独立测得的布面有待取得。CTU Spread Garments 的说明提供短袖正背标签和深度，完整发布入口本轮暂不可用。[两个实拍来源的核查记录](drape-support-study.md#其他实拍来源)

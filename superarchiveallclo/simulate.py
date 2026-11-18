@@ -1,9 +1,11 @@
 """Blender entry point for sewing and draping a captured tee on a reference form."""
 
+from argparse import ArgumentParser
 from collections import Counter, defaultdict
+from functools import partial
 from hashlib import sha256
 import json
-from math import ceil, cos, floor, pi, sin, sqrt
+from math import ceil, cos, floor, pi, radians, sin, sqrt
 from pathlib import Path
 import sys
 
@@ -106,7 +108,7 @@ def body_half_width_at(parameters, height):
     return (chest + fraction * (hem - chest)) / 2
 
 
-def place(pattern, panel, edges, point):
+def place(pattern, panel, edges, point, *, sleeve_angle_from_vertical=45):
     x, y = point
     p = pattern["parameters"]
     half_width = p["flat_chest_mm"] / 2
@@ -152,10 +154,16 @@ def place(pattern, panel, edges, point):
     shoulder_ratio = pattern["measurements"]["across_shoulders_mm"] / (2 * half_width)
     shoulder_x = rx * sin(min(shoulder_ratio, 1) * pi / 2) + max(0, shoulder_ratio - 1) * half_width / 1000
     shoulder = Vector((side * shoulder_x, 0, NECK_Z - p["shoulder_slope_mm"] / 1000))
-    return (
+    posed = (
         shoulder - normal * radius + direction * (y / 1000)
         + normal * (radius * cos(angle)) + Vector((0, -radius * sin(angle), 0))
     )
+    if sleeve_angle_from_vertical == 45:
+        return posed
+    rotation = radians(side * (45 - sleeve_angle_from_vertical))
+    x, y, z = posed - shoulder
+    return shoulder + Vector((cos(rotation) * x + sin(rotation) * z, y,
+                              -sin(rotation) * x + cos(rotation) * z))
 
 
 def body_border(pattern, name, edge, fraction):
@@ -328,9 +336,10 @@ def fit_metric(vertices, edges, target_lengths, pins, *, lock_height=False):
         vertices[pins] = original[pins]
 
 
-def configure_cloth(model, pins):
+def configure_cloth(model, pins, *, frame_end=FRAME):
     group = model.vertex_groups.new(name="Mannequin shoulder support")
-    group.add(pins, 1, "REPLACE")
+    if len(pins):
+        group.add(pins, 1, "REPLACE")
     cloth = model.modifiers.new("Cloth drape", "CLOTH")
     cloth.settings.quality = 10
     cloth.settings.mass = 0.15
@@ -345,7 +354,21 @@ def configure_cloth(model, pins):
     cloth.collision_settings.distance_min = 0.0018
     cloth.collision_settings.use_self_collision = True
     cloth.collision_settings.self_distance_min = 0.0015
-    cloth.point_cache.frame_end = FRAME
+    cloth.point_cache.frame_end = frame_end
+
+
+def evaluated_positions(garment):
+    evaluated = garment.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    return np.asarray([vertex.co[:] for vertex in evaluated.data.vertices])
+
+
+def displacement_summary(earlier, later, start_frame, end_frame):
+    displacement = 1000 * np.linalg.norm(later - earlier, axis=1)
+    return {
+        "frames": [start_frame, end_frame],
+        "median": round(float(np.median(displacement)), 2),
+        "p90": round(float(np.quantile(displacement, 0.9)), 2),
+    }
 
 
 def collider(name, location, scale, direction=None):
@@ -571,30 +594,41 @@ def render(model, output, pattern):
 
 
 def main():
-    source, output, *options = sys.argv[sys.argv.index("--") + 1:]
-    source, output = Path(source), Path(output)
-    form = options[0] if options else "torso_with_arms"
-    if form not in ("torso_with_arms", "torso_only"):
-        raise ValueError("Reference form must be torso_with_arms or torso_only")
+    parser = ArgumentParser(description=__doc__)
+    parser.add_argument("source", type=Path)
+    parser.add_argument("output", type=Path)
+    parser.add_argument("form", nargs="?", default="torso_with_arms",
+                        choices=("torso_with_arms", "torso_only", "display_torso"))
+    parser.add_argument("--frames", type=int, default=FRAME)
+    args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
+    source, output, form = args.source, args.output, args.form
+    if args.frames < 2:
+        parser.error("Drape requires at least two frames")
     pattern = json.loads(source.read_text())
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete(use_global=False)
     scene = bpy.context.scene
     scene.unit_settings.system = "METRIC"
     scene.render.threads_mode, scene.render.threads = "FIXED", 4
-    scene.frame_end = FRAME
+    scene.frame_end = args.frames
     forms = add_form(pattern, with_arms=form == "torso_with_arms")
-    points, welded_faces, faces, uv, pins, edges, rest, panels = build_assembly(pattern)
+    contact_only = form == "display_torso"
+    sleeve_angle = 20 if contact_only else 45
+    placement = partial(place, sleeve_angle_from_vertical=sleeve_angle)
+    points, welded_faces, faces, uv, pins, edges, rest, panels = build_assembly(pattern, place_vertex=placement)
     garment, openings = sewn_mesh(points, welded_faces, faces, uv, panels)
-    configure_cloth(garment, pins)
-    for frame in range(1, FRAME + 1):
+    configure_cloth(garment, [] if contact_only else pins, frame_end=args.frames)
+    earlier_frame = max(1, args.frames - 5)
+    for frame in range(1, args.frames + 1):
         scene.frame_set(frame)
-        if frame in (1, 20, FRAME):
-            print(f"Draping frame {frame}/{FRAME}", flush=True)
-    evaluated = garment.evaluated_get(bpy.context.evaluated_depsgraph_get())
-    positions = np.asarray([v.co[:] for v in evaluated.data.vertices])
-    if not np.isfinite(positions).all():
+        if frame == earlier_frame:
+            earlier = evaluated_positions(garment)
+        if frame in (1, 20, args.frames):
+            print(f"Draping frame {frame}/{args.frames}", flush=True)
+    positions = evaluated_positions(garment)
+    if not np.isfinite(positions).all() or not np.isfinite(earlier).all():
         raise ValueError("Cloth solve produced non-finite coordinates")
+    motion = displacement_summary(earlier, positions, earlier_frame, args.frames)
     contacts = contact_surfaces(forms)
     _, raw_penetration = stabilize_contact(contacts, positions, None)
     for _ in range(3):
@@ -609,8 +643,12 @@ def main():
     report = {
         "solver": "Flat edge-length fit followed by Blender Cloth on a sewn surface",
         "reference_form": form,
+        "cloth_support": "contact_only" if contact_only else "fixed_shoulders_and_contact",
+        "initial_sleeve_angle_from_vertical_deg": sleeve_angle,
         "seam_connection": "Shared vertices throughout draping",
-        "evaluated_frame": FRAME,
+        "evaluated_frame": args.frames,
+        "frames_per_second": scene.render.fps / scene.render.fps_base,
+        "last_interval_vertex_displacement_mm": motion,
         "flat_metric_absolute_strain_percent": {
             "median": round(float(np.median(strain)) * 100, 2),
             "p95": round(float(np.quantile(strain, 0.95)) * 100, 2),

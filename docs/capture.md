@@ -79,4 +79,6 @@ python -m superarchiveallclo.rgbd rgbd.json \
 
 对照无手臂人台的挂拍时，可给 `superarchiveallclo.capture` 加 `--form torso_only`。默认使用带上臂支撑的参考人台。所选人台记录在 `model/simulation.json`。[两种人台的同版对照](mannequin-study.md)
 
+`--form display_torso` 使用无臂人台的接触支撑，并让袖子从侧下方起算。可以用 `--drape-frames` 调整计算时长。归档报告末段顶点位移，帮助复核导出时的垂坠状态。[接触支撑、时长及实物误差](drape-support-study.md)
+
 真实闭环通过的依据是同一件衣服的正背和侧面，纸样按原件测量复核，3D 在同样视角和尺度下对照挂拍或试穿，再记录版型误差、结构差异和材质差异。合成样例用于验证文件、尺度、配缝与运行通道。摆放角度、未见的构造与布料物性仍需实物对照。
