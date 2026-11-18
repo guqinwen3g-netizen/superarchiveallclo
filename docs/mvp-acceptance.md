@@ -108,6 +108,8 @@ python -m superarchiveallclo.compare_shape build/tee-01 \
 
 有标定平铺点云时，可用 `superarchiveallclo.compare_flat` 从同版纸样生成对应姿态的 GLB，对独立复拍计算可见点到表面和轮廓边缘距离。配套数字网格带有展开 UV 时，`superarchiveallclo.compare_pattern` 可量出净线裁片误差并核对跨片连接。[真实 T 恤的对照结果](real-reference-comparison.md)
 
+有标定抓取点和独立悬挂点云时，`superarchiveallclo.compare_hang` 可评估同版网格在两个绝对支撑点约束下的重力仿真。[实物悬挂对照](suspension-study.md)
+
 ## 公开数据核对
 
 - GarmentCodeData 提供参数化纸样及模拟服装。可用作制板和渲染对照，真实 T 恤验收仍需同一件实物的照片与尺寸。[GarmentCode 官方资料](https://github.com/maria-korosteleva/GarmentCode)

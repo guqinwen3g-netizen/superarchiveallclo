@@ -22,6 +22,8 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 程序也能从毫米尺度的实物点云重建单面候选纸样和 3D。已在 RGBench 的真实圆领 T 恤上运行，保存原始点云、量测依据、DXF 和 GLB，并用同件复拍检查平铺三维，用配套数字参考量化各裁片误差。[袖山与袖窿的纸样结果](docs/sleeve-join-study.md) · [平铺网格应变和接缝核对](docs/flat-mesh-relaxation.md)
 
+同一套纸样也已用于双点悬挂的重力仿真。六帧实物扫描用于核查正视轮廓及三维距离。[悬挂对照与复现](docs/suspension-study.md)
+
 ## 生成首款 T 恤纸样
 
 在仓库目录使用 Python 3.10+ 和 ReportLab。样例为虚构的 960 mm 净胸围体型，配 560 mm 成衣半胸宽和 680 mm 后中衣长。

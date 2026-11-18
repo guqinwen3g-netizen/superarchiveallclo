@@ -70,16 +70,8 @@ def place_flat(pattern, name, edges, point, angle, sleeve_fold=True):
     return point
 
 
-def main():
-    filename, runtime, angle, solver = sys.argv[sys.argv.index("--") + 1:]
-    target = Path(runtime)
-    pattern = json.loads(Path(filename).read_bytes())
-    bpy.ops.object.select_all(action="SELECT")
-    bpy.ops.object.delete(use_global=False)
-    bpy.context.scene.unit_settings.system = "METRIC"
-    sleeve_fold = solver == "relaxed"
-    position = partial(place_flat, angle=radians(float(angle)), sleeve_fold=sleeve_fold)
-    seam_edges = {}
+def flat_assembly(pattern, angle, seam_edges, *, sleeve_fold=True):
+    position = partial(place_flat, angle=radians(angle), sleeve_fold=sleeve_fold)
 
     def relax(points, edges, lengths, pins, faces):
         weights = np.ones(len(edges))
@@ -88,9 +80,23 @@ def main():
                 weights[a_edges + b_edges] = SLEEVE_UNDERARM_WEIGHT
         relax_flat_metric(points, edges, lengths, pins, faces, weights)
 
-    points, welded, faces, uv, _, edges, lengths, panels = build_assembly(
+    return build_assembly(
         pattern, position, body_border, lock_height=True, sleeve_fold=sleeve_fold,
         relax=relax if sleeve_fold else None, seam_edge_indices=seam_edges,
+    )
+
+
+def main():
+    filename, runtime, angle, solver = sys.argv[sys.argv.index("--") + 1:]
+    target = Path(runtime)
+    pattern = json.loads(Path(filename).read_bytes())
+    bpy.ops.object.select_all(action="SELECT")
+    bpy.ops.object.delete(use_global=False)
+    bpy.context.scene.unit_settings.system = "METRIC"
+    sleeve_fold = solver == "relaxed"
+    seam_edges = {}
+    points, welded, faces, uv, _, edges, lengths, panels = flat_assembly(
+        pattern, float(angle), seam_edges, sleeve_fold=sleeve_fold,
     )
     model, openings = sewn_mesh(points, welded, faces, uv, panels)
     model.select_set(True)

@@ -1,0 +1,362 @@
+{
+  "dataset_revision": "136c00dc5f96b6b3d20427e93875a1c00d7a7cc9",
+  "license": "CC BY 4.0",
+  "runtime": {
+    "blender": "4.3.2",
+    "python": "3.12.14"
+  },
+  "archive_check": {
+    "capture_kind": "physical",
+    "pattern_sha256": "919924d8ad85b91b743d677d463426240e11d28333825097ce633ed219599333",
+    "source_photos": 1,
+    "vision_estimates": 3,
+    "dxf_panels": 5,
+    "seams": 15,
+    "garment_openings": 4,
+    "glb": {
+      "meshes": 1,
+      "bounds_span_m": [
+        0.8027,
+        0.7553,
+        0.3747
+      ]
+    }
+  },
+  "study_manifest": {
+    "schema_version": 1,
+    "item_id": "rgbench-green-tshirt",
+    "source": "https://huggingface.co/datasets/RGBench/RGBench-Cloth-Sim2Real-v1 at 136c00dc5f96b6b3d20427e93875a1c00d7a7cc9; green_tshirt/green_tshirt_grasp_2025-07-19-19-14-03; CC BY 4.0",
+    "world_to_camera": "world-to-camera.json",
+    "rest_scan": "rest.pcd",
+    "support_calibration_scan": "support-calibration.pcd",
+    "rest_contacts_world_m": [
+      [
+        0.1920353061447364,
+        -0.2784983243557401,
+        0.009354086814454375
+      ],
+      [
+        0.18943517798727727,
+        0.26732249607016734,
+        0.008031697495735157
+      ]
+    ],
+    "supports_world_m": [
+      [
+        0.18596346596686197,
+        -0.2196004615818527,
+        0.8025602262902379
+      ],
+      [
+        0.26299198428048964,
+        0.23301013915488197,
+        0.8017764947139141
+      ]
+    ],
+    "reference_scans": [
+      "hold-01.pcd",
+      "hold-02.pcd",
+      "hold-03.pcd",
+      "hold-04.pcd",
+      "hold-05.pcd",
+      "hold-06.pcd"
+    ],
+    "reference_timestamps": [
+      "1752923650.939758",
+      "1752923651.060162",
+      "1752923651.180568",
+      "1752923651.300973",
+      "1752923651.421379",
+      "1752923651.541785"
+    ],
+    "rest_timestamp": "1752923646.955944",
+    "support_timestamp": "1752923650.819356",
+    "supports_source": "Visible cloth near each wrist at the top of one designated calibration scan",
+    "grip_calibration": {
+      "left": {
+        "closure_timestamp": 1752923647.2146487,
+        "rest_patch_points": 35,
+        "rest_wrist_to_visible_xy_mm": 1.37,
+        "support_region_points": 194,
+        "wrist_travel_across_test_frames_mm": 1.41,
+        "trajectory_sha256": "9062ea3c97c409b5c00f5c52d7c717be94c1074f4ea30e5bd62046ac8dde4e88"
+      },
+      "right": {
+        "closure_timestamp": 1752923647.6304643,
+        "rest_patch_points": 19,
+        "rest_wrist_to_visible_xy_mm": 24.96,
+        "support_region_points": 356,
+        "wrist_travel_across_test_frames_mm": 13.3,
+        "trajectory_sha256": "97dfce171dff2d2f25ba30884f681ce00771639730407288bab858a974c41558"
+      }
+    }
+  },
+  "median_across_reference_scans": {
+    "before": {
+      "front_iou": 0.7373,
+      "point_to_surface_median_mm": 21.105,
+      "point_to_surface_p90_mm": 45.415
+    },
+    "after": {
+      "front_iou": 0.8708,
+      "point_to_surface_median_mm": 17.19,
+      "point_to_surface_p90_mm": 47.77
+    }
+  },
+  "comparison": {
+    "schema_version": 1,
+    "item_id": "rgbench-green-tshirt",
+    "source": "https://huggingface.co/datasets/RGBench/RGBench-Cloth-Sim2Real-v1 at 136c00dc5f96b6b3d20427e93875a1c00d7a7cc9; green_tshirt/green_tshirt_grasp_2025-07-19-19-14-03; CC BY 4.0",
+    "manifest_sha256": "91c208e902b8d5b15c1a13a409e25133db5b40b72eb7007a78f714d9ec7f2811",
+    "world_to_camera_sha256": "0ddc0a124d9686cb8f3c37e832803e6bd4765642da74e18013034da4889fe9e3",
+    "rest_scan_sha256": "7d73f2a57d25557330e0113aaf811cf0a06d642db186acf200b9497776ae65eb",
+    "support_calibration_sha256": "677acca264982350d279f122e14826bb82e6c1ab354c1fee8819faf18a9dc1bc",
+    "pattern_sha256": "919924d8ad85b91b743d677d463426240e11d28333825097ce633ed219599333",
+    "source_sleeve_angle_deg": 18.185952693944415,
+    "source_sleeve_angle_basis": "Mean of cuff directions from the reconstruction input",
+    "rest_contacts_world_m": [
+      [
+        0.1920353061447364,
+        -0.2784983243557401,
+        0.009354086814454375
+      ],
+      [
+        0.18943517798727727,
+        0.26732249607016734,
+        0.008031697495735157
+      ]
+    ],
+    "supports_world_m": [
+      [
+        0.18596346596686197,
+        -0.2196004615818527,
+        0.8025602262902379
+      ],
+      [
+        0.26299198428048964,
+        0.23301013915488197,
+        0.8017764947139141
+      ]
+    ],
+    "scope": "Fixed two-point suspension; absolute comparison in calibrated world coordinates",
+    "reference_scans": [
+      {
+        "id": "scan-01",
+        "file": "hold-01.pcd",
+        "sha256": "2fb2f6834c48163d2a6646e7f83c797c88a56e00f60935507950405f3ac6a386",
+        "points": 65308,
+        "before": {
+          "point_to_surface_mm": {
+            "median": 6.58,
+            "p90": 16.32
+          },
+          "front_iou": 0.7374,
+          "overlay": "scan-01-before.png"
+        },
+        "after": {
+          "point_to_surface_mm": {
+            "median": 6.07,
+            "p90": 17.92
+          },
+          "front_iou": 0.8723,
+          "overlay": "scan-01-after.png"
+        }
+      },
+      {
+        "id": "scan-02",
+        "file": "hold-02.pcd",
+        "sha256": "cb0fcee0d7a66f1a90460a71e816e7f140e6d1a5d9d8780909b3e85e195c899e",
+        "points": 66814,
+        "before": {
+          "point_to_surface_mm": {
+            "median": 19.99,
+            "p90": 40.68
+          },
+          "front_iou": 0.7361,
+          "overlay": "scan-02-before.png"
+        },
+        "after": {
+          "point_to_surface_mm": {
+            "median": 16.79,
+            "p90": 42.35
+          },
+          "front_iou": 0.8673,
+          "overlay": "scan-02-after.png"
+        }
+      },
+      {
+        "id": "scan-03",
+        "file": "hold-03.pcd",
+        "sha256": "4d5b7eb0e105ec0da5f3b13f9240c79dba3bba75ec9d3e82d3ecd31aca01a29d",
+        "points": 68043,
+        "before": {
+          "point_to_surface_mm": {
+            "median": 25.1,
+            "p90": 60.25
+          },
+          "front_iou": 0.7315,
+          "overlay": "scan-03-before.png"
+        },
+        "after": {
+          "point_to_surface_mm": {
+            "median": 20.1,
+            "p90": 62.74
+          },
+          "front_iou": 0.8626,
+          "overlay": "scan-03-after.png"
+        }
+      },
+      {
+        "id": "scan-04",
+        "file": "hold-04.pcd",
+        "sha256": "5d0c3211594de48e87a3f075de049740e5cf54900d2b0c155ff24e51357bf603",
+        "points": 68430,
+        "before": {
+          "point_to_surface_mm": {
+            "median": 25.12,
+            "p90": 62.5
+          },
+          "front_iou": 0.7372,
+          "overlay": "scan-04-before.png"
+        },
+        "after": {
+          "point_to_surface_mm": {
+            "median": 18.91,
+            "p90": 66.19
+          },
+          "front_iou": 0.8693,
+          "overlay": "scan-04-after.png"
+        }
+      },
+      {
+        "id": "scan-05",
+        "file": "hold-05.pcd",
+        "sha256": "f0a5606c781f45e08feedb3ce63167846830d523923724a2a0e35895b73f950d",
+        "points": 67804,
+        "before": {
+          "point_to_surface_mm": {
+            "median": 22.22,
+            "p90": 50.15
+          },
+          "front_iou": 0.7397,
+          "overlay": "scan-05-before.png"
+        },
+        "after": {
+          "point_to_surface_mm": {
+            "median": 17.59,
+            "p90": 53.19
+          },
+          "front_iou": 0.8782,
+          "overlay": "scan-05-after.png"
+        }
+      },
+      {
+        "id": "scan-06",
+        "file": "hold-06.pcd",
+        "sha256": "359688e37390ed43c4327f70459df36e3873a736d07b862bb471a86ad8492496",
+        "points": 67076,
+        "before": {
+          "point_to_surface_mm": {
+            "median": 17.95,
+            "p90": 36.03
+          },
+          "front_iou": 0.7402,
+          "overlay": "scan-06-before.png"
+        },
+        "after": {
+          "point_to_surface_mm": {
+            "median": 15.15,
+            "p90": 37.01
+          },
+          "front_iou": 0.8844,
+          "overlay": "scan-06-after.png"
+        }
+      }
+    ],
+    "reference_motion_from_first_scan": [
+      {
+        "reference": "scan-01",
+        "scan": "scan-02",
+        "median_mm": 11.44,
+        "p90_mm": 33.27
+      },
+      {
+        "reference": "scan-01",
+        "scan": "scan-03",
+        "median_mm": 15.74,
+        "p90_mm": 53.67
+      },
+      {
+        "reference": "scan-01",
+        "scan": "scan-04",
+        "median_mm": 15.7,
+        "p90_mm": 57.29
+      },
+      {
+        "reference": "scan-01",
+        "scan": "scan-05",
+        "median_mm": 13.0,
+        "p90_mm": 45.39
+      },
+      {
+        "reference": "scan-01",
+        "scan": "scan-06",
+        "median_mm": 9.69,
+        "p90_mm": 29.63
+      }
+    ],
+    "support_metrics": {
+      "flat_translation_world_m": [
+        0.12356487939567844,
+        0.020546800173266933,
+        0.0027030181252901695
+      ],
+      "rest_registration_gaps_mm": [
+        7.09,
+        3.56
+      ],
+      "pinned_vertices_per_patch": [
+        5,
+        5
+      ],
+      "natural_patch_centroid_separation_mm": 545.42,
+      "target_support_separation_mm": 459.12,
+      "pinned_patch_centroid_drift_mm": [
+        0.0,
+        0.0
+      ],
+      "edge_strain_p95_percent": 9.45,
+      "frame": 55,
+      "fps": 24,
+      "time_scale": 0.8,
+      "last_interval_vertex_displacement_mm": {
+        "frames": [
+          47,
+          55
+        ],
+        "median": 2.04,
+        "p90": 6.45
+      },
+      "openings": 4,
+      "cloth_mass_setting": 0.15
+    },
+    "before": {
+      "meshes": 1,
+      "bounds_span_m": [
+        0.1589,
+        0.7616,
+        0.9292
+      ],
+      "sha256": "dc2f3d556cbed962d04fe3df272402cdb91859f5dc5a7055932da9f3587eaf94"
+    },
+    "after": {
+      "meshes": 1,
+      "bounds_span_m": [
+        0.1887,
+        0.7083,
+        0.7235
+      ],
+      "sha256": "4ea6ea6eb8e871004eec9bfd73e6b7813cc9ad3f3885e7c02eb5bbcd8d8e8660"
+    }
+  }
+}
