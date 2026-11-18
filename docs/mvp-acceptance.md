@@ -128,3 +128,5 @@ python -m superarchiveallclo.compare_shape build/tee-01 \
 - Smithsonian 藏品 `nmah_460141` 有馆方标注的同件正背照片和整体尺寸 63.50 × 68.58 × 5.08 cm。该页面的 CC0 适用于目录元数据，照片另列使用条件。已核查目录和照片标注。[Smithsonian 藏品记录](https://www.si.edu/object/t-shirt:nmah_460141)
 - Wikimedia Commons 的鹿儿岛 OpenStreetMap 调查 T 恤提供同件正背图，许可为 CC BY-SA 4.0。已验证可见衣身的相对比例，并检查到袖缘贴图边。该对照还需要可信尺度和独立原件尺寸。[正背照报告](sleeve-join-study.md#有授权的同件正背照)
 - 奥克兰博物馆的两件圆领 T 恤提供 CC BY 4.0 的同件正背照。一件带独立标尺，另一件有馆方尺寸、独立内部结构照和额外的近正交挂拍。两件均已生成候选归档。挂拍支持毫米外包络对照，原版纸样和直接三维布面测量仍待核对。[正背照盲测](paired-photo-study.md) · [人台三维对照](mannequin-study.md)
+- Deep Fashion3D V2 提供真实服装点云、注册网格和领口等边缘标注，许可为 CC BY-NC 4.0。归档的官方下载页面要求申请解压密码，发布说明未列出独立卷尺尺寸或原厂纸样。[发布说明](https://kv2000.github.io/2023/06/20/deepFashion3DV2/) · [下载与许可](https://github.com/GAP-LAB-CUHK-SZ/deepFashion3D)
+- 犹他大学的双层标记服装采集项目公开了数据和输入样本入口。研究用同一设计印制并缝制了长袖 T 恤，标定的 16 相机同时拍摄。可见区域由标记三角化，遮挡区域由算法补齐。该项目是长袖仿真的候选参考，服装资产的独立使用条件、可复核尺寸和所需数据文件仍待核查。[项目与数据入口](https://graphics.cs.utah.edu/research/projects/two-level-cloth-capture-pattern/) · [论文及采集说明](https://graphics.cs.utah.edu/research/projects/two-level-cloth-capture-pattern/two-level-cloth-capture-pattern.pdf)

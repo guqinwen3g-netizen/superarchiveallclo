@@ -26,13 +26,14 @@ class TeeSpec:
     collar_finished_width_mm: float = 18
     collar_length_ratio: float = 0.85
     garment_shoulder_width_mm: float | None = None
+    flat_hem_mm: float | None = None
 
     def check(self) -> None:
         for field in fields(self):
             value = getattr(self, field.name)
             if value is None and field.name in {
                 "body_chest_mm", "body_shoulder_width_mm", "shoulder_extension_mm",
-                "garment_shoulder_width_mm",
+                "garment_shoulder_width_mm", "flat_hem_mm",
             }:
                 continue
             if type(value) not in (int, float) or not isfinite(value) or not 0 < value <= 3000:
@@ -41,8 +42,8 @@ class TeeSpec:
             raise ValueError("collar_length_ratio must be between 0.65 and 1")
         if not self.back_neck_depth_mm < self.front_neck_depth_mm < self.armhole_depth_mm:
             raise ValueError("Neck depths must increase from back to front and fall above the underarm")
-        if not self.neck_width_mm + 30 < self.shoulder_width_mm < self.flat_chest_mm:
-            raise ValueError("Shoulder width must leave room between neckline and chest")
+        if self.neck_width_mm + 30 >= min(self.shoulder_width_mm, self.flat_chest_mm):
+            raise ValueError("Chest and shoulder widths must leave room outside the neckline")
         if self.armhole_depth_mm <= self.shoulder_slope_mm + 40:
             raise ValueError("Armhole depth must leave room below the shoulder")
         if self.back_length_mm + self.back_neck_depth_mm < self.armhole_depth_mm + 50:
@@ -61,6 +62,7 @@ class TeeSpec:
 
 def body_panel(spec: TeeSpec, front: bool) -> Panel:
     width = spec.flat_chest_mm / 2
+    hem_width = width if spec.flat_hem_mm is None else spec.flat_hem_mm / 2
     neck = spec.neck_width_mm / 2
     shoulder = spec.shoulder_width_mm / 2
     drop = spec.shoulder_slope_mm
@@ -77,11 +79,11 @@ def body_panel(spec: TeeSpec, front: bool) -> Panel:
         (shoulder - (12 if front else 3), drop + arm_height * 0.32),
         (shoulder - (25 if front else 13), depth - arm_height * 0.06),
     ))
-    side = Edge("side_right", (width, depth), (width, hem))
+    side = Edge("side_right", (width, depth), (hem_width, hem))
     right = neck_edge, shoulder_edge, arm_edge, side
     left = tuple(replace(edge.mirrored(), id=edge.id.replace("_right", "_left")) for edge in reversed(right))
     return Panel("front" if front else "back", "jersey", (
-        *right, Edge("hem", (width, hem), (-width, hem), 25, "hem"), *left,
+        *right, Edge("hem", (hem_width, hem), (-hem_width, hem), 25, "hem"), *left,
     ), ((0, depth + 30), (0, hem - 35)))
 
 
@@ -192,16 +194,20 @@ def draft(spec: TeeSpec) -> dict:
                  reversed=True, notch_fractions=()),
         ))
     outlines, measurements = validate_pattern(panels, tuple(seams))
+    parameters = asdict(spec)
+    if spec.flat_hem_mm is None:
+        parameters.pop("flat_hem_mm")
     return {
         "schema_version": 1,
         "style": "Drop-shoulder crew-neck tee",
         "status": "prototype",
         "units": "mm",
         "coordinate_system": "x right, y down; edge IDs use garment left/right",
-        "parameters": asdict(spec),
+        "parameters": parameters,
         "materials": {"jersey": "Reference knit assumption", "rib": "Reference neck rib assumption"},
         "measurements": {
             "flat_chest_mm": spec.flat_chest_mm,
+            **({"flat_hem_mm": spec.flat_hem_mm} if spec.flat_hem_mm is not None else {}),
             "garment_chest_mm": 2 * spec.flat_chest_mm,
             "chest_ease_mm": (
                 2 * spec.flat_chest_mm - spec.body_chest_mm if spec.body_chest_mm is not None else None

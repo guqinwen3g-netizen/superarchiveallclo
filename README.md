@@ -30,6 +30,8 @@ python -m superarchiveallclo.capture examples/vision-demo/session.json \
 
 同一件馆藏圆领 T 恤另用标定挂拍构造三维外包络，在留出照片及三维体素上评估同版 GLB，并量化人台手臂支撑的影响。[人台三维对照与复现](docs/mannequin-study.md)
 
+双面采集可分别恢复腋下胸宽与下摆宽，把侧缝收窄或放宽的幅度写入毫米纸样及同版仿真。[两件实物的衣身宽度对照](docs/body-profile-study.md)
+
 ## 生成首款 T 恤纸样
 
 在仓库目录使用 Python 3.10+ 和 ReportLab。样例为虚构的 960 mm 净胸围体型，配 560 mm 成衣半胸宽和 680 mm 后中衣长。

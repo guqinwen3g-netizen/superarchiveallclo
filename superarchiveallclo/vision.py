@@ -11,6 +11,7 @@ from PIL import Image, ImageOps
 from scipy import ndimage
 from scipy.spatial import ConvexHull, QhullError
 
+from . import body_profile
 from .flat_measurements import compatible_scan_sleeve_length, draft_constraints, flat_landmarks
 
 # The card is a 100 mm square of solid magenta printed at actual size.
@@ -140,7 +141,7 @@ def picture_silhouette(image, view=None, *, outer_only=False):
     return image, crop, bounds, mm_per_px, scale
 
 
-def picture_features(image, view=None):
+def picture_features(image, view=None, *, measure_body=False):
     """Return metric dimensions and crop-relative silhouette descriptors."""
     image, crop, bounds, mm_per_px, scale = picture_silhouette(image, view)
     width, height = image.size
@@ -166,6 +167,8 @@ def picture_features(image, view=None):
         "garment_box_mm": [round(actual_width, 2), round(actual_height, 2)],
         "lower_torso_width_mm": round(torso, 2),
     }
+    if measure_body:
+        evidence["torso_profile"] = body_profile.observe(ndimage.binary_fill_holes(crop), mm_per_px)
     if view and view.get("calibration", {}).get("type") == "metric_orthographic_point_cloud":
         center = crop[:, w // 3:2 * w // 3]
         center = center[:, center.any(axis=0)]
@@ -213,10 +216,10 @@ def unscaled_pair(front, back):
     }
 
 
-def paired_features(front, back, views=None):
+def paired_features(front, back, views=None, *, measure_body=False):
     views = views or {}
-    front_features, front_scale = picture_features(front, views.get("front"))
-    back_features, back_scale = picture_features(back, views.get("back"))
+    front_features, front_scale = picture_features(front, views.get("front"), measure_body=measure_body)
+    back_features, back_scale = picture_features(back, views.get("back"), measure_body=measure_body)
     if front_scale["processed_image_sha256"] == back_scale["processed_image_sha256"]:
         raise ValueError("Provide two distinct photographs, one front and one back")
     if not have_consistent_dimensions(front_scale, back_scale):
@@ -264,17 +267,17 @@ class TeeVision:
                 frozenset(data["labelled_training_photos"]) if "labelled_training_photos" in data else None
             )
 
-    def estimate(self, front, back=None, views=None):
+    def estimate(self, front, back=None, views=None, *, measure_body=False):
         if self.view_mode == "front":
-            if back is not None:
-                raise ValueError("Use paired model weights for a front/back capture")
+            if back is not None or measure_body:
+                raise ValueError("Use paired model weights for a front/back capture and torso profiling")
             features, evidence = picture_features(front, (views or {}).get("front"))
             scale = {"front": evidence}
             method = "learned_front_silhouette_ridge"
         else:
-            features, scale = paired_features(front, back, views)
+            features, scale = paired_features(front, back, views, measure_body=measure_body)
             method = "learned_paired_silhouette_ridge"
-        measures, bounded = self.estimate_features(features, scale)
+        measures, bounded, profile = self.infer_features(features, scale)
         inference = {
             "method": method,
             "weights_sha256": self.checksum,
@@ -282,6 +285,8 @@ class TeeVision:
             "bounded_fields": bounded,
             "validation_domain": self.validation_domain,
         }
+        if profile is not None:
+            inference["body_profile"] = profile
         if self.view_mode == "front" and "shoulder_level_to_hem_mm" in scale["front"]:
             constrained, methods, reason = draft_constraints(measures, scale["front"])
             length = compatible_scan_sleeve_length(measures, constrained)
@@ -297,6 +302,10 @@ class TeeVision:
         return measures, inference
 
     def estimate_features(self, features, scale):
+        measures, bounded, _ = self.infer_features(features, scale)
+        return measures, bounded
+
+    def infer_features(self, features, scale):
         normalized = (features - self.center) / self.scale
         values = normalized @ self.coefficients + self.intercept
         names = ("front",) if self.view_mode == "front" else ("front", "back")
@@ -305,7 +314,13 @@ class TeeVision:
             raise ValueError("Garment dimensions fall outside the current tee model's capture range")
         clipped = np.clip(values, self.target_min, self.target_max)
         measures = {key: round(float(value), 3) for key, value in zip(FIELDS, clipped, strict=True)}
-        return measures, [field for field, raw, used in zip(FIELDS, values, clipped) if raw != used]
+        bounded = [field for field, raw, used in zip(FIELDS, values, clipped) if raw != used]
+        profile = None
+        if self.view_mode == "paired" and "torso_profile" in scale["front"]:
+            overrides, profile = body_profile.constrain(measures, scale)
+            measures.update(overrides)
+            bounded = [field for field in bounded if field not in overrides]
+        return measures, bounded, profile
 
 
 def main():

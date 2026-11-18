@@ -24,9 +24,12 @@ def verify_prediction(capture, sample, model, result):
     inference = capture["inference"]
     if inference["weights_sha256"] != model.checksum or not inference["reference_measurements_withheld"]:
         raise ValueError("Archive used different weights or received the reference measurements")
+    if inference.get("body_profile") != result.get("body_profile"):
+        raise ValueError("Archived body observations differ from the scored profile")
     for name, value in result["inferred_mm"].items():
         actual = capture["measurements"][name]
-        if actual["source"] != "vision_model" or actual["value"] != value:
+        expected = result.get("body_profile", {}).get("sources", {}).get(name, "vision_model")
+        if actual["source"] != expected or actual["value"] != value:
             raise ValueError(f"{name}: archived prediction differs from the scored prediction")
 
 

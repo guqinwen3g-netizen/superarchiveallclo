@@ -23,6 +23,7 @@ ASSUMPTIONS = {
     "collar_finished_width_mm": TeeSpec.collar_finished_width_mm,
     "collar_length_ratio": TeeSpec.collar_length_ratio,
 }
+OPTIONAL_MEASUREMENTS = ("flat_hem_mm",)
 
 
 def number(value, name):
@@ -55,7 +56,7 @@ def view_calibration(view, size, name):
     if "scale" in view:
         scale = view["scale"]
         span = segment_length(scale["points"], size)
-        if "basis_field" in scale and scale["basis_field"] not in FIELDS:
+        if "basis_field" in scale and scale["basis_field"] not in FIELDS + OPTIONAL_MEASUREMENTS:
             raise ValueError(f"{name}: scale basis_field must be a supported garment dimension")
         return {"scale": scale, "mm_per_pixel": number(scale["mm"], name) / number(span, f"{name} scale pixels")}
     if "calibration" in view:
@@ -101,6 +102,9 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
     mode = capture.get("input_mode", "paired")
     if mode not in ("paired", "front_only"):
         raise ValueError("Unknown capture input mode")
+    measure_body = "body_profile" in capture
+    if measure_body and (capture["body_profile"] != "paired_silhouette" or mode != "paired"):
+        raise ValueError("The paired_silhouette body profile requires front and back views")
     required = {"front"} if mode == "front_only" else {"front", "back"}
     views = capture["views"]
     if not isinstance(views, dict) or not required.issubset(views):
@@ -143,13 +147,13 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
                 predicted, inference = TeeVision(model_path, "front").estimate(front, views=archived)
             else:
                 with Image.open(paths["back"]) as back:
-                    predicted, inference = TeeVision(model_path).estimate(front, back, archived)
+                    predicted, inference = TeeVision(model_path).estimate(front, back, archived, measure_body=measure_body)
 
     values, provenance = {}, {}
     supplied = {} if blind else capture.get("measurements", {})
     if not isinstance(supplied, dict):
         raise ValueError("Measurements must be an object")
-    for name in FIELDS + tuple(ASSUMPTIONS):
+    for name in FIELDS + tuple(ASSUMPTIONS) + OPTIONAL_MEASUREMENTS:
         if name not in supplied:
             if name in ASSUMPTIONS:
                 values[name], method = ASSUMPTIONS[name], "assumed"
@@ -157,11 +161,13 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
                 values[name] = predicted[name]
                 if name in inference.get("scan_constraint_sources", {}):
                     method = inference["scan_constraint_sources"][name]
+                elif name in inference.get("body_profile", {}).get("sources", {}):
+                    method = inference["body_profile"]["sources"][name]
                 elif mode == "front_only" and name == "back_neck_depth_mm":
                     method = "learned_prior"
                 else:
                     method = "vision_model"
-            elif allow_partial:
+            elif allow_partial or name in OPTIONAL_MEASUREMENTS:
                 continue
             else:
                 raise ValueError(f"{name}: provide a measurement or a trained --model")
@@ -200,6 +206,8 @@ def capture_observations(source, photo_dir=None, model_path=None, *, allow_parti
     if inference is not None:
         inference["reference_measurements_withheld"] = blind
         manifest["inference"] = inference
+    if measure_body:
+        manifest["body_profile"] = capture["body_profile"]
     if mode == "front_only":
         manifest["input_mode"] = mode
         manifest["review"] = "Single-sided candidate. Back geometry and hidden construction await independent evidence."

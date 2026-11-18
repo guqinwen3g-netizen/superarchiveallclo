@@ -97,15 +97,29 @@ def flat_mesh(edges, steps, *, sleeve_fold=False):
     )
 
 
+def body_half_width_at(parameters, height):
+    chest = parameters["flat_chest_mm"]
+    hem = parameters.get("flat_hem_mm", chest)
+    underarm = parameters["armhole_depth_mm"]
+    length = parameters["back_length_mm"] + parameters["back_neck_depth_mm"]
+    fraction = max(0, min(1, (height - underarm) / (length - underarm)))
+    return (chest + fraction * (hem - chest)) / 2
+
+
 def place(pattern, panel, edges, point):
     x, y = point
     p = pattern["parameters"]
     half_width = p["flat_chest_mm"] / 2
     rx, ry = half_width * 0.69 / 1000, half_width * 0.52 / 1000
     if panel in ("front", "back"):
-        angle = x / half_width * pi / 2
+        local_width = body_half_width_at(p, y)
+        projected_x = min(local_width, max(-local_width, x))
+        angle = projected_x / local_width * pi / 2
+        radius_ratio = local_width / half_width
         sign = -1 if panel == "front" else 1
-        return Vector((rx * sin(angle), sign * (ry * cos(angle) + 0.002), NECK_Z - y / 1000))
+        return Vector((rx * radius_ratio * sin(angle) + (x - projected_x) / 1000,
+                       sign * (ry * radius_ratio * cos(angle) + 0.002),
+                       NECK_Z - y / 1000))
     if panel == "collar":
         band = [edge for edge in edges if edge.id.startswith("attach_")]
         edge = next((edge for edge in band if x <= edge.end[0]), band[-1])
@@ -135,7 +149,8 @@ def place(pattern, panel, edges, point):
     radius = (front_span + back_span) / (2 * pi * 1000)
     normal = Vector((side, 0, 1)).normalized()
     direction = Vector((side, 0, -1)).normalized()
-    shoulder_x = rx * sin(pattern["measurements"]["across_shoulders_mm"] / (2 * half_width) * pi / 2)
+    shoulder_ratio = pattern["measurements"]["across_shoulders_mm"] / (2 * half_width)
+    shoulder_x = rx * sin(min(shoulder_ratio, 1) * pi / 2) + max(0, shoulder_ratio - 1) * half_width / 1000
     shoulder = Vector((side * shoulder_x, 0, NECK_Z - p["shoulder_slope_mm"] / 1000))
     return (
         shoulder - normal * radius + direction * (y / 1000)
@@ -174,7 +189,8 @@ def body_border(pattern, name, edge, fraction):
     hem = p["back_length_mm"] + p["back_neck_depth_mm"]
     recovery = (hem - y) / (hem - p["armhole_depth_mm"])
     lift = 0.00016 * (p["armhole_depth_mm"] - p["shoulder_slope_mm"])
-    return Vector((side * x_side, 0, NECK_Z - y / 1000 + recovery * lift))
+    local_x_side = body_half_width_at(p, y) / 1000 * 0.72
+    return Vector((side * local_x_side, 0, NECK_Z - y / 1000 + recovery * lift))
 
 
 def weighted_sum(values, indices, weights, n):

@@ -159,6 +159,25 @@ class LabelledDatasetTest(TestCase):
         with self.assertRaisesRegex(ValueError, "differs from the scored prediction"):
             verify_prediction(archive, sample, vision, result)
 
+    def test_paired_body_profile_scores_the_same_hem_and_chest_that_it_archives(self):
+        entry = self.entry("body-profile", "style-f", "test")
+        session = self.root / entry["session"]
+        source = json.loads(session.read_text())
+        source["body_profile"] = "paired_silhouette"
+        source["measurements"]["flat_hem_mm"] = {"value": 560}
+        session.write_text(json.dumps(source), encoding="utf8")
+        samples, _ = load_dataset(self.manifest(entry))
+        sample = samples[0]
+        weights = ROOT / "models/tee-vision.npz"
+        vision = TeeVision(weights)
+        result = evaluate(samples, vision)[sample.kind]["items"][0]
+        self.assertEqual(result["body_profile"]["status"], "applied")
+        self.assertLess(result["absolute_error_mm"]["flat_hem_mm"], 15)
+        capture, spec = load_capture(sample.session, model_path=weights, blind=True)
+        self.assertEqual(capture["measurements"]["flat_hem_mm"]["source"], "paired_silhouette")
+        self.assertEqual(spec.flat_hem_mm, capture["measurements"]["flat_hem_mm"]["value"])
+        verify_prediction(capture, sample, vision, result)
+
     def test_test_item_cannot_reuse_a_photo_recorded_in_weights(self):
         samples, _ = load_dataset(self.manifest(self.entry("cross-manifest", "holdout-group", "test")))
         weights = self.root / "previous.npz"

@@ -11,7 +11,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from .capture import capture_observations
+from .capture import OPTIONAL_MEASUREMENTS, capture_observations
 from .tee import TeeSpec, draft
 from .vision import FIELDS, TeeVision, paired_features
 
@@ -81,7 +81,7 @@ def load_dataset(path: Path):
         rights = text_field(entry.get("rights"), f"{item_id} rights")
         scale_basis_fields = {view.get("scale", {}).get("basis_field") for view in capture["views"].values()}
         known = {name: m for name, m in capture["measurements"].items()
-                 if name in FIELDS and (split != "test" or name not in scale_basis_fields)}
+                 if name in FIELDS + OPTIONAL_MEASUREMENTS and (split != "test" or name not in scale_basis_fields)}
         if not known:
             raise ValueError(f"{item_id}: provide at least one independent reference measurement")
         if groups.setdefault(group, split) != split:
@@ -107,7 +107,8 @@ def load_dataset(path: Path):
             photographs.append(photo)
         try:
             with Image.open(BytesIO(photographs[0])) as front, Image.open(BytesIO(photographs[1])) as back:
-                features, evidence = paired_features(front, back, capture["views"])
+                features, evidence = paired_features(front, back, capture["views"],
+                                                     measure_body=capture.get("body_profile") == "paired_silhouette")
         except (ValueError, OSError) as reason:
             features, evidence, error = None, None, str(reason)
         else:
@@ -121,7 +122,7 @@ def load_dataset(path: Path):
 
 def usable_labels(samples, split):
     return [item for item in samples if item.split == split and item.features is not None
-            and len(item.truth) == len(FIELDS)]
+            and all(field in item.truth for field in FIELDS)]
 
 
 def arrays(samples, split):
@@ -163,15 +164,17 @@ def evaluate(samples, vision):
             result.update(status="capture_rejected", reason=item.capture_error)
             continue
         try:
-            estimated, bounded = vision.estimate_features(item.features, item.evidence)
+            estimated, bounded, profile = vision.infer_features(item.features, item.evidence)
         except ValueError as error:
             result.update(status="model_rejected", reason=str(error))
             continue
         result.update(
             inferred_mm=estimated, bounded_fields=bounded, scale_evidence=item.evidence,
             absolute_error_mm={name: round(abs(estimated[name] - value), 3)
-                               for name, value in item.truth.items()},
+                               for name, value in item.truth.items() if name in estimated},
         )
+        if profile is not None:
+            result["body_profile"] = profile
         try:
             pattern = draft(TeeSpec(
                 body_chest_mm=None, body_shoulder_width_mm=None, shoulder_extension_mm=None, **estimated,
@@ -186,7 +189,7 @@ def evaluate(samples, vision):
         errors = [sample["absolute_error_mm"] for sample in entries if "absolute_error_mm" in sample]
         row = {"cases": len(entries), "status_counts": dict(Counter(s["status"] for s in entries)), "items": entries}
         metrics = {}
-        for name in FIELDS:
+        for name in FIELDS + OPTIONAL_MEASUREMENTS:
             observations = [case[name] for case in errors if name in case]
             if observations:
                 metrics[name] = {

@@ -65,12 +65,14 @@ def neckline_sensitivity(case, data):
     }
 
 
-def evaluate_case(case, output, blender, rights):
+def evaluate_case(case, output, blender, rights, *, measure_body=False):
     data = output / "data"
     data.mkdir(parents=True, exist_ok=True)
     for filename, photo in case["assets"].items():
         source_photo(data / filename, photo)
-    session = case["session"]
+    session = dict(case["session"])
+    if measure_body:
+        session["body_profile"] = "paired_silhouette"
     reference = write_json(data / "reference.json", {
         "schema_version": 1, "item_id": session["item_id"], "kind": session["kind"], "setup": case["setup"],
         "views": {name: session["views"][name] for name in ("front", "back")},
@@ -90,12 +92,14 @@ def evaluate_case(case, output, blender, rights):
     if candidate.is_dir():
         result["flat_layout"] = compare(candidate, reference, output / "flat-layout", blender)
     if "alternate_neck_points_px" in case:
-        result["alternate_neck_edge"] = neckline_sensitivity(case, data)
+        result["alternate_neck_edge"] = neckline_sensitivity({**case, "session": session}, data)
 
     if "tape_checks" in case:
-        front = write_json(data / "front-only.json", {
+        single_session = {
             **session, "input_mode": "front_only", "views": {"front": session["views"]["front"]},
-        })
+        }
+        single_session.pop("body_profile", None)
+        front = write_json(data / "front-only.json", single_session)
         single = output / "single-front"
         archive(front, single, blender, FRONT_WEIGHTS, blind=True)
         result["single_front_archive"] = check_archive(single)
@@ -109,12 +113,13 @@ def main():
     parser.add_argument("-o", "--output", required=True, type=Path)
     parser.add_argument("--case", choices=("netball", "peace"), help="Run only the specified physical garment")
     parser.add_argument("--blender", default="blender")
+    parser.add_argument("--body-profile", action="store_true", help="Measure chest and hem from each paired silhouette")
     args = parser.parse_args()
     document = json.loads(SOURCE.read_bytes())
     rights = f'{document["photo_attribution"]}, {document["license"]}, {document["license_url"]}'
     for name, case in document["cases"].items():
         if args.case is None or args.case == name:
-            evaluate_case(case, args.output / name, args.blender, rights)
+            evaluate_case(case, args.output / name, args.blender, rights, measure_body=args.body_profile)
             print(f"Wrote {args.output / name / 'study.json'}")
 
 

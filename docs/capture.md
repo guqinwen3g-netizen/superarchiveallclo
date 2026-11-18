@@ -16,6 +16,7 @@
 | 字段 | 量法 |
 | --- | --- |
 | `flat_chest_mm` | 平铺从一侧腋下到另一侧腋下 |
+| `flat_hem_mm` | 平铺下摆折线两端的水平宽度 |
 | `back_length_mm` | 后领净缝中心到下摆折线，垂直 |
 | `garment_shoulder_width_mm` | 左右肩缝与袖窿交点的水平距离 |
 | `shoulder_slope_mm` | 侧颈点到肩袖交点的垂直落差，取左右平均 |
@@ -67,6 +68,8 @@ python -m superarchiveallclo.rgbd rgbd.json \
 ### 尺寸与材料
 
 尺寸键放在 `measurements` 下。卷尺实测可填 `{"value": 560}`。馆方实测可加 `"method": "catalogue_measurement"` 和 `"source"` 来记录原始目录。照片标注可填 `{"view": "front", "points": [[120, 300], [960, 301]], "axis": "x"}`。材料观察放在 `material`，随原始记录保留。每个字段的来源和推断项会写入输出档案。
+
+对侧缝近似直线、腋下与下摆都可见的照片，可在采集文件顶层填 `"body_profile": "paired_silhouette"`，由双面模型分别估计胸宽和下摆宽。两面估计相符并通过配缝时，纸样会使用两种宽度。归档保留轮廓取点和来源。证据不足时使用基础模型。也可直接提供可信的 `flat_hem_mm`。[衣身轮廓实物实验](body-profile-study.md)
 
 ## 交付与验收
 
